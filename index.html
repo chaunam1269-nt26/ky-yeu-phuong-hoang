@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kỷ yếu Phượng Hoàng 2016–2026</title>
+<meta name="description" content="Kỷ yếu 10 năm Truyền lửa – Sải cánh văn xuôi · Trường Phổ thông Liên cấp Phượng Hoàng">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2a1a14; --paper:#fff8ee; --paper2:#f6e9d3; --flame:#e8590c; --ember:#c92a2a; --gold:#e5a50a; --night:#1b1226; --muted:#7a6558;
+  --shadow:0 20px 50px rgba(60,20,0,.25);
+}
+@media (prefers-color-scheme:dark){:root{--ink:#f5e8d8;--paper:#241a1d;--paper2:#2e2024;--muted:#b9a496;--night:#120b18}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 50% 0,#4a1d12 0,var(--night) 70%);overflow:hidden}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;line-height:1.2}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+/* top bar */
+.bar{position:fixed;inset:0 0 auto 0;height:54px;display:flex;align-items:center;gap:12px;padding:0 max(16px,env(safe-area-inset-left));z-index:20;color:#ffe9cf}
+.bar .brand{font-family:'Playfair Display',serif;font-weight:800;letter-spacing:.02em;font-size:17px}
+.bar .sp{flex:1}
+.ibtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.1)}
+.ibtn:hover{background:rgba(255,255,255,.2)}
+.prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--ember));z-index:30;transition:width .4s}
+
+/* book */
+.stage{position:fixed;inset:54px 0 64px 0;display:grid;place-items:center;perspective:1800px;padding:0 12px}
+.page{position:absolute;width:min(920px,100%);height:100%;max-height:760px;background:var(--paper);border-radius:6px 14px 14px 6px;box-shadow:var(--shadow);overflow:auto;padding:clamp(22px,4vw,52px);opacity:0;pointer-events:none;transform:rotateY(-14deg) translateX(40px);transform-origin:left center;transition:opacity .45s,transform .55s cubic-bezier(.2,.7,.2,1)}
+.page.on{opacity:1;pointer-events:auto;transform:none}
+.page.out{transform:rotateY(14deg) translateX(-40px)}
+.page::before{content:"";position:absolute;inset:0 auto 0 0;width:14px;background:linear-gradient(90deg,rgba(0,0,0,.18),transparent);pointer-events:none}
+.pn{position:absolute;right:20px;bottom:12px;font-size:12px;color:var(--muted)}
+.kick{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--flame);font-weight:600;margin-bottom:8px}
+.page h2{font-size:clamp(26px,4.2vw,40px);margin-bottom:6px}
+.lead{color:var(--muted);margin:6px 0 22px;max-width:62ch}
+.note{font-size:12.5px;color:var(--muted);border-left:3px solid var(--gold);padding:6px 12px;margin-top:18px;background:rgba(229,165,10,.08);border-radius:0 8px 8px 0}
+.todo{display:inline-block;background:#fff1c9;color:#7a5200;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600}
+@media (prefers-color-scheme:dark){.todo{background:#4a3a10;color:#ffd77a}}
+
+/* cover */
+.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#fff3df;background:radial-gradient(circle at 50% 78%,#ff9d2e 0,#e8590c 22%,#8e1b1b 55%,#2a0f16 100%)}
+.cover::before{display:none}
+.cover .flame{font-size:84px;filter:drop-shadow(0 0 28px #ffb347);animation:fl 2.6s ease-in-out infinite}
+@keyframes fl{50%{transform:scale(1.07) translateY(-4px)}}
+.cover h1{font-size:clamp(38px,8vw,78px);font-weight:800;margin:8px 0}
+.cover .yr{font-size:clamp(18px,3vw,28px);letter-spacing:.3em;color:#ffd98a}
+.cover .tag{margin-top:18px;font-size:15px;opacity:.9;max-width:44ch}
+.cover .path{margin-top:30px;display:flex;gap:10px;align-items:center;font-size:14px;color:#ffd98a}
+.cover .start{margin-top:34px;padding:13px 30px;border-radius:99px;background:#fff3df;color:#8e1b1b;font-weight:700}
+.cover .pn{color:#ffd98a}
+
+/* toc */
+.toc a{display:flex;gap:14px;align-items:baseline;padding:10px 4px;border-bottom:1px dashed rgba(122,101,88,.35);text-decoration:none;color:inherit}
+.toc a:hover{color:var(--flame)}
+.toc .n{font-family:'Playfair Display';font-weight:800;color:var(--flame);width:2.2em}
+.toc .d{flex:1;font-size:13px;color:var(--muted)}
+.toc .t{font-weight:600}
+
+/* generic grids */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.card{background:var(--paper2);border-radius:14px;padding:16px}
+.card h3{font-size:18px;margin-bottom:4px}
+.card p{font-size:14px;color:var(--muted)}
+.ph{aspect-ratio:4/3;border-radius:10px;background:repeating-linear-gradient(45deg,rgba(232,89,12,.1) 0 10px,rgba(232,89,12,.18) 10px 20px);display:grid;place-items:center;font-size:12px;color:var(--muted);text-align:center;padding:8px;margin-bottom:10px}
+.ph.p{aspect-ratio:3/4}
+.qr{display:inline-flex;align-items:center;gap:8px;font-size:12px;border:1px dashed var(--flame);padding:5px 10px;border-radius:8px;color:var(--flame);margin-top:8px}
+.qr i{font-style:normal;font-size:16px}
+
+/* timeline */
+.tl{position:relative;margin-left:8px;padding-left:26px;border-left:3px solid;border-image:linear-gradient(var(--gold),var(--ember)) 1}
+.tl .it{position:relative;margin-bottom:16px;cursor:pointer}
+.tl .it::before{content:"";position:absolute;left:-36px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:3px solid var(--flame)}
+.tl .it.era::before{background:var(--flame)}
+.tl b{font-family:'Playfair Display';font-size:19px;color:var(--flame)}
+.tl p{font-size:14px;color:var(--muted)}
+.era-tag{display:inline-block;font-size:11px;padding:1px 9px;border-radius:99px;background:var(--flame);color:#fff;margin-left:8px;vertical-align:middle}
+
+/* 3 chapters */
+.chap{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.chap .c{border-radius:16px;padding:22px;color:#fff}
+.c1{background:linear-gradient(135deg,#f08c00,#e8590c)}.c2{background:linear-gradient(135deg,#e8590c,#c92a2a)}.c3{background:linear-gradient(135deg,#c92a2a,#5f1d48)}
+.chap .c .ic{font-size:34px}.chap .c h3{font-size:24px;margin:6px 0}.chap .c small{opacity:.85}
+
+/* stats */
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.stat{text-align:center;padding:18px 8px;border-radius:14px;background:var(--paper2)}
+.stat .v{font-family:'Playfair Display';font-size:34px;font-weight:800;color:var(--flame)}
+.stat .l{font-size:12.5px;color:var(--muted)}
+
+/* pillars */
+.pill{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:640px){.pill{grid-template-columns:repeat(2,1fr)}}
+.pill div{background:linear-gradient(var(--paper2),var(--paper));border:1px solid rgba(229,165,10,.4);border-radius:12px;padding:14px 8px;text-align:center;font-weight:600;font-size:14px}
+.pill div span{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:4px}
+
+/* stories */
+.story{display:flex;gap:14px;align-items:flex-start}
+.story .no{font-family:'Playfair Display';font-size:40px;font-weight:800;color:var(--flame);line-height:1}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{padding:6px 14px;border-radius:99px;background:var(--paper2);font-size:13px}
+.chip.on{background:var(--flame);color:#fff}
+
+/* form */
+form.cap{display:grid;gap:10px;max-width:560px}
+input,textarea,select{font:inherit;width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(122,101,88,.4);background:var(--paper);color:var(--ink)}
+textarea{min-height:110px;resize:vertical}
+.btn{padding:12px 22px;border-radius:99px;background:linear-gradient(90deg,var(--flame),var(--ember));color:#fff;font-weight:700;justify-self:start}
+.msgs{display:grid;gap:10px;margin-top:20px}
+.msg{background:var(--paper2);border-radius:12px;padding:12px 14px;font-size:14px}
+.msg small{color:var(--muted)}
+
+/* nav */
+.nav{position:fixed;inset:auto 0 0 0;height:64px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:20;color:#ffe9cf}
+.nav .lbl{min-width:180px;text-align:center;font-size:13px;opacity:.9}
+
+/* drawer */
+.drawer{position:fixed;inset:0 auto 0 0;width:min(340px,86vw);background:var(--paper);z-index:40;transform:translateX(-105%);transition:transform .35s;padding:70px 18px 18px;overflow:auto;box-shadow:var(--shadow)}
+.drawer.on{transform:none}
+.drawer button{display:block;width:100%;text-align:left;padding:10px 8px;border-radius:8px;font-size:14px}
+.drawer button:hover,.drawer button.cur{background:var(--paper2);color:var(--flame)}
+.drawer h4{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--flame);margin:14px 8px 4px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:35;opacity:0;pointer-events:none;transition:.3s}
+.scrim.on{opacity:1;pointer-events:auto}
+@media(max-width:560px){.bar .brand{font-size:14px}.nav .lbl{min-width:120px}.stage{inset:54px 0 64px 0;padding:0 6px}}
+@media print{body{overflow:visible;background:#fff}.bar,.nav,.prog{display:none}.stage{position:static;display:block}.page{position:static;opacity:1;transform:none;box-shadow:none;max-height:none;height:auto;page-break-after:always;overflow:visible}}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<div class="bar">
+  <button class="ibtn" id="menu" aria-label="Mục lục">☰</button>
+  <span class="brand">🔥 Kỷ yếu Phượng Hoàng</span>
+  <span class="sp"></span>
+  <button class="ibtn" id="share" aria-label="Chia sẻ trang">⤴</button>
+  <button class="ibtn" id="print" aria-label="Xuất PDF / In">⎙</button>
+</div>
+<div class="stage" id="stage"></div>
+<div class="nav">
+  <button class="ibtn" id="prev" aria-label="Trang trước">‹</button>
+  <span class="lbl" id="lbl"></span>
+  <button class="ibtn" id="next" aria-label="Trang sau">›</button>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<script>
+/* =====================================================================
+   NỘI DUNG KỶ YẾU — sửa trực tiếp ở đây.
+   Các chỗ đánh dấu TODO(...) là số liệu/ảnh/tên cần Ban biên soạn xác minh.
+   ===================================================================== */
+const TODO = t => `<span class="todo">cần xác minh: ${t}</span>`;
+const PH = (t, p) => `<div class="ph ${p?'p':''}">📷 ${t}</div>`;
+const QR = t => `<span class="qr"><i>▦</i> QR: ${t}</span>`;
+
+const TIMELINE = [
+  {y:'2009', t:'Khởi nguồn', d:'Phượng Hoàng bắt đầu đặt nền móng và định hình con đường phát triển.', era:'Thắp lửa'},
+  {y:'2010–2015', t:'Bảy năm chuẩn bị', d:'Xây dựng nền tảng, tập hợp con người, chuẩn bị cơ sở vật chất. ' + TODO('mốc cụ thể từng năm')},
+  {y:'24/06/2016', t:'Được cấp phép hoạt động giáo dục', d:'Sở Giáo dục và Đào tạo cho phép hoạt động — mốc mở đầu hành trình 10 năm (2016–2026).', era:'Giữ lửa'},
+  {y:'2016', t:'Khai trường', d:'Những ngày đầu của Nhà trường. ' + TODO('ngày khai giảng, số lớp, số học sinh')},
+  {y:'2017–2019', t:'Mở rộng quy mô & chương trình', d:TODO('các bước mở rộng')},
+  {y:'2020–2021', t:'Dạy học trực tuyến', d:'Thích ứng giai đoạn dịch bệnh, giữ nhịp học cùng các thế hệ học sinh.'},
+  {y:'2022', t:'Bước sang giai đoạn Sải cánh', d:'Khung giáo dục, quy mô và hoạt động cộng đồng phát triển rõ nét.', era:'Sải cánh'},
+  {y:'2023–2025', t:'Chuyển đổi số & khung giáo dục', d:'Mô hình liên cấp 1–12, hệ thống chuyển đổi số. ' + TODO('thời điểm chốt')},
+  {y:'2026', t:'Kỷ niệm 10 năm', d:'Hội khỏe Phượng Hoàng, Hội thảo khoa học, chương trình “10 tuần việc tốt – 10 năm truyền lửa”.'}
+];
+
+const TO_CM = [
+  ['Tổ 1','Cô Linh'],['Tổ 2','Cô Lương Quý'],['Tổ 3','Cô Trí'],
+  ['Tổ 4','Cô Dương'],['Tổ 5','Cô Đặng Trang'],['Tổ 6','Thầy Kiên']
+];
+
+const STORIES = [
+  {n:1,era:'Thắp lửa',who:'Thầy/cô — [tên]'},{n:2,era:'Thắp lửa',who:'Thầy/cô — [tên]'},
+  {n:3,era:'Thắp lửa',who:'Thầy/cô — [tên]'},{n:4,era:'Giữ lửa',who:'Cựu học sinh — [tên]'},
+  {n:5,era:'Giữ lửa',who:'Phụ huynh — [tên]'},{n:6,era:'Giữ lửa',who:'Thầy/cô — [tên]'},
+  {n:7,era:'Sải cánh',who:'Học sinh — [tên]'},{n:8,era:'Sải cánh',who:'Phụ huynh — [tên]'},
+  {n:9,era:'Sải cánh',who:'Thầy/cô — [tên]'},{n:10,era:'Sải cánh',who:'Cựu học sinh — [tên]'}
+];
+
+const SECTIONS = [
+ {id:'I',title:'Mở đầu',desc:'Bìa · Mục lục · Lời Ban biên soạn · Thư chúc mừng'},
+ {id:'II',title:'Dòng chảy',desc:'Từ nền móng 2009 đến 2026 — Thắp lửa, Giữ lửa, Sải cánh'},
+ {id:'III',title:'Dấu ấn tự hào',desc:'Con số, thành tích, dự án, hoạt động, cộng đồng'},
+ {id:'IV',title:'10 năm – Ngàn câu chuyện',desc:'Mười câu chuyện tiêu biểu & “Một lời cảm ơn”'},
+ {id:'V',title:'Sải cánh vươn xa',desc:'Cựu học sinh · Bản đồ · 10 năm sau · Hộp thư 2036'}
+];
+
+const PAGES = [
+ {sec:'I', title:'Bìa', cls:'cover', html:`
+   <div class="flame">🔥</div>
+   <div class="yr">2016 · 2026</div>
+   <h1>Kỷ yếu<br>Phượng Hoàng</h1>
+   <p class="tag">10 năm truyền lửa — sải cánh vươn xa</p>
+   <div class="path"><span>Ngọn lửa</span>→<span>Cuốn sách</span>→<span>Đôi cánh</span></div>
+   <button class="start" data-go="1">Mở sách</button>`},
+
+ {sec:'I', title:'Mục lục', html:`
+   <div class="kick">Phần I</div><h2>Mục lục</h2>
+   <p class="lead">Chạm vào một phần để đi tới ngay. Có thể dùng phím ← → hoặc vuốt trên điện thoại.</p>
+   <div class="toc" id="tocList"></div>`},
+
+ {sec:'I', title:'Lời Ban biên soạn', html:`
+   <div class="kick">Phần I · Mở đầu</div><h2>Lời Ban biên soạn</h2>
+   <p class="lead">Vì sao có cuốn kỷ yếu này.</p>
+   <p>Kỷ yếu ra đời để <b>lưu giữ lịch sử</b>, <b>tri ân các thế hệ</b>, ghi nhận những giá trị đã được xây dựng và <b>mở ra hành trình tiếp theo</b>.</p>
+   <div class="chap" style="margin-top:22px">
+     <div class="c c1"><div class="ic">🔥</div><h3>Ngọn lửa</h3><small>Khởi nguồn, niềm tin và khát vọng của những người đầu tiên.</small></div>
+     <div class="c c2"><div class="ic">📖</div><h3>Cuốn sách</h3><small>Tri thức, nền nếp và giá trị được vun đắp qua năm tháng.</small></div>
+     <div class="c c3"><div class="ic">🕊️</div><h3>Đôi cánh</h3><small>Những học trò trưởng thành, vươn ra thế giới.</small></div>
+   </div>
+   <div class="note"><b>Nguyên tắc biên soạn:</b> tư liệu lịch sử chính xác · câu chuyện thật, việc thật · số liệu có nguồn xác nhận · hạn chế trùng lặp giữa bài viết, phim và phụ lục.</div>`},
+
+ {sec:'I', title:'Thư chúc mừng', html:`
+   <div class="kick">Phần I · Mở đầu</div><h2>Thư chúc mừng</h2>
+   <p class="lead">Thư của lãnh đạo ngành giáo dục hoặc lãnh đạo địa phương.</p>
+   <div class="card" style="max-width:560px"><div class="ph">✉️ Nội dung thư — chờ văn bản xác nhận</div>
+   <p>${TODO('văn bản và chữ ký của lãnh đạo')}</p></div>`},
+
+ {sec:'I', title:'Thông điệp Hiệu trưởng', html:`
+   <div class="kick">Phần I · Mở đầu</div><h2>Thông điệp của Hiệu trưởng</h2>
+   <p class="lead">Nhìn lại chặng đường, tri ân các thế hệ và định hướng cho thập niên tiếp theo.</p>
+   <div class="grid"><div class="card">${PH('Chân dung Hiệu trưởng',1)}<p>${TODO('nội dung thông điệp')}</p></div></div>`},
+
+ /* ---- II ---- */
+ {sec:'II', title:'Từ nền móng 2009 đến khai trường 2016', html:`
+   <div class="kick">Phần II · Dòng chảy</div><h2>Từ nền móng 2009 đến khai trường 2016</h2>
+   <p class="lead">Làm rõ khởi nguồn, các mốc pháp lý, ngày khai trường và cách xác định giai đoạn kỷ niệm 2016–2026.</p>
+   <div class="grid">
+     <div class="card"><h3>Sứ mệnh</h3><p>${TODO('nội dung chính thức')}</p></div>
+     <div class="card"><h3>Tầm nhìn</h3><p>${TODO('nội dung chính thức')}</p></div>
+     <div class="card"><h3>Giá trị cốt lõi</h3><p>${TODO('nội dung chính thức')}</p></div>
+   </div>
+   <div class="note">Ngày 24/06/2016, Nhà trường được Sở Giáo dục và Đào tạo cho phép hoạt động giáo dục — mốc khởi đầu của chặng đường 10 năm (2016–2026).</div>`},
+
+ {sec:'II', title:'Timeline 2009–2026', id:'timeline', html:`
+   <div class="kick">Phần II · Dòng chảy</div><h2>Timeline 2009 – 2026</h2>
+   <p class="lead">Tối đa 12 mốc có ý nghĩa, đã xác minh nguồn. Chạm vào mốc để xem chi tiết.</p>
+   <div class="tl" id="tl"></div>`},
+
+ {sec:'II', title:'Thắp lửa 2009–2016', html:`
+   <div class="kick">Chương 1 · 2009–2016</div><h2>🔥 Thắp lửa</h2>
+   <p class="lead">Kể quá trình từ nền móng, những người tham gia và ngày khai trường.</p>
+   <div class="grid">${PH('Ảnh tư liệu 2009–2016')}${PH('Ảnh ngày khai trường')}</div>
+   <div class="note">Chỉ dùng chi tiết “bảy năm chuẩn bị”, “sáu lớp dự kiến, ba lớp thực tế” sau khi đã xác minh. ${QR('Phim tư liệu “Thắp lửa”')}</div>`},
+
+ {sec:'II', title:'Giữ lửa 2016–2022', html:`
+   <div class="kick">Chương 2 · 2016–2022</div><h2>🔥 Giữ lửa</h2>
+   <p class="lead">Các bước mở rộng, chương trình, giai đoạn dạy trực tuyến và các thế hệ học sinh. Tập trung vào sự kiện, không kể sâu phương pháp chuyên môn.</p>
+   <div class="grid">${PH('Ảnh các thế hệ học sinh')}${PH('Ảnh giai đoạn dạy trực tuyến')}</div>
+   <div style="margin-top:6px">${QR('Phim tư liệu “Giữ lửa”')}</div>`},
+
+ {sec:'II', title:'Sải cánh 2022–2026', html:`
+   <div class="kick">Chương 3 · 2022–2026</div><h2>🕊️ Sải cánh</h2>
+   <p class="lead">Dấu mốc về khung giáo dục, quy mô, thành tích, hoạt động cộng đồng và chuyển đổi số — số liệu phải có thời điểm chốt và nguồn.</p>
+   <div class="grid">${PH('Ảnh quy mô trường hiện nay')}${PH('Ảnh hoạt động cộng đồng')}</div>
+   <div style="margin-top:6px">${QR('Phim tư liệu “Sải cánh”')}</div>`},
+
+ {sec:'II', title:'Những người làm nên Phượng Hoàng', html:`
+   <div class="kick">Phần II · Dòng chảy</div><h2>Những người làm nên Phượng Hoàng</h2>
+   <p class="lead">6–8 chân dung ngắn, chọn theo đóng góp và giai đoạn gắn bó: các thế hệ lãnh đạo (Hiệu trưởng đầu tiên), giáo viên, nhân viên, học sinh.</p>
+   <div class="grid">${[1,2,3,4,5,6].map(i=>`<div class="card">${PH('Chân dung '+i,1)}<h3>[Họ tên]</h3><p>[Vai trò · giai đoạn gắn bó]</p></div>`).join('')}</div>
+   <div style="margin-top:12px">${QR('Clip tri ân tập thể (đến 10 clip)')}</div>`},
+
+ {sec:'II', title:'Ngày xưa và hôm nay', html:`
+   <div class="kick">Phần II · Dòng chảy</div><h2>Ảnh xưa – hôm nay</h2>
+   <p class="lead">4–5 cặp ảnh đối chiếu, chú thích rõ năm và nguồn. Kéo thanh trượt để so sánh.</p>
+   <div class="ba" id="ba"><div class="ph" style="aspect-ratio:16/9">📷 Ảnh “xưa”</div>
+   <input type="range" min="0" max="100" value="50" id="baR" aria-label="So sánh ảnh xưa và nay">
+   <p style="text-align:center;font-size:13px;color:var(--muted)" id="baT">Xưa ◂ ▸ Nay</p></div>
+   <div style="margin-top:10px">${QR('Video “Cảm xúc Phượng Hoàng”')}</div>`},
+
+ /* ---- III ---- */
+ {sec:'III', title:'Phượng Hoàng qua những con số', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Phượng Hoàng qua những con số</h2>
+   <p class="lead">Infographic quy mô, dấu mốc phát triển và thành tựu tổng quan 2016–2026. Danh mục chi tiết đưa vào kho số nếu cần.</p>
+   <div class="stats">
+     <div class="stat"><div class="v" data-n="10">0</div><div class="l">năm truyền lửa</div></div>
+     <div class="stat"><div class="v" data-n="12">0</div><div class="l">khối lớp (1–12)</div></div>
+     <div class="stat"><div class="v">?</div><div class="l">học sinh ${TODO('số liệu')}</div></div>
+     <div class="stat"><div class="v">?</div><div class="l">giáo viên ${TODO('số liệu')}</div></div>
+     <div class="stat"><div class="v">?</div><div class="l">cựu học sinh ${TODO('số liệu')}</div></div>
+   </div>
+   <div class="note">Ban chuyên môn cung cấp danh sách giải, giấy chứng nhận và thông tin học sinh. Số liệu phải có thời điểm chốt và nguồn.</div>`},
+
+ {sec:'III', title:'Gương mặt & thành tích tiêu biểu', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Gương mặt & thành tích tiêu biểu</h2>
+   <p class="lead">Lựa chọn theo cấp học, lĩnh vực và năm. Ảnh học sinh phải được phép sử dụng.</p>
+   <div class="filter" id="fAch"><button class="chip on">Tất cả</button><button class="chip">Tiểu học</button><button class="chip">THCS</button><button class="chip">THPT</button></div>
+   <div class="grid">${[1,2,3,4].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm]</p></div>`).join('')}</div>`},
+
+ {sec:'III', title:'Nghiên cứu khoa học & sáng tạo', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Nghiên cứu khoa học & sáng tạo</h2>
+   <p class="lead">Đề tài, dự án STEM / STREAMS / AI tiêu biểu của học sinh. Ưu tiên sản phẩm có hình ảnh, kết quả hoặc minh chứng rõ.</p>
+   <div class="grid">${[1,2,3].map(i=>`<div class="card">${PH('Sản phẩm / dự án '+i)}<h3>[Tên dự án]</h3><p>[Nhóm tác giả · lớp]</p>${QR('Hồ sơ sản phẩm đầy đủ')}</div>`).join('')}</div>`},
+
+ {sec:'III', title:'Khung giáo dục Phượng Hoàng', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Khung giáo dục Phượng Hoàng</h2>
+   <p class="lead">Sơ đồ 5 trụ cột, 20 năng lực cốt lõi và lộ trình phát triển từ lớp 1 đến lớp 12.</p>
+   <div class="pill">${['Trụ cột 1','Trụ cột 2','Trụ cột 3','Trụ cột 4','Trụ cột 5'].map(t=>`<div>${t}<span>4 năng lực</span></div>`).join('')}</div>
+   <p style="margin:18px 0;text-align:center;font-family:'Playfair Display';font-size:20px;font-style:italic;color:var(--flame)">“Học để tự chủ – Trưởng thành để làm chủ tương lai.”</p>
+   <div class="note">Chép đúng nội dung từ văn bản khung giáo dục chính thức; Phần I chỉ giới thiệu khung ở mức khái quát. ${TODO('tên 5 trụ cột và 20 năng lực')}</div>`},
+
+ {sec:'III', title:'Dấu ấn chuyên môn — 6 tổ', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Dấu ấn chuyên môn</h2>
+   <p class="lead">Mỗi tổ chuyên môn giới thiệu một dấu ấn tiêu biểu (mỗi tổ một trang).</p>
+   <div class="grid">${TO_CM.map(([t,n])=>`<div class="card"><h3>${t}</h3><p>${n}</p><p style="margin-top:6px">[Dấu ấn tiêu biểu]</p></div>`).join('')}</div>
+   <div class="note">Không lặp lại bài viết về phương pháp giảng dạy của các tổ chuyên môn; QR dẫn tới hồ sơ sản phẩm đầy đủ. ${TODO('đối chiếu họ tên giáo viên phụ trách từng tổ')}</div>`},
+
+ {sec:'III', title:'Tổ chức & hoạt động học sinh', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Tổ chức & hoạt động học sinh</h2>
+   <p class="lead">Đoàn Thanh niên, Chi đoàn Giáo viên, Công đoàn (nếu có) và các câu lạc bộ tiêu biểu.</p>
+   <div class="grid"><div class="card"><h3>Đoàn Thanh niên</h3><p>${TODO('năm thành lập, số đoàn viên')}</p></div><div class="card"><h3>Công đoàn</h3><p>${TODO('năm thành lập, số thành viên')}</p></div><div class="card"><h3>Câu lạc bộ</h3><p>${TODO('danh mục CLB')}</p></div></div>
+   <div class="note">Xác nhận chính xác các tổ chức đang hoạt động; trình bày bằng ảnh và thông tin ngắn.</div>`},
+
+ {sec:'III', title:'Liên cấp & chuyển đổi số', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Mô hình liên cấp & chuyển đổi số</h2>
+   <p class="lead">Sơ đồ liên thông lớp 1–12 và những giải pháp chuyển đổi số tiêu biểu trong quản lý và dạy học.</p>
+   <div class="grid">${PH('Sơ đồ liên cấp 1–12')}${PH('Hệ thống chuyển đổi số')}</div>
+   <div class="note">Xác minh thời điểm ba cấp học và thông tin từng hệ thống với Ban chuyên môn, Ban CNTT. Nêu hoạt động thực tế, không dùng các từ “đầu tiên”, “duy nhất” khi chưa có căn cứ.</div>`},
+
+ {sec:'III', title:'Phượng Hoàng với cộng đồng', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Phượng Hoàng với cộng đồng</h2>
+   <p class="lead">Chọn 4–5 dự án có minh chứng.</p>
+   <div class="grid">
+     <div class="card"><h3>Làng trẻ SOS Vinh</h3><p>${TODO('thời gian, số tiết, số tiền')}</p></div>
+     <div class="card"><h3>Hỗ trợ vùng bão lũ</h3><p>${TODO('chi tiết')}</p></div>
+     <div class="card"><h3>Family Run</h3><p>${TODO('chi tiết')}</p></div>
+     <div class="card"><h3>Hội chợ Xuân gây quỹ tặng thương binh</h3><p>${TODO('chi tiết')}</p></div>
+     <div class="card"><h3>“Cha mẹ đồng hành cùng con”</h3><p>${TODO('chi tiết')}</p></div>
+   </div>
+   <div class="note">Ảnh trẻ em phải được phép sử dụng.</div>`},
+
+ {sec:'III', title:'Hội khỏe Phượng Hoàng 2026', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Hội khỏe Phượng Hoàng 2026</h2>
+   <p class="lead">Nội dung thi đấu, kết quả nổi bật và khoảnh khắc đẹp. Lấy kết quả chính thức từ Nhóm GDTC; không biến trang này thành bảng liệt kê giải thưởng.</p>
+   <div class="grid">${PH('Khoảnh khắc 1')}${PH('Khoảnh khắc 2')}${PH('Khoảnh khắc 3')}</div>`},
+
+ {sec:'III', title:'10 tuần việc tốt – 10 năm truyền lửa', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>10 tuần việc tốt – 10 năm truyền lửa</h2>
+   <p class="lead">Mục tiêu, cách triển khai, số lớp tham gia và kết quả tiêu biểu.</p>
+   <div class="stats"><div class="stat"><div class="v" data-n="10">0</div><div class="l">tuần</div></div><div class="stat"><div class="v">?</div><div class="l">lớp tham gia ${TODO('số liệu')}</div></div></div>
+   <div class="note">Đoàn – Đội và GVCN xác nhận số liệu, ảnh và minh chứng. Phân biệt hoạt động này với chuỗi phim “10 tuần – 10 câu chuyện Phượng Hoàng”.</div>`},
+
+ {sec:'III', title:'Những việc tốt, câu chuyện đẹp', html:`
+   <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Những việc tốt, câu chuyện đẹp</h2>
+   <p class="lead">Ba đến bốn câu chuyện học sinh thực hiện việc tốt, thể hiện giá trị cốt lõi của Nhà trường.</p>
+   <div class="grid">${[1,2,3].map(i=>`<div class="card">${PH('Ảnh câu chuyện '+i)}<h3>[Tên câu chuyện]</h3><p>[Học sinh · lớp · việc làm · kết quả]</p></div>`).join('')}</div>
+   <div class="note">Chọn câu chuyện có tình huống, hành động và kết quả cụ thể; ưu tiên đa dạng độ tuổi và hình thức đóng góp.</div>`},
+
+ /* ---- IV ---- */
+ {sec:'IV', title:'Mở đầu: ngàn câu chuyện', html:`
+   <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Vì sao là “ngàn câu chuyện”?</h2>
+   <p class="lead">Nêu 5 tiêu chí chọn; nói rõ 10 chuyện chỉ là lát cắt đại diện cho hàng ngàn câu chuyện khác của thầy cô, cựu học sinh và phụ huynh.</p>
+   <div class="grid"><div class="card"><h3>Mỗi chuyện</h3><p>Khoảng 150–200 chữ, 1 ảnh, tên người kể và vai (thầy cô, cựu học sinh, phụ huynh).</p></div><div class="card"><h3>Nơi đóng góp</h3><p>Quét QR để gửi thêm câu chuyện của bạn.</p>${QR('Form gửi câu chuyện')}</div></div>`},
+
+ {sec:'IV', title:'Mười câu chuyện tiêu biểu', id:'stories', html:`
+   <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Mười câu chuyện tiêu biểu</h2>
+   <p class="lead">2 chuyện Thắp lửa · 1 Thắp lửa + 1 Giữ lửa · 2 Giữ lửa · 4 Sải cánh (đề xuất, điều chỉnh theo bản thảo).</p>
+   <div class="filter" id="fSt"><button class="chip on">Tất cả</button><button class="chip">Thắp lửa</button><button class="chip">Giữ lửa</button><button class="chip">Sải cánh</button></div>
+   <div class="grid" id="stGrid"></div>`},
+
+ {sec:'IV', title:'Thư, truyện ngắn, cảm nghĩ, tranh, ảnh', html:`
+   <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Thơ, truyện ngắn, cảm nghĩ, tranh, ảnh</h2>
+   <p class="lead">Chọn tác phẩm ngắn, ghi rõ tác giả và lớp / khóa.</p>
+   <div class="grid">${PH('Tranh / ảnh học sinh')}<div class="card"><h3>[Tên tác phẩm]</h3><p>[Tác giả · lớp/khóa]</p></div></div>`},
+
+ {sec:'IV', title:'Một lời cảm ơn', id:'thanks', html:`
+   <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Một lời cảm ơn</h2>
+   <p class="lead">Đám mây từ khóa tổng hợp từ lời cảm ơn thu qua mã QR (chốt dữ liệu trước 31/10).</p>
+   <div class="cloud" id="cloud"></div>
+   <form class="cap" id="thForm"><input id="thIn" maxlength="40" placeholder="Gửi một lời cảm ơn (một cụm từ ngắn)…" required><button class="btn">Gửi lời cảm ơn</button></form>
+   <style>.cloud{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:center;padding:18px;background:var(--paper2);border-radius:16px;margin-bottom:16px;min-height:140px}.cloud span{font-family:'Playfair Display';font-weight:700}</style>`},
+
+ /* ---- V ---- */
+ {sec:'V', title:'Những đôi cánh trưởng thành', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div><h2>Những đôi cánh trưởng thành</h2>
+   <p class="lead">Chân dung cựu học sinh tiêu biểu: hành trình học tập, nghề nghiệp và những giá trị mang theo sau khi rời trường.</p>
+   <div class="grid">${[1,2,3].map(i=>`<div class="card">${PH('Chân dung cựu học sinh',1)}<h3>[Họ tên]</h3><p>[Khóa · nghề nghiệp · câu chuyện]</p></div>`).join('')}</div>
+   <div class="note">Chọn 3–4 nhân vật có hành trình đa dạng, không chỉ căn cứ vào thành tích. Mỗi chân dung cần câu chuyện cụ thể, ảnh được phép sử dụng và thông tin đã xác minh.</div>`},
+
+ {sec:'V', title:'Bản đồ cựu học sinh', id:'map', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div><h2>Bản đồ cựu học sinh</h2>
+   <p class="lead">Dấu mốc hành trình của các thế hệ sau khi tốt nghiệp. Chỉ công bố dữ liệu đã có sự đồng ý.</p>
+   <div class="mapbox" id="mapbox"><div class="mapnote">Chưa có ghim — hãy là người đầu tiên.</div></div>
+   <form class="cap" id="mapForm" style="margin-top:14px">
+     <input id="mpName" placeholder="Họ tên / khóa" required>
+     <input id="mpPlace" placeholder="Nơi đang học tập / làm việc (thành phố, quốc gia)" required>
+     <label style="font-size:13px"><input type="checkbox" id="mpOk" required style="width:auto"> Tôi đồng ý công bố thông tin này trong kỷ yếu.</label>
+     <button class="btn">Ghim lên bản đồ</button>
+   </form>
+   <style>.mapbox{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-radius:16px;background:var(--paper2);min-height:100px}.pin{background:var(--paper);border-radius:99px;padding:6px 14px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.12)}.mapnote{color:var(--muted);font-size:14px}</style>`},
+
+ {sec:'V', title:'Phượng Hoàng 10 năm sau', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div><h2>Phượng Hoàng 10 năm sau (2026–2036)</h2>
+   <p class="lead">Tầm nhìn và những định hướng lớn; ưu tiên phát triển về giáo dục, đội ngũ, quản trị, công nghệ và môi trường học tập.</p>
+   <div class="grid">${['Giáo dục','Đội ngũ','Quản trị','Công nghệ','Môi trường học tập'].map(t=>`<div class="card"><h3>${t}</h3><p>${TODO('ưu tiên chiến lược do Ban lãnh đạo xác nhận')}</p></div>`).join('')}</div>
+   <div class="note">Có thể cập nhật khuyến nghị từ Hội thảo khoa học sau ngày 20/11.</div>`},
+
+ {sec:'V', title:'Hộp thư thế giới 2036', id:'capsule', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div><h2>Hộp thư gửi năm 2036</h2>
+   <p class="lead">Viết một lời nhắn hay cam kết cho hành trình tiếp theo của Phượng Hoàng. Thư được cất giữ để mở lại năm 2036.</p>
+   <form class="cap" id="capForm">
+     <input id="cpName" placeholder="Tên của bạn" required>
+     <select id="cpRole"><option>Học sinh</option><option>Cựu học sinh</option><option>Giáo viên</option><option>Phụ huynh</option></select>
+     <textarea id="cpMsg" placeholder="Gửi Phượng Hoàng năm 2036…" required></textarea>
+     <label style="font-size:13px"><input type="checkbox" id="cpOk" style="width:auto"> Cho phép trích dẫn thông điệp trong kỷ yếu (sau khi kiểm duyệt).</label>
+     <button class="btn">🔒 Cất vào hộp thư</button>
+   </form>
+   <div class="msgs" id="capList"></div>
+   <div class="note">Nội dung được kiểm duyệt trước khi công bố và bảo đảm quyền riêng tư của học sinh. Thư được gửi về kho của Nhà trường và không hiển thị công khai.</div>`},
+
+ {sec:'V', title:'Trang tiếp theo thuộc về học trò hôm nay', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div>
+   <h2 style="font-size:clamp(30px,5vw,52px);margin-top:10vh">Trang tiếp theo<br><span style="color:var(--flame)">thuộc về học trò hôm nay.</span></h2>
+   <p class="lead" style="margin-top:20px">Những trang trắng dành cho lời nhắn hoặc cam kết cho hành trình tiếp theo của Phượng Hoàng.</p>
+   <button class="btn" data-goid="capsule">Viết lời nhắn →</button>
+   <div style="margin-top:34px;font-size:56px">🔥 → 📖 → 🕊️</div>`}
+];
+
+/* ============================ ENGINE ============================ */
+/* Dán URL Web app của Apps Script (kết thúc bằng /exec) vào đây để thu dữ liệu chung vào Google Sheet.
+   Để trống = chỉ lưu trên thiết bị này. */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwI2PRW7RA63xD7Efj44Ut-0HtlOViUIzl8cxQFoXXhW6cpQCRPouMFdpg9UERMvacD/exec';
+const api = {
+  async load(){ if (!API_URL) return null; try { return await (await fetch(API_URL + '?api=1')).json(); } catch { return null; } },
+  async send(o){ if (!API_URL) return false; try { const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(o)}); return (await r.json()).ok; } catch { return false; } }
+};
+const $ = s => document.querySelector(s);
+const store = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+};
+const stage = $('#stage'), drawer = $('#drawer'), scrim = $('#scrim');
+let cur = 0;
+
+PAGES.forEach((p, i) => {
+  const el = document.createElement('section');
+  el.className = 'page ' + (p.cls || '');
+  el.innerHTML = p.html + `<span class="pn">${i + 1} / ${PAGES.length}</span>`;
+  stage.appendChild(el);
+  p.el = el;
+});
+
+// TOC
+const first = {};
+PAGES.forEach((p, i) => { if (!(p.sec in first)) first[p.sec] = i; });
+$('#tocList').innerHTML = SECTIONS.map(s =>
+  `<a href="#p${first[s.id] + 1}" data-go="${first[s.id]}"><span class="n">${s.id}</span><span class="t">${s.title}</span><span class="d">${s.desc}</span></a>`).join('');
+
+// Drawer
+drawer.innerHTML = SECTIONS.map(s =>
+  `<h4>${s.id}. ${s.title}</h4>` +
+  PAGES.map((p, i) => p.sec === s.id ? `<button data-go="${i}">${p.title}</button>` : '').join('')).join('');
+
+// Timeline
+$('#tl').innerHTML = TIMELINE.map(t =>
+  `<div class="it ${t.era ? 'era' : ''}"><b>${t.y}</b>${t.era ? `<span class="era-tag">${t.era}</span>` : ''}<div style="font-weight:600">${t.t}</div><p>${t.d}</p></div>`).join('');
+
+// Stories
+const stGrid = $('#stGrid');
+function renderStories(f = 'Tất cả'){
+  stGrid.innerHTML = STORIES.filter(s => f === 'Tất cả' || s.era === f).map(s =>
+    `<div class="card story"><div class="no">${String(s.n).padStart(2,'0')}</div><div><h3>[Tên câu chuyện]</h3><p>${s.era} · ${s.who}</p><p style="margin-top:6px">~150–200 chữ · 1 ảnh</p></div></div>`).join('');
+}
+renderStories();
+function chips(sel, cb){
+  document.querySelectorAll(sel + ' .chip').forEach(c => c.onclick = () => {
+    document.querySelectorAll(sel + ' .chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on'); cb(c.textContent);
+  });
+}
+chips('#fSt', renderStories);
+chips('#fAch', f => document.querySelectorAll('[data-lv]').forEach(c => c.style.display = (f === 'Tất cả' || c.dataset.lv === f) ? '' : 'none'));
+
+// Before/after slider
+$('#baR').oninput = e => $('#baT').textContent = e.target.value < 50 ? 'Xưa ◂' : e.target.value > 50 ? '▸ Nay' : 'Xưa ◂ ▸ Nay';
+
+// Thanks word cloud
+const SEED_THANKS = ['Tri ân thầy cô','Biết ơn','Yêu thương','Tự hào','Cảm ơn Phượng Hoàng','Gắn bó','Trưởng thành'];
+let remote = null;   // dữ liệu chung từ Google Sheet (nếu có API_URL)
+function renderCloud(){
+  const words = [...(remote ? remote.thanks : SEED_THANKS), ...store.get('thanks', [])];
+  $('#cloud').innerHTML = words.map((w, i) =>
+    `<span style="font-size:${14 + (w.length * 7 + i * 5) % 20}px;color:hsl(${(i * 37) % 40 + 5} 80% 48%)">${esc(w)}</span>`).join('');
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+// Gửi lên Sheet; nếu chưa cấu hình hoặc lỗi mạng thì giữ tạm trên thiết bị
+async function submitTo(type, payload, localKey, btn){
+  const old = btn.textContent; btn.disabled = true; btn.textContent = 'Đang gửi…';
+  const ok = await api.send({type, ...payload});
+  if (!ok) { const l = store.get(localKey, []); l.push(type === 'thanks' ? payload.text : payload); store.set(localKey, l); }
+  btn.disabled = false; btn.textContent = old;
+  return ok;
+}
+$('#thForm').onsubmit = async e => {
+  e.preventDefault();
+  const w = $('#thIn').value.trim();
+  const ok = await submitTo('thanks', {text: w}, 'thanks', e.submitter);
+  if (ok) { remote = remote || {thanks: [], pins: []}; remote.thanks.push(w); }   // hiện ngay, không chờ tải lại
+  $('#thIn').value = ''; renderCloud();
+};
+
+// Alumni map pins (bản gửi lên Sheet chờ duyệt rồi mới hiện công khai)
+function renderPins(){
+  const p = [...(remote ? remote.pins : []), ...store.get('pins', [])];
+  $('#mapbox').innerHTML = p.length ? p.map(x => `<span class="pin">📍 ${esc(x.name)} — ${esc(x.place)}</span>`).join('') : '<div class="mapnote">Chưa có ghim — hãy là người đầu tiên.</div>';
+}
+$('#mapForm').onsubmit = async e => {
+  e.preventDefault();
+  const ok = await submitTo('pin', {name: $('#mpName').value.trim(), place: $('#mpPlace').value.trim(), consent: $('#mpOk').checked}, 'pins', e.submitter);
+  e.target.reset(); renderPins();
+  if (ok) alert('Cảm ơn bạn! Thông tin sẽ hiện trên bản đồ sau khi Ban biên soạn duyệt.');
+};
+renderPins();
+api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); } });
+
+// Time capsule
+function renderCap(){
+  const m = store.get('capsule', []);
+  $('#capList').innerHTML = m.map(x => `<div class="msg"><b>${esc(x.name)}</b> <small>· ${esc(x.role)} · ${x.date}</small><br>${esc(x.msg)}</div>`).join('');
+}
+$('#capForm').onsubmit = async e => {
+  e.preventDefault();
+  const item = {name: $('#cpName').value.trim(), role: $('#cpRole').value, msg: $('#cpMsg').value.trim(), ok: $('#cpOk').checked};
+  const sent = await api.send({type: 'capsule', ...item});
+  // Thư riêng tư: chỉ hiện lại trên máy người viết, không đọc ngược từ Sheet
+  const m = store.get('capsule', []);
+  m.unshift({...item, date: new Date().toLocaleDateString('vi-VN'), sent});
+  store.set('capsule', m); e.target.reset(); renderCap();
+};
+renderCap();
+
+// Counting stats
+function countUp(page){
+  page.el.querySelectorAll('[data-n]').forEach(n => {
+    const to = +n.dataset.n; let v = 0;
+    const t = setInterval(() => { v++; n.textContent = v; if (v >= to) clearInterval(t); }, 70);
+  });
+}
+
+// Navigation
+function go(i, push = true){
+  i = Math.max(0, Math.min(PAGES.length - 1, i));
+  PAGES.forEach((p, k) => { p.el.classList.toggle('on', k === i); p.el.classList.toggle('out', k < i); });
+  PAGES[i].el.scrollTop = 0;
+  cur = i;
+  $('#prog').style.width = ((i + 1) / PAGES.length * 100) + '%';
+  $('#lbl').textContent = `${i + 1} / ${PAGES.length} · ${PAGES[i].title}`;
+  $('#prev').style.visibility = i ? '' : 'hidden';
+  $('#next').style.visibility = i < PAGES.length - 1 ? '' : 'hidden';
+  drawer.querySelectorAll('button').forEach(b => b.classList.toggle('cur', +b.dataset.go === i));
+  if (push) history.replaceState(null, '', '#p' + (i + 1));
+  closeDrawer();
+  countUp(PAGES[i]);
+}
+function openDrawer(){ drawer.classList.add('on'); scrim.classList.add('on'); }
+function closeDrawer(){ drawer.classList.remove('on'); scrim.classList.remove('on'); }
+
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g){ e.preventDefault(); go(+g.dataset.go); return; }
+  const id = e.target.closest('[data-goid]'); if (id) go(PAGES.findIndex(p => p.id === id.dataset.goid));
+});
+$('#prev').onclick = () => go(cur - 1);
+$('#next').onclick = () => go(cur + 1);
+$('#menu').onclick = openDrawer;
+scrim.onclick = closeDrawer;
+$('#print').onclick = () => window.print();
+$('#share').onclick = async () => {
+  const url = location.href;
+  try { navigator.share ? await navigator.share({title: document.title, url}) : (await navigator.clipboard.writeText(url), alert('Đã sao chép liên kết trang này')); } catch {}
+};
+document.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur - 1);
+  if (e.key === 'Escape') closeDrawer();
+});
+let sx = 0, sy = 0;
+stage.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive: true});
+stage.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
+}, {passive: true});
+
+const m = location.hash.match(/^#p(\d+)$/);
+go(m ? +m[1] - 1 : 0, false);
+</script>
+</body>
+</html>
