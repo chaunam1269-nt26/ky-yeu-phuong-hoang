@@ -25,6 +25,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .bar .sp{flex:1}
 .ibtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.1)}
 .ibtn:hover{background:rgba(255,255,255,.2)}
+.ibtn.off{opacity:.55;text-decoration:line-through}
 .prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--ember));z-index:30;transition:width .4s}
 
 /* book */
@@ -135,6 +136,7 @@ textarea{min-height:110px;resize:vertical}
   <button class="ibtn" id="menu" aria-label="Mục lục">☰</button>
   <span class="brand">🔥 Kỷ yếu Phượng Hoàng</span>
   <span class="sp"></span>
+  <button class="ibtn" id="music" aria-label="Bật/tắt nhạc nền" title="Nhạc nền">♪</button>
   <button class="ibtn" id="share" aria-label="Chia sẻ trang">⤴</button>
   <button class="ibtn" id="print" aria-label="Xuất PDF / In">⎙</button>
 </div>
@@ -585,6 +587,23 @@ stage.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
   if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
 }, {passive: true});
+
+/* Nhạc nền: trình duyệt chỉ cho phát sau khi người dùng chạm vào trang, nên bắt đầu ở lần chạm đầu tiên. */
+const MUSIC_URL = 'nhac-nen.mp3';
+const bg = new Audio(MUSIC_URL);
+bg.loop = true; bg.volume = 0.35; bg.preload = 'auto';
+let musicOn = store.get('musicOn', true);
+function paintMusic(){ $('#music').classList.toggle('off', !musicOn); }
+function playMusic(){ if (musicOn) bg.play().catch(() => {}); }
+$('#music').onclick = () => {
+  musicOn = !musicOn; store.set('musicOn', musicOn); paintMusic();
+  musicOn ? bg.play().catch(() => {}) : bg.pause();
+};
+paintMusic();
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, function once(){
+  document.removeEventListener(ev, once); playMusic();
+}, {once: true}));
+document.addEventListener('visibilitychange', () => { document.hidden ? bg.pause() : playMusic(); });
 
 const m = location.hash.match(/^#p(\d+)$/);
 go(m ? +m[1] - 1 : 0, false);
