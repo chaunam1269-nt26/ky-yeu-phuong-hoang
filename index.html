@@ -589,7 +589,7 @@ stage.addEventListener('touchend', e => {
 }, {passive: true});
 
 /* Nhạc nền: trình duyệt chỉ cho phát sau khi người dùng chạm vào trang, nên bắt đầu ở lần chạm đầu tiên. */
-const MUSIC_URL = 'nhac-nen.mp3';
+const MUSIC_URL = 'nhac-nen.mp3?v=2';
 const bg = new Audio(MUSIC_URL);
 bg.loop = true; bg.volume = 0.35; bg.preload = 'auto';
 let musicOn = store.get('musicOn', true);
