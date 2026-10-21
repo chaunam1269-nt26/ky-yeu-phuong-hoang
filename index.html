@@ -28,6 +28,14 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .ibtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.1)}
 .ibtn:hover{background:rgba(255,255,255,.2)}
 .ibtn.off{opacity:.55;text-decoration:line-through}
+.ibtn.on{background:var(--flame)}
+.edbar{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);z-index:60;display:none;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);padding:10px 14px;border-radius:14px;background:var(--night);color:#fff;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.edbar.on{display:flex}
+.edbar button{padding:7px 14px;border-radius:9px;background:var(--flame);color:#fff;font-weight:600;font-size:13px}
+.edbar button.g{background:rgba(255,255,255,.14)}
+.edbar button:disabled{opacity:.6}
+body.editing [contenteditable]{outline:1px dashed var(--flame);outline-offset:2px;cursor:text}
+body.editing [contenteditable]:focus{outline:2px solid var(--flame);background:#fff4e0;color:var(--ink)}
 .prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--ember));z-index:30;transition:width .4s}
 
 /* book */
@@ -141,8 +149,10 @@ textarea{min-height:110px;resize:vertical}
   <button class="ibtn" id="music" aria-label="Bật/tắt nhạc nền" title="Nhạc nền">♪</button>
   <button class="ibtn" id="share" aria-label="Chia sẻ trang">⤴</button>
   <button class="ibtn" id="print" aria-label="Xuất PDF / In">⎙</button>
+  <button class="ibtn" id="edit" aria-label="Biên tập (thành viên)" title="Biên tập — dành cho thành viên">✎</button>
 </div>
 <div class="stage" id="stage"></div>
+<div class="edbar" id="edbar"><span id="edmsg"></span><button id="edSave">Lưu</button><button id="edExit" class="g">Thoát</button><button id="edOut" class="g">Đăng xuất</button></div>
 <div class="nav">
   <button class="ibtn" id="prev" aria-label="Trang trước">‹</button>
   <span class="lbl" id="lbl"></span>
@@ -431,7 +441,8 @@ const PAGES = [
 const API_URL = 'https://script.google.com/macros/s/AKfycbwI2PRW7RA63xD7Efj44Ut-0HtlOViUIzl8cxQFoXXhW6cpQCRPouMFdpg9UERMvacD/exec';
 const api = {
   async load(){ if (!API_URL) return null; try { return await (await fetch(API_URL + '?api=1')).json(); } catch { return null; } },
-  async send(o){ if (!API_URL) return false; try { const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(o)}); return (await r.json()).ok; } catch { return false; } }
+  async call(o){ if (!API_URL) return null; try { const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(o)}); return await r.json(); } catch { return null; } },
+  async send(o){ const r = await this.call(o); return !!(r && r.ok); }
 };
 const $ = s => document.querySelector(s);
 const store = {
@@ -520,7 +531,7 @@ $('#mapForm').onsubmit = async e => {
   if (ok) alert('Cảm ơn bạn! Thông tin sẽ hiện trên bản đồ sau khi Ban biên soạn duyệt.');
 };
 renderPins();
-api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); } });
+api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); applyContent(); } });
 
 // Time capsule
 function renderCap(){
@@ -537,6 +548,73 @@ $('#capForm').onsubmit = async e => {
   store.set('capsule', m); e.target.reset(); renderCap();
 };
 renderCap();
+
+/* Chế độ biên tập: thành viên nhập mã truy cập (tab ThanhVien trong Google Sheet) rồi sửa chữ ngay trên trang.
+   Vai trò admin / bientap đăng ngay, congtac chờ quản trị viên duyệt. Phân quyền được máy chủ kiểm tra lại. */
+const ED_SEL = 'h2,h3,p,li,small,td,.kick,.lead,.note';
+const ED_SKIP = '#stGrid,#cloud,#mapbox,#capList,#tocList,.pn,button,form';
+const flat = s => String(s).replace(/\s+/g, ' ').trim();
+PAGES.forEach(p => {
+  [...p.el.querySelectorAll(ED_SEL)].filter(e => !e.closest(ED_SKIP) && !e.querySelector(ED_SEL)).forEach((e, n) => {
+    e.dataset.ek = p.title + '#' + n; e.dataset.es = p.sec; e.dataset.eg = flat(e.textContent).slice(0, 40); e._cur = e.textContent;
+  });
+});
+function applyContent(){
+  if (!remote || !remote.content) return;
+  document.querySelectorAll('[data-ek]').forEach(e => {
+    const c = remote.content[e.dataset.ek];
+    if (c && c.g === e.dataset.eg && !e.dataset.ed) { e.textContent = c.v; e._cur = c.v; }   // chỉ áp dụng khi văn bản gốc còn khớp
+  });
+}
+let me = null; try { me = JSON.parse(sessionStorage.getItem('kyyeu_me')); } catch {}
+const edbar = $('#edbar'), edmsg = $('#edmsg');
+const canEdit = sec => me && (me.secs === 'all' || (me.secs || []).includes(sec));
+const dirtyEls = () => [...document.querySelectorAll('[data-ed="1"]')];
+function setEditing(on){
+  document.body.classList.toggle('editing', on);
+  edbar.classList.toggle('on', on); $('#edit').classList.toggle('on', on);
+  document.querySelectorAll('[data-ek]').forEach(e => {
+    if (on && canEdit(e.dataset.es)) {
+      try { e.contentEditable = 'plaintext-only'; } catch {}
+      if (!e.isContentEditable) e.contentEditable = 'true';
+    } else e.removeAttribute('contenteditable');
+  });
+  if (on) edmsg.textContent = `${me.name} · ${({admin:'Quản trị viên', bientap:'Biên tập viên', congtac:'Cộng tác viên'})[me.role]} · ${me.secs === 'all' ? 'mọi phần' : 'phần ' + me.secs.join(', ')}`;
+}
+document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.ek) e.target.dataset.ed = '1'; });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.ek) { e.preventDefault(); e.target.blur(); } });
+async function login(){
+  const code = (prompt('Nhập mã truy cập thành viên (do Ban biên soạn cấp):') || '').trim();
+  if (!code) return false;
+  const r = await api.call({type: 'login', code});
+  if (!r) { alert('Chưa kết nối được máy chủ. Hãy thử lại sau.'); return false; }
+  if (!r.ok) { alert('Mã không đúng, đã bị khóa hoặc bị tạm khóa do nhập sai nhiều lần.'); return false; }
+  me = {code, name: r.name, role: r.role, secs: r.secs};
+  try { sessionStorage.setItem('kyyeu_me', JSON.stringify(me)); } catch {}
+  return true;
+}
+$('#edit').onclick = async () => {
+  if (document.body.classList.contains('editing')) return $('#edExit').click();
+  if (!me && !(await login())) return;
+  setEditing(true);
+};
+$('#edExit').onclick = () => {
+  const d = dirtyEls();
+  if (d.length && !confirm('Có chỉnh sửa chưa lưu. Thoát và bỏ các thay đổi đó?')) return;
+  d.forEach(e => { e.textContent = e._cur; delete e.dataset.ed; });
+  setEditing(false);
+};
+$('#edOut').onclick = () => { $('#edExit').click(); if (!dirtyEls().length) { me = null; try { sessionStorage.removeItem('kyyeu_me'); } catch {} } };
+$('#edSave').onclick = async () => {
+  const d = dirtyEls(); if (!d.length) { alert('Chưa có thay đổi nào để lưu.'); return; }
+  const items = d.map(e => ({k: e.dataset.ek, s: e.dataset.es, g: e.dataset.eg, v: flat(e.textContent)})).filter(x => x.v);
+  const b = $('#edSave'); b.disabled = true; b.textContent = 'Đang lưu…';
+  const r = await api.call({type: 'edit', code: me.code, items});
+  b.disabled = false; b.textContent = 'Lưu';
+  if (!r || !r.ok) { alert(r && r.error === 'code' ? 'Mã truy cập không còn hiệu lực.' : 'Chưa lưu được — hãy thử lại.'); return; }
+  d.forEach(e => { const v = flat(e.textContent); if (!r.pending && remote) { remote.content = remote.content || {}; remote.content[e.dataset.ek] = {g: e.dataset.eg, v}; } e._cur = e.textContent; delete e.dataset.ed; });
+  alert((r.saved ? `Đã lưu ${r.saved} đoạn` + (r.pending ? ' — đang chờ quản trị viên duyệt, sau đó mới hiện công khai.' : ' và hiển thị cho mọi người.') : 'Không có đoạn nào được lưu.') + (r.denied ? `\n${r.denied} đoạn nằm ngoài phần bạn được sửa nên bị bỏ qua.` : ''));
+};
 
 // Counting stats
 function countUp(page){
@@ -578,7 +656,7 @@ $('#share').onclick = async () => {
   try { navigator.share ? await navigator.share({title: document.title, url}) : (await navigator.clipboard.writeText(url), alert('Đã sao chép liên kết trang này')); } catch {}
 };
 document.addEventListener('keydown', e => {
-  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
   if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur + 1);
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur - 1);
   if (e.key === 'Escape') closeDrawer();
@@ -586,6 +664,7 @@ document.addEventListener('keydown', e => {
 let sx = 0, sy = 0;
 stage.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive: true});
 stage.addEventListener('touchend', e => {
+  if (document.body.classList.contains('editing')) return;
   const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
   if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
 }, {passive: true});
