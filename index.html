@@ -53,6 +53,13 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .mem form{display:grid;gap:8px}
 .mem input,.mem select{padding:9px 10px;border:1px solid #d9c7a8;border-radius:8px;background:#fff;font:inherit;color:var(--ink)}
 .mem .mn{color:var(--muted);font-size:13px}
+.mem textarea{padding:9px 10px;border:1px solid #d9c7a8;border-radius:8px;background:#fff;font:inherit;color:var(--ink);resize:vertical}
+.mem .ck{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.mem .ck input{margin-top:3px;width:auto;flex:none;padding:0}
+.mem #ctForm{display:grid;gap:8px}
+.cimg{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px;background:var(--paper2)}
+.cmeta{font-size:13px;color:var(--muted);margin-top:4px}
+.card details summary{cursor:pointer;color:var(--flame);font-weight:600;font-size:14px;margin-top:8px}
 body.editing [contenteditable]{outline:1px dashed var(--flame);outline-offset:2px;cursor:text}
 body.editing [contenteditable]:focus{outline:2px solid var(--flame);background:#fff4e0;color:var(--ink)}
 .prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--ember));z-index:30;transition:width .4s}
@@ -181,8 +188,9 @@ textarea{min-height:110px;resize:vertical}
   <button class="ibtn" id="edit" aria-label="Biên tập (thành viên)" title="Biên tập — dành cho thành viên">✎</button>
 </div>
 <div class="stage" id="stage"></div>
+<div class="memwrap" id="ctWrap"><div class="mem"><div class="mh"><b>➕ Đóng góp nội dung</b><button id="ctClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="ctBox"></div></div></div>
 <div class="memwrap" id="memWrap"><div class="mem"><div class="mh"><b>👥 Thành viên &amp; duyệt bài</b><button id="memClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="memBox"></div></div></div>
-<div class="edbar" id="edbar"><span id="edmsg"></span><button id="edSave">Lưu</button><button id="edMem" class="g" style="display:none">👥 Thành viên</button><button id="edExit" class="g">Thoát</button><button id="edOut" class="g">Đăng xuất</button></div>
+<div class="edbar" id="edbar"><span id="edmsg"></span><button id="edSave">Lưu</button><button id="edAdd" class="g">➕ Đóng góp</button><button id="edMem" class="g" style="display:none">👥 Thành viên</button><button id="edExit" class="g">Thoát</button><button id="edOut" class="g">Đăng xuất</button></div>
 <div class="nav">
   <button class="ibtn" id="prev" aria-label="Trang trước">‹</button>
   <span class="lbl" id="lbl"></span>
@@ -349,7 +357,8 @@ const PAGES = [
    <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Gương mặt & thành tích tiêu biểu</h2>
    <p class="lead">Lựa chọn theo cấp học, lĩnh vực và năm. Ảnh học sinh phải được phép sử dụng.</p>
    <div class="filter" id="fAch"><button class="chip on">Tất cả</button><button class="chip">Tiểu học</button><button class="chip">THCS</button><button class="chip">THPT</button></div>
-   <div class="grid">${[1,2,3,4].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm]</p></div>`).join('')}</div>
+   <div class="grid" id="achReal"></div>
+   <div class="grid" id="achTodo">${[1,2,3,4].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm]</p></div>`).join('')}</div>
    <div class="note">Tư liệu tham khảo: album <a href="https://www.facebook.com/media/set/?set=a.948600740623545&type=3" target="_blank" rel="noopener">“Vinh danh học sinh đạt giải tại các kỳ thi”</a> trên Facebook chính thức của Nhà trường (31 bài đăng, 174 ảnh). Cần đối chiếu với danh sách chính thức trước khi ghi tên, giải và năm.</div>`},
 
  {sec:'III', title:'Nghiên cứu khoa học & sáng tạo', html:`
@@ -426,6 +435,7 @@ const PAGES = [
    <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Mười câu chuyện tiêu biểu</h2>
    <p class="lead">2 chuyện Thắp lửa · 1 Thắp lửa + 1 Giữ lửa · 2 Giữ lửa · 4 Sải cánh (đề xuất, điều chỉnh theo bản thảo).</p>
    <div class="filter" id="fSt"><button class="chip on">Tất cả</button><button class="chip">Thắp lửa</button><button class="chip">Giữ lửa</button><button class="chip">Sải cánh</button></div>
+   <div class="grid" id="stReal"></div>
    <div class="grid" id="stGrid"></div>`},
 
  {sec:'IV', title:'Thư, truyện ngắn, cảm nghĩ, tranh, ảnh', html:`
@@ -548,12 +558,20 @@ drawer.innerHTML = SECTIONS.map(s =>
   PAGES.map((p, i) => p.sec === s.id ? `<button data-go="${i}">${p.title}</button>` : '').join('')).join('');
 
 // Timeline
-$('#tl').innerHTML = TIMELINE.map(t =>
-  `<div class="it ${t.era ? 'era' : ''}"><b>${t.y}</b>${t.era ? `<span class="era-tag">${t.era}</span>` : ''}<div style="font-weight:600">${t.t}</div><p>${t.d}</p></div>`).join('');
+const tlItem = t => `<div class="it ${t.era ? 'era' : ''}"><b>${t.y}</b>${t.era ? `<span class="era-tag">${t.era}</span>` : ''}<div style="font-weight:600">${t.t}</div><p>${t.d}</p></div>`;
+$('#tl').innerHTML = TIMELINE.map(tlItem).join('');
+// Mốc do thành viên đóng góp (đã duyệt) được chen vào đúng năm; văn bản người dùng nhập luôn được escape
+function renderTl(extra){
+  const yr = s => +((String(s).match(/\d{4}/) || ['9999'])[0]);
+  const all = [...TIMELINE.map(t => ({...t, _h: 1, _y: yr(t.y)})), ...extra.map(x => ({y: esc(x.ct.nam || ''), t: esc(x.t), d: esc(x.nd), _y: yr(x.ct.nam)}))];
+  all.sort((a, b) => a._y - b._y);   // sort ổn định: mốc gốc đứng trước mốc đóng góp cùng năm
+  $('#tl').innerHTML = all.map(tlItem).join('');
+}
 
 // Stories
 const stGrid = $('#stGrid');
 function renderStories(f = 'Tất cả'){
+  document.querySelectorAll('#stReal [data-era]').forEach(c => c.style.display = (f === 'Tất cả' || c.dataset.era === f) ? '' : 'none');
   stGrid.innerHTML = STORIES.filter(s => f === 'Tất cả' || s.era === f).map(s =>
     `<div class="card story"><div class="no">${String(s.n).padStart(2,'0')}</div><div><h3>[Tên câu chuyện]</h3><p>${s.era} · ${s.who}</p><p style="margin-top:6px">~150–200 chữ · 1 ảnh</p></div></div>`).join('');
 }
@@ -607,7 +625,7 @@ $('#mapForm').onsubmit = async e => {
   if (ok) alert('Cảm ơn bạn! Thông tin sẽ hiện trên bản đồ sau khi Ban biên soạn duyệt.');
 };
 renderPins();
-api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); applyContent(); } });
+api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); applyContent(); renderContrib(); } });
 
 // Time capsule
 function renderCap(){
@@ -656,6 +674,7 @@ function setEditing(on){
     } else e.removeAttribute('contenteditable');
   });
   $('#edMem').style.display = on && me.role === 'admin' ? '' : 'none';
+  $('#edAdd').style.display = on ? '' : 'none';
   if (on) edmsg.textContent =`${me.name} · ${({admin:'Quản trị viên', bientap:'Biên tập viên', congtac:'Cộng tác viên'})[me.role]} · ${me.secs === 'all' ? 'mọi phần' : 'phần ' + me.secs.join(', ')}`;
 }
 document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.ek) e.target.dataset.ed = '1'; });
@@ -693,6 +712,69 @@ $('#edSave').onclick = async () => {
   alert((r.saved ? `Đã lưu ${r.saved} đoạn` + (r.pending ? ' — đang chờ quản trị viên duyệt, sau đó mới hiện công khai.' : ' và hiển thị cho mọi người.') : 'Không có đoạn nào được lưu.') + (r.denied ? `\n${r.denied} đoạn nằm ngoài phần bạn được sửa nên bị bỏ qua.` : ''));
 };
 
+/* Cổng đóng góp: nội dung thành viên gửi (đã duyệt) tự hiện vào đúng trang */
+function imgUrl(u){
+  if (!/^https:\/\//i.test(u || '')) return '';
+  const m = u.match(/drive\.google\.com\/.*?\/d\/([\w-]+)|drive\.google\.com\/.*?[?&]id=([\w-]+)/);
+  return m ? `https://drive.google.com/thumbnail?id=${m[1] || m[2]}&sz=w900` : u;
+}
+const imgTag = (u, alt) => imgUrl(u) ? `<img class="cimg" src="${esc(imgUrl(u))}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer">` : '';
+function renderContrib(){
+  const c = remote && remote.contrib; if (!c) return;
+  $('#stReal').innerHTML = c.story.map(s => `<div class="card story real" data-era="${esc(s.ct.era || '')}">${imgTag(s.anh, s.t)}<h3>${esc(s.t)}</h3>
+    <p class="cmeta">${[s.ct.who, s.ct.vai, s.ct.lop, s.ct.era].filter(Boolean).map(esc).join(' · ')}</p>
+    <details><summary>Đọc câu chuyện</summary><p style="white-space:pre-line">${esc(s.nd)}</p></details></div>`).join('');
+  $('#achReal').innerHTML = c.achievement.map(a => `<div class="card" data-lv="${esc(a.ct.cap || '')}">${imgTag(a.anh, a.ct.ten)}<h3>${esc(a.ct.ten)}</h3>
+    <p>${[a.t, a.ct.giai, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
+  $('#achTodo').style.display = c.achievement.length ? 'none' : '';
+  if (c.milestone.length) renderTl(c.milestone);
+}
+const ctBox = $('#ctBox');
+const FORM = {
+  story: {tt: 'Tiêu đề câu chuyện', nd: 'Nội dung (khoảng 150–200 chữ)', f: `
+    <input name="who" placeholder="Người kể (họ tên)" maxlength="80" required>
+    <select name="vai"><option>Thầy cô</option><option>Cựu học sinh</option><option>Phụ huynh</option><option>Học sinh</option><option>Khác</option></select>
+    <input name="lop" placeholder="Lớp / tổ / đơn vị (không bắt buộc)" maxlength="80">
+    <select name="era"><option>Thắp lửa</option><option>Giữ lửa</option><option>Sải cánh</option></select>`},
+  achievement: {tt: 'Giải / thành tích', nd: 'Mô tả ngắn (không bắt buộc)', f: `
+    <input name="ten" placeholder="Họ tên học sinh" maxlength="80" required>
+    <input name="giai" placeholder="Kỳ thi / cuộc thi" maxlength="80">
+    <input name="nam" placeholder="Năm (ví dụ 2024)" maxlength="12">
+    <select name="cap"><option>Tiểu học</option><option>THCS</option><option>THPT</option></select>
+    <label class="ck"><input type="checkbox" name="consent" required> Đã được phép công bố họ tên và ảnh (nếu có) của học sinh này.</label>`},
+  milestone: {tt: 'Tiêu đề mốc', nd: 'Mô tả mốc — ghi rõ nguồn (văn bản, ngày, người xác nhận)', f: `
+    <input name="nam" placeholder="Thời điểm (ví dụ 2018 hoặc 15/09/2017)" maxlength="30" required>`}
+};
+const LOAI_PHAN = {story: 'IV', achievement: 'III', milestone: 'II'};
+const LOAI_TEN = {story: 'Câu chuyện (Phần IV)', achievement: 'Thành tích học sinh (Phần III)', milestone: 'Mốc thời gian (Phần II)'};
+function ctDraw(){
+  const ok = Object.keys(LOAI_PHAN).filter(k => canEdit(LOAI_PHAN[k]));
+  if (!ok.length) { ctBox.innerHTML = '<p>Tài khoản của bạn chưa được giao phần nào để đóng góp. Hãy liên hệ Ban biên soạn.</p>'; return; }
+  const k = ctBox.dataset.k && ok.includes(ctBox.dataset.k) ? ctBox.dataset.k : ok[0], F = FORM[k];
+  ctBox.dataset.k = k;
+  ctBox.innerHTML = `<form id="ctForm"><select name="loai" id="ctLoai">${ok.map(x => `<option value="${x}" ${x === k ? 'selected' : ''}>${LOAI_TEN[x]}</option>`).join('')}</select>
+    <input name="tieude" placeholder="${F.tt}" maxlength="120" required>${F.f}
+    <textarea name="noidung" rows="6" placeholder="${F.nd}" maxlength="2500" ${k === 'achievement' ? '' : 'required'}></textarea>
+    <input name="anh" type="url" placeholder="Link ảnh (Google Drive đặt chế độ “Bất kỳ ai có đường liên kết”) — không bắt buộc">
+    <p class="mn">Chỉ ghi thông tin có nguồn xác nhận. ${me.role === 'congtac' ? 'Bài của bạn sẽ chờ quản trị viên duyệt rồi mới hiện trong kỷ yếu.' : 'Bài sẽ hiện ngay trong kỷ yếu.'}</p>
+    <button>Gửi đóng góp</button></form>`;
+}
+$('#edAdd').onclick = () => { ctBox.dataset.k = ''; ctDraw(); $('#ctWrap').classList.add('on'); };
+$('#ctClose').onclick = () => $('#ctWrap').classList.remove('on');
+ctBox.addEventListener('change', e => { if (e.target.id === 'ctLoai') { ctBox.dataset.k = e.target.value; ctDraw(); } });
+ctBox.addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, v = Object.fromEntries(new FormData(f)), k = v.loai;
+  const ct = {}; ['who','vai','lop','era','ten','giai','nam','cap'].forEach(n => { if (v[n]) ct[n] = v[n]; });
+  const b = f.querySelector('button'); b.disabled = true; b.textContent = 'Đang gửi…';
+  const r = await api.call({type: 'contrib', code: me.code, loai: k, tieude: v.tieude, noidung: v.noidung, anh: v.anh, ct, consent: !!v.consent});
+  b.disabled = false; b.textContent = 'Gửi đóng góp';
+  if (!r || !r.ok) { alert(r && r.error === 'denied' ? 'Bạn chưa được giao phần này.' : r && r.error === 'code' ? 'Mã truy cập không còn hiệu lực.' : 'Chưa gửi được — kiểm tra các ô bắt buộc và thử lại.'); return; }
+  if (!r.pending) { remote = remote || {thanks: [], pins: []}; remote.contrib = remote.contrib || {story: [], achievement: [], milestone: []}; remote.contrib[k].push({t: v.tieude, nd: v.noidung, ct, anh: v.anh}); renderContrib(); }
+  $('#ctWrap').classList.remove('on');
+  alert(r.pending ? 'Đã gửi! Bài đang chờ quản trị viên duyệt.' : 'Đã đăng vào kỷ yếu.');
+});
+
 /* Bảng quản trị (chỉ admin): thành viên + bài chờ duyệt */
 const memBox = $('#memBox');
 const ROLE = {admin:'Quản trị viên', bientap:'Biên tập viên', congtac:'Cộng tác viên'};
@@ -704,6 +786,9 @@ async function memLoad(){
     <h3>Bài chờ duyệt (${r.pending.length})</h3>` + (r.pending.length ? r.pending.map(x => `
     <div class="mrow"><div><b>${esc(x.ten)}</b> · ${esc(x.t)} · <small>${esc(x.k.split('#')[0])}</small><br>${esc(x.v)}</div>
     <span><button data-rv="1" data-row="${x.row}" data-k="${esc(x.k)}">Duyệt</button><button class="g" data-rv="0" data-row="${x.row}" data-k="${esc(x.k)}">Từ chối</button></span></div>`).join('') : '<p class="mn">Không có bài nào đang chờ.</p>') + `
+    <h3>Đóng góp chờ duyệt (${(r.contribs || []).length})</h3>` + ((r.contribs || []).length ? r.contribs.map(x => `
+    <div class="mrow"><div><b>${esc(x.k)}</b> · ${LOAI_TEN[x.loai] || esc(x.loai)}<br><small>${esc(x.ten)} · ${esc(x.t)}${x.anh ? ' · có ảnh' : ''}</small><br>${esc(x.nd)}<br><small>${esc(x.ct)}</small></div>
+    <span><button data-rc="1" data-row="${x.row}" data-k="${esc(x.k)}">Duyệt</button><button class="g" data-rc="0" data-row="${x.row}" data-k="${esc(x.k)}">Từ chối</button></span></div>`).join('') : '<p class="mn">Không có đóng góp nào đang chờ.</p>') + `
     <h3>Thành viên (${r.members.length})</h3>` + r.members.map(x => `
     <div class="mrow ${x.on ? '' : 'off'}"><div><b>${esc(x.ten)}</b> · ${ROLE[x.vt] || esc(x.vt)} · phần ${esc(x.phan)}<br><small>Mã: <code>${esc(x.ma)}</code></small></div>
     <span>${x.me ? '<small>(bạn)</small>' : `<button class="g" data-tg="${x.row}" data-ma="${esc(x.ma)}">${x.on ? 'Khóa' : 'Mở lại'}</button>`}</span></div>`).join('') + `
@@ -717,7 +802,8 @@ $('#memClose').onclick = () => $('#memWrap').classList.remove('on');
 memBox.addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
   let r;
-  if (b.dataset.rv != null) r = await api.call({type: 'admin_review', code: me.code, row: +b.dataset.row, k: b.dataset.k, yes: b.dataset.rv === '1'});
+  if (b.dataset.rc != null) r = await api.call({type: 'admin_review_contrib', code: me.code, row: +b.dataset.row, k: b.dataset.k, yes: b.dataset.rc === '1'});
+  else if (b.dataset.rv != null) r = await api.call({type: 'admin_review', code: me.code, row: +b.dataset.row, k: b.dataset.k, yes: b.dataset.rv === '1'});
   else if (b.dataset.tg) r = await api.call({type: 'admin_toggle', code: me.code, row: +b.dataset.tg, ma: b.dataset.ma});
   else return;
   if (!r || !r.ok) alert(r && r.error === 'stale' ? 'Dữ liệu vừa thay đổi, đang tải lại.' : 'Không thực hiện được.');
