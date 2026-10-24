@@ -74,6 +74,12 @@ body.editing [contenteditable]:focus{outline:2px solid var(--flame);background:#
 /* cover */
 .cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#fff3df;background:radial-gradient(circle at 50% 78%,#ff9d2e 0,#e8590c 22%,#8e1b1b 55%,#2a0f16 100%)}
 .cover::before{display:none}
+.cover{background:radial-gradient(circle at 50% 30%,rgba(255,157,46,.55) 0,rgba(232,89,12,.25) 28%,transparent 60%),linear-gradient(rgba(42,15,22,.62),rgba(142,27,27,.82)),url(bia-truong.jpg) center/cover}
+.cover .clogo{width:clamp(72px,13vh,110px);height:auto;border-radius:16px;background:#fff;border:3px solid #fff3df;box-shadow:0 6px 24px rgba(0,0,0,.45);margin-top:-6px}
+.ph2{margin:0;border-radius:12px;overflow:hidden;background:var(--paper2);box-shadow:0 6px 18px rgba(60,20,0,.15)}
+.ph2 img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.ph2 figcaption{padding:8px 12px;font-size:13px;color:var(--muted)}
+.cover .gv{height:clamp(84px,27vh,300px);width:auto;max-width:100%;aspect-ratio:16/9;object-fit:cover;object-position:50% 50%;border-radius:12px;border:3px solid rgba(255,243,223,.85);box-shadow:0 10px 30px rgba(0,0,0,.45);margin-top:clamp(8px,2.4vh,22px)}
 .cover .flame{font-size:84px;filter:drop-shadow(0 0 28px #ffb347);animation:fl 2.6s ease-in-out infinite}
 @keyframes fl{50%{transform:scale(1.07) translateY(-4px)}}
 .cover h1{font-size:clamp(38px,8vw,78px);font-weight:800;margin:8px 0}
@@ -82,6 +88,10 @@ body.editing [contenteditable]:focus{outline:2px solid var(--flame);background:#
 .cover .path{margin-top:30px;display:flex;gap:10px;align-items:center;font-size:14px;color:#ffd98a}
 .cover .start{margin-top:34px;padding:13px 30px;border-radius:99px;background:#fff3df;color:#8e1b1b;font-weight:700}
 .cover .pn{color:#ffd98a}
+.cover .flame{font-size:clamp(38px,8vh,84px)}
+.cover h1{font-size:clamp(28px,min(8vw,9.5vh),78px);margin:4px 0}
+.cover .tag{margin-top:clamp(4px,1.6vh,18px)}
+.cover .start{margin-top:clamp(10px,3vh,34px);padding:clamp(8px,1.6vh,13px) 30px}
 
 /* toc */
 .toc a{display:flex;gap:14px;align-items:baseline;padding:10px 4px;border-bottom:1px dashed rgba(122,101,88,.35);text-decoration:none;color:inherit}
@@ -232,10 +242,11 @@ const SECTIONS = [
 const PAGES = [
  {sec:'I', title:'Bìa', cls:'cover', html:`
    <div class="flame">🔥</div>
+   <img class="clogo" src="logo.jpg" alt="Logo Phượng Hoàng — Học để tự chủ">
    <div class="yr">2016 · 2026</div>
    <h1>Kỷ yếu<br>Phượng Hoàng</h1>
    <p class="tag">10 năm truyền lửa — sải cánh vươn xa</p>
-   <div class="path"><span>Ngọn lửa</span>→<span>Cuốn sách</span>→<span>Đôi cánh</span></div>
+   <img class="gv" src="bia-giaovien.jpg" alt="Tập thể giáo viên Trường Phổ thông Chất lượng cao Phượng Hoàng">
    <button class="start" data-go="1">Mở sách</button>`},
 
  {sec:'I', title:'Mục lục', html:`
@@ -360,6 +371,10 @@ const PAGES = [
    <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Tổ chức & hoạt động học sinh</h2>
    <p class="lead">Đoàn Thanh niên, Chi đoàn Giáo viên, Công đoàn (nếu có) và các câu lạc bộ tiêu biểu.</p>
    <div class="grid"><div class="card"><h3>Đoàn Thanh niên</h3><p>${TODO('năm thành lập, số đoàn viên')}</p></div><div class="card"><h3>Công đoàn</h3><p>${TODO('năm thành lập, số thành viên')}</p></div><div class="card"><h3>Câu lạc bộ</h3><p>${TODO('danh mục CLB')}</p></div></div>
+   <div class="grid" style="margin-top:18px">
+     <figure class="ph2"><img src="hs-cam-la.jpg" alt="Học sinh học ngoài trời, cầm lá cây trên bãi cỏ" loading="lazy"><figcaption>Học sinh học ngoài trời dưới tán cây</figcaption></figure>
+     <figure class="ph2"><img src="hs-duoi-tan-cay.jpg" alt="Học sinh làm bài trên bãi cỏ dưới hàng cây xanh" loading="lazy"><figcaption>Sân trường xanh — nơi các em học và chơi</figcaption></figure>
+   </div>
    <div class="note">Xác nhận chính xác các tổ chức đang hoạt động; trình bày bằng ảnh và thông tin ngắn.</div>`},
 
  {sec:'III', title:'Liên cấp & chuyển đổi số', html:`
