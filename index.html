@@ -203,12 +203,14 @@ const QR = t => `<span class="qr"><i>▦</i> QR: ${t}</span>`;
 /* Phim & video: id là mã file Google Drive (file phải để "Bất kỳ ai có đường liên kết"). Thêm tập mới = thêm một dòng. */
 const VIDEOS = [
   {yt:'Io-Uykowgns', t:'Tập 1 — “Cánh cổng đầu tiên”', final:1},
+  {yt:'bfTv66BR6EQ', t:'Tập 2 — “Cô giáo đầu tiên của tôi”', final:1},
   {id:'1lvF3qGFWtPxWbUt_Ds9X_RxkernhHxaR', t:'Tập 3'},
   {id:'16mwgClMND2TnXYM06XqpVU0RsALVMv1d', t:'Tập 5'}
 ];
 const TIMELINE = [
   {y:'2009', t:'Khởi nguồn', d:'Phượng Hoàng bắt đầu đặt nền móng và định hình con đường phát triển.', era:'Thắp lửa'},
   {y:'2010–2015', t:'Bảy năm chuẩn bị', d:'Xây dựng nền tảng, tập hợp con người, chuẩn bị cơ sở vật chất. ' + TODO('mốc cụ thể từng năm')},
+  {y:'10/05/2016', t:'Trang Facebook chính thức ra đời', d:'Ngày tạo trang Facebook chính thức của Nhà trường (theo mục “Tính minh bạch của Trang”); đến 24/10/2026 có hơn 13 nghìn người theo dõi.'},
   {y:'24/06/2016', t:'Được cấp phép hoạt động giáo dục', d:'Sở Giáo dục và Đào tạo cho phép hoạt động — mốc mở đầu hành trình 10 năm (2016–2026).', era:'Giữ lửa'},
   {y:'2016', t:'Khai trường', d:'Những ngày đầu của Nhà trường. ' + TODO('ngày khai giảng, số lớp, số học sinh')},
   {y:'2017–2019', t:'Mở rộng quy mô & chương trình', d:TODO('các bước mở rộng')},
@@ -431,7 +433,7 @@ const PAGES = [
 
  {sec:'IV', title:'Phim & video', id:'videos', html:`
    <div class="kick">Phần IV · Câu chuyện</div><h2>Phim & video</h2>
-   <p class="lead">Loạt phim kể chuyện 10 năm Phượng Hoàng. Bấm ▶ để xem ngay trong trang.</p>
+   <p class="lead">Series “10 năm – 10 câu chuyện Phượng Hoàng” trên kênh chính thức của Nhà trường. Bấm ▶ để xem ngay trong trang.</p>
    <div class="grid">${VIDEOS.map(v => `
      <div class="card vid"><button class="vbtn" data-vid="${v.yt || v.id}" data-yt="${v.yt ? 1 : ''}" aria-label="Xem ${v.t}"${v.yt ? ` style="background:#000 center/cover url(https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg)"` : ''}><span>▶</span></button>
      <h3>${v.t}</h3>${v.final ? '' : '<p><span class="todo">bản nháp</span></p>'}
@@ -482,6 +484,22 @@ const PAGES = [
    </form>
    <div class="msgs" id="capList"></div>
    <div class="note">Nội dung được kiểm duyệt trước khi công bố và bảo đảm quyền riêng tư của học sinh. Thư được gửi về kho của Nhà trường và không hiển thị công khai.</div>`},
+
+ {sec:'V', title:'Kênh chính thức & liên hệ', html:`
+   <div class="kick">Phần V · Sải cánh vươn xa</div><h2>Kênh chính thức & liên hệ</h2>
+   <p class="lead">Trường Phổ thông Chất lượng cao Phượng Hoàng — <b>Học để tự chủ</b>.</p>
+   <div class="grid">
+     <div class="card"><h3>Liên hệ</h3>
+       <p>18 đường Duy Tân, Khối Tân Tiến, Phường Trường Vinh, tỉnh Nghệ An</p>
+       <p>Hotline: 0888 18 38 68 · 02388 65 67 97</p>
+       <p>Email: <a href="mailto:info@phuonghoangschool.com">info@phuonghoangschool.com</a></p></div>
+     <div class="card"><h3>Kênh truyền thông chính thức</h3>
+       <p>🌐 <a href="https://www.phuonghoangschool.com/" target="_blank" rel="noopener">Website</a></p>
+       <p>📘 <a href="https://www.facebook.com/phothongphuonghoang" target="_blank" rel="noopener">Facebook</a></p>
+       <p>📺 <a href="https://www.youtube.com/@truongphothongchatluongcaophuo" target="_blank" rel="noopener">YouTube</a></p>
+       <p>🎵 TikTok: @phs18duytantruongvinh · 🎯 Instagram: @phuonghoangschool</p></div>
+   </div>
+   <div class="note">Nguồn: trang Facebook chính thức của Nhà trường (đọc ngày 24/10/2026). Thông tin liên hệ có thể thay đổi — kiểm tra lại trước khi in.</div>`},
 
  {sec:'V', title:'Trang tiếp theo thuộc về học trò hôm nay', html:`
    <div class="kick">Phần V · Sải cánh vươn xa</div>
