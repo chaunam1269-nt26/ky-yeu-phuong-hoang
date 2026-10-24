@@ -34,6 +34,10 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .edbar button{padding:7px 14px;border-radius:9px;background:var(--flame);color:#fff;font-weight:600;font-size:13px}
 .edbar button.g{background:rgba(255,255,255,.14)}
 .edbar button:disabled{opacity:.6}
+.vid .vbtn,.vid .vframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:10px;margin-bottom:10px;background:linear-gradient(135deg,var(--night),var(--ember))}
+.vid .vbtn{display:grid;place-items:center;cursor:pointer}
+.vid .vbtn span{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--ember);display:grid;place-items:center;font-size:26px;padding-left:4px}
+.vid a{display:inline-block;margin-top:8px;font-size:13px;color:var(--flame);font-weight:600}
 .memwrap{position:fixed;inset:0;z-index:80;background:rgba(10,5,20,.6);display:none;place-items:center;padding:12px}
 .memwrap.on{display:grid}
 .mem{width:min(640px,100%);max-height:88vh;overflow:auto;background:var(--paper);color:var(--ink);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
@@ -186,6 +190,12 @@ const TODO = t => `<span class="todo">cần xác minh: ${t}</span>`;
 const PH = (t, p) => `<div class="ph ${p?'p':''}">📷 ${t}</div>`;
 const QR = t => `<span class="qr"><i>▦</i> QR: ${t}</span>`;
 
+/* Phim & video: id là mã file Google Drive (file phải để "Bất kỳ ai có đường liên kết"). Thêm tập mới = thêm một dòng. */
+const VIDEOS = [
+  {yt:'Io-Uykowgns', t:'Tập 1 — “Cánh cổng đầu tiên”', final:1},
+  {id:'1lvF3qGFWtPxWbUt_Ds9X_RxkernhHxaR', t:'Tập 3'},
+  {id:'16mwgClMND2TnXYM06XqpVU0RsALVMv1d', t:'Tập 5'}
+];
 const TIMELINE = [
   {y:'2009', t:'Khởi nguồn', d:'Phượng Hoàng bắt đầu đặt nền móng và định hình con đường phát triển.', era:'Thắp lửa'},
   {y:'2010–2015', t:'Bảy năm chuẩn bị', d:'Xây dựng nền tảng, tập hợp con người, chuẩn bị cơ sở vật chất. ' + TODO('mốc cụ thể từng năm')},
@@ -397,6 +407,15 @@ const PAGES = [
    <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Thơ, truyện ngắn, cảm nghĩ, tranh, ảnh</h2>
    <p class="lead">Chọn tác phẩm ngắn, ghi rõ tác giả và lớp / khóa.</p>
    <div class="grid">${PH('Tranh / ảnh học sinh')}<div class="card"><h3>[Tên tác phẩm]</h3><p>[Tác giả · lớp/khóa]</p></div></div>`},
+
+ {sec:'IV', title:'Phim & video', id:'videos', html:`
+   <div class="kick">Phần IV · Câu chuyện</div><h2>Phim & video</h2>
+   <p class="lead">Loạt phim kể chuyện 10 năm Phượng Hoàng. Bấm ▶ để xem ngay trong trang.</p>
+   <div class="grid">${VIDEOS.map(v => `
+     <div class="card vid"><button class="vbtn" data-vid="${v.yt || v.id}" data-yt="${v.yt ? 1 : ''}" aria-label="Xem ${v.t}"${v.yt ? ` style="background:#000 center/cover url(https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg)"` : ''}><span>▶</span></button>
+     <h3>${v.t}</h3>${v.final ? '' : '<p><span class="todo">bản nháp</span></p>'}
+     <a href="${v.yt ? 'https://www.youtube.com/watch?v=' + v.yt : 'https://drive.google.com/file/d/' + v.id + '/view'}" target="_blank" rel="noopener">${v.yt ? 'Xem trên YouTube' : 'Mở trong Google Drive'} ↗</a></div>`).join('')}</div>
+   <div class="note">Các tập đánh dấu “bản nháp” sẽ được thay bằng bản chính thức khi hoàn thiện. Các tập khác sẽ được bổ sung.</div>`},
 
  {sec:'IV', title:'Một lời cảm ơn', id:'thanks', html:`
    <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Một lời cảm ơn</h2>
@@ -699,6 +718,8 @@ function openDrawer(){ drawer.classList.add('on'); scrim.classList.add('on'); }
 function closeDrawer(){ drawer.classList.remove('on'); scrim.classList.remove('on'); }
 
 document.addEventListener('click', e => {
+  const vb = e.target.closest('[data-vid]');
+  if (vb) { bg.pause(); vb.outerHTML = `<iframe class="vframe" src="${vb.dataset.yt ? 'https://www.youtube.com/embed/' + vb.dataset.vid + '?autoplay=1&rel=0' : 'https://drive.google.com/file/d/' + vb.dataset.vid + '/preview'}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`; return; }
   const g = e.target.closest('[data-go]'); if (g){ e.preventDefault(); go(+g.dataset.go); return; }
   const id = e.target.closest('[data-goid]'); if (id) go(PAGES.findIndex(p => p.id === id.dataset.goid));
 });
