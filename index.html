@@ -349,7 +349,8 @@ const PAGES = [
    <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Gương mặt & thành tích tiêu biểu</h2>
    <p class="lead">Lựa chọn theo cấp học, lĩnh vực và năm. Ảnh học sinh phải được phép sử dụng.</p>
    <div class="filter" id="fAch"><button class="chip on">Tất cả</button><button class="chip">Tiểu học</button><button class="chip">THCS</button><button class="chip">THPT</button></div>
-   <div class="grid">${[1,2,3,4].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm]</p></div>`).join('')}</div>`},
+   <div class="grid">${[1,2,3,4].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm]</p></div>`).join('')}</div>
+   <div class="note">Tư liệu tham khảo: album <a href="https://www.facebook.com/media/set/?set=a.948600740623545&type=3" target="_blank" rel="noopener">“Vinh danh học sinh đạt giải tại các kỳ thi”</a> trên Facebook chính thức của Nhà trường (31 bài đăng, 174 ảnh). Cần đối chiếu với danh sách chính thức trước khi ghi tên, giải và năm.</div>`},
 
  {sec:'III', title:'Nghiên cứu khoa học & sáng tạo', html:`
    <div class="kick">Phần III · Dấu ấn tự hào</div><h2>Nghiên cứu khoa học & sáng tạo</h2>
@@ -418,7 +419,8 @@ const PAGES = [
  {sec:'IV', title:'Mở đầu: ngàn câu chuyện', html:`
    <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Vì sao là “ngàn câu chuyện”?</h2>
    <p class="lead">Nêu 5 tiêu chí chọn; nói rõ 10 chuyện chỉ là lát cắt đại diện cho hàng ngàn câu chuyện khác của thầy cô, cựu học sinh và phụ huynh.</p>
-   <div class="grid"><div class="card"><h3>Mỗi chuyện</h3><p>Khoảng 150–200 chữ, 1 ảnh, tên người kể và vai (thầy cô, cựu học sinh, phụ huynh).</p></div><div class="card"><h3>Nơi đóng góp</h3><p>Quét QR để gửi thêm câu chuyện của bạn.</p>${QR('Form gửi câu chuyện')}</div></div>`},
+   <div class="grid"><div class="card"><h3>Mỗi chuyện</h3><p>Khoảng 150–200 chữ, 1 ảnh, tên người kể và vai (thầy cô, cựu học sinh, phụ huynh).</p></div><div class="card"><h3>Nơi đóng góp</h3><p>Quét QR để gửi thêm câu chuyện của bạn.</p>${QR('Form gửi câu chuyện')}</div></div>
+   <div class="note">Xem thêm: album <a href="https://www.facebook.com/media/set/?set=a.1501081768708770&type=3" target="_blank" rel="noopener">“Mười năm Phượng Hoàng – Ngàn câu chuyện”</a> trên Facebook chính thức của Nhà trường (các bài kể chuyện theo từng lớp, như “Những mảnh ghép đầu tiên của 1A1”, “Những mảnh ghép nhỏ của 2A1”).</div>`},
 
  {sec:'IV', title:'Mười câu chuyện tiêu biểu', id:'stories', html:`
    <div class="kick">Phần IV · 10 năm – Ngàn câu chuyện</div><h2>Mười câu chuyện tiêu biểu</h2>
