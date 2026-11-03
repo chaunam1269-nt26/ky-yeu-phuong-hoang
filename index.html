@@ -198,12 +198,10 @@ textarea{min-height:110px;resize:vertical}
   <button class="ibtn" id="music" aria-label="Bật/tắt nhạc nền" title="Nhạc nền">♪</button>
   <button class="ibtn" id="share" aria-label="Chia sẻ trang">⤴</button>
   <button class="ibtn" id="print" aria-label="Xuất PDF / In">⎙</button>
-  <button class="ibtn" id="edit" aria-label="Biên tập (thành viên)" title="Biên tập — dành cho thành viên">✎</button>
+  <button class="ibtn" id="contrib" aria-label="Gửi bài cho kỷ yếu" title="Gửi bài cho kỷ yếu">➕</button>
 </div>
 <div class="stage" id="stage"></div>
-<div class="memwrap" id="ctWrap"><div class="mem"><div class="mh"><b>➕ Đóng góp nội dung</b><button id="ctClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="ctBox"></div></div></div>
-<div class="memwrap" id="memWrap"><div class="mem"><div class="mh"><b>👥 Thành viên &amp; duyệt bài</b><button id="memClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="memBox"></div></div></div>
-<div class="edbar" id="edbar"><span id="edmsg"></span><button id="edSave">Lưu</button><button id="edAdd" class="g">➕ Đóng góp</button><button id="edMem" class="g" style="display:none">👥 Thành viên</button><button id="edExit" class="g">Thoát</button><button id="edOut" class="g">Đăng xuất</button></div>
+<div class="memwrap" id="ctWrap"><div class="mem"><div class="mh"><b>➕ Gửi bài cho kỷ yếu</b><button id="ctClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="ctBox"></div></div></div>
 <div class="nav">
   <button class="ibtn" id="prev" aria-label="Trang trước">‹</button>
   <span class="lbl" id="lbl"></span>
@@ -666,16 +664,6 @@ const PAGES = [
 
 
 /* ============================ ENGINE ============================ */
-/* Dán URL Web app của Apps Script (kết thúc bằng /exec) vào đây để thu dữ liệu chung vào Google Sheet.
-   Để trống = chỉ lưu trên thiết bị này. */
-/* 03/11/2026: máy chủ Apps Script cũ đã bị Google khóa. Tạm ngừng nhận bài cho tới khi chuyển sang Google Form. */
-const API_URL = '';
-const FORMS_OPEN = false;
-const api = {
-  async load(){ if (!API_URL) return null; try { return await (await fetch(API_URL + '?api=1')).json(); } catch { return null; } },
-  async call(o){ if (!API_URL) return null; try { const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(o)}); return await r.json(); } catch { return null; } },
-  async send(o){ const r = await this.call(o); return !!(r && r.ok); }
-};
 const $ = s => document.querySelector(s);
 const store = {
   get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
@@ -733,131 +721,100 @@ chips('#fAch', f => document.querySelectorAll('[data-lv]').forEach(c => c.style.
 // Before/after slider
 $('#baR').oninput = e => $('#baT').textContent = e.target.value < 50 ? 'Ngày ấy ◂' : e.target.value > 50 ? '▸ Hôm nay' : 'Ngày ấy ◂ ▸ Hôm nay';
 
-// Thanks word cloud
-let remote = null;   // dữ liệu chung từ Google Sheet (nếu có API_URL)
-function renderCloud(){
-  const list = [...(remote ? remote.thanks : []), ...store.get('thanks', [])];
-  $('#thList').innerHTML = list.length
-    ? list.map(t => { const m = String(t).match(/^“([\s\S]*)” — (.*)$/); return `<div class="thx"><q>${esc(m ? m[1] : t)}</q>${m ? `<small>${esc(m[2])}</small>` : ''}</div>`; }).join('')
-    : '<div class="card blank"><p><span class="todo">chờ bài: 10–12 lời cảm ơn nguyên văn do nhóm thu thập gửi</span></p></div>';
-}
+/* ============ DỮ LIỆU CHUNG: Google Form (nhận bài) + tab CongKhai của Google Sheet (bài đã duyệt) ============
+   - Người xem gửi bài → câu trả lời vào Sheet "Kỷ yếu Phượng Hoàng – Nhận bài (Câu trả lời)".
+   - Ban Biên soạn gõ x vào cột "Duyệt" → bài hiện lên kỷ yếu (Google cập nhật bản công bố sau vài phút).
+   - Tab CongKhai chỉ lấy bài đã duyệt, có đồng ý công bố, và không bao giờ lấy "Thư gửi năm 2036". */
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdUKFiHNiqLRr8UHXuXV1DSf04ulwmXP__pRzzuCe6_B8m5xw/formResponse';
+const ENTRY = {loai:'entry.1746289529', who:'entry.1698925728', vai:'entry.1256258040', toi:'entry.666487566',
+               tieude:'entry.730651266', anh:'entry.470333362', nd:'entry.2098464185', ok:'entry.441242120'};
+const PUB_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_jenYgJZ9VyH41PdhTGPQyYCVUZ9h2vwlmeq6pgIUR_m1_HR4Jyh2Dofpvs9AxOJuldvX6w9uh4DH/pub?gid=1867915097&single=true&output=csv';
+
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
-// Gửi lên Sheet; nếu chưa cấu hình hoặc lỗi mạng thì giữ tạm trên thiết bị
-async function submitTo(type, payload, localKey, btn){
+function parseCSV(t){
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && t[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+/* Gửi một bài vào Google Form. Form không trả lời lại trình duyệt (no-cors), nên chỉ biết được là đã gửi đi. */
+async function sendForm(o, btn){
   const old = btn.textContent; btn.disabled = true; btn.textContent = 'Đang gửi…';
-  const ok = await api.send({type, ...payload});
-  if (!ok) { const l = store.get(localKey, []); l.push(type === 'thanks' ? payload.text : payload); store.set(localKey, l); }
+  const body = new URLSearchParams();
+  Object.entries(o).forEach(([k, v]) => { if (v) body.append(ENTRY[k], v); });
+  let ok = true;
+  try { await fetch(FORM_URL, {method: 'POST', mode: 'no-cors', body}); } catch { ok = false; }
   btn.disabled = false; btn.textContent = old;
+  if (!ok) alert('Chưa gửi được — hãy kiểm tra kết nối mạng và thử lại.');
   return ok;
 }
+
+let remote = null;   // bài đã duyệt, đọc từ tab CongKhai
+async function loadPublic(){
+  try {
+    const r = await fetch(PUB_CSV, {cache: 'no-store'}); if (!r.ok) return null;
+    const rows = parseCSV(await r.text()).slice(1).filter(x => x[1]);
+    const d = {thanks: [], pins: [], contrib: {story: [], achievement: [], milestone: []}};
+    rows.forEach(([ts, loai, who = '', vai = '', toi = '', tieude = '', anh = '', nd = '']) => {
+      if (loai === 'Lời cảm ơn') d.thanks.push({nd, who, vai, toi});
+      else if (loai === 'Ghim bản đồ cựu học sinh') d.pins.push({name: who + (vai ? ' · ' + vai : ''), place: toi});
+      else if (loai === 'Câu chuyện') d.contrib.story.push({t: tieude, nd, anh, ct: {who, vai}});
+      else if (loai === 'Thành tích học sinh') d.contrib.achievement.push({t: tieude, nd, anh, ct: {ten: who, cap: vai, nam: toi}});
+      else if (loai === 'Mốc thời gian') d.contrib.milestone.push({t: tieude, nd, ct: {nam: toi}});
+    });
+    return d;
+  } catch { return null; }
+}
+
+// Lời cảm ơn (trang 35)
+function renderCloud(){
+  const list = remote ? remote.thanks : [];
+  $('#thList').innerHTML = list.length
+    ? list.map(t => `<div class="thx"><q>${esc(t.nd)}</q><small>${esc(t.who)}${t.vai ? ' · ' + esc(t.vai) : ''}${t.toi ? ' gửi ' + esc(t.toi) : ''}</small></div>`).join('')
+    : '<div class="card blank"><p><span class="todo">chờ bài: 10–12 lời cảm ơn nguyên văn do nhóm thu thập gửi</span></p></div>';
+}
+const DONE = 'Đã gửi! Ban Biên soạn sẽ duyệt rồi mới đưa lên kỷ yếu.';
 $('#thForm').onsubmit = async e => {
   e.preventDefault();
-  const w = `“${$('#thIn').value.trim()}” — ${$('#thFrom').value.trim()} gửi ${$('#thTo').value.trim()}`;
-  const ok = await submitTo('thanks', {text: w, consent: $('#thOk').checked}, 'thanks', e.submitter);
-  e.target.reset(); renderCloud();
-  if (ok) alert('Cảm ơn bạn! Lời cảm ơn sẽ hiện trong kỷ yếu sau khi Ban Biên soạn duyệt.');
+  const ok = await sendForm({loai: 'Lời cảm ơn', who: $('#thFrom').value.trim(), toi: $('#thTo').value.trim(), nd: $('#thIn').value.trim(), ok: $('#thOk').checked ? 'Có' : 'Không'}, e.submitter);
+  if (ok) { e.target.reset(); alert(DONE); }
 };
 
-// Alumni map pins (bản gửi lên Sheet chờ duyệt rồi mới hiện công khai)
+// Bản đồ cựu học sinh (trang 38)
 function renderPins(){
-  const p = [...(remote ? remote.pins : []), ...store.get('pins', [])];
+  const p = remote ? remote.pins : [];
   $('#mapbox').innerHTML = p.length ? p.map(x => `<span class="pin">📍 ${esc(x.name)} — ${esc(x.place)}</span>`).join('') : '<div class="mapnote">Chưa có ghim — hãy là người đầu tiên.</div>';
 }
 $('#mapForm').onsubmit = async e => {
   e.preventDefault();
-  const ok = await submitTo('pin', {name: $('#mpName').value.trim(), place: $('#mpPlace').value.trim(), consent: $('#mpOk').checked}, 'pins', e.submitter);
-  e.target.reset(); renderPins();
-  if (ok) alert('Cảm ơn bạn! Thông tin sẽ hiện trên bản đồ sau khi Ban biên soạn duyệt.');
+  const ok = await sendForm({loai: 'Ghim bản đồ cựu học sinh', who: $('#mpName').value.trim(), toi: $('#mpPlace').value.trim(), ok: $('#mpOk').checked ? 'Có' : 'Không'}, e.submitter);
+  if (ok) { e.target.reset(); alert('Cảm ơn bạn! Ghim sẽ hiện trên bản đồ sau khi Ban Biên soạn duyệt.'); }
 };
-renderPins(); renderCloud();
-api.load().then(d => { if (d) { remote = d; renderCloud(); renderPins(); applyContent(); renderContrib(); renderStories(); } });
 
-// Time capsule
+// Hộp thư 2036 (trang 41): thư riêng tư, chỉ hiện lại trên máy người viết
 function renderCap(){
   const m = store.get('capsule', []);
   $('#capList').innerHTML = m.map(x => `<div class="msg"><b>${esc(x.name)}</b> <small>· ${esc(x.role)} · ${x.date}</small><br>${esc(x.msg)}</div>`).join('');
 }
 $('#capForm').onsubmit = async e => {
   e.preventDefault();
-  const item = {name: $('#cpName').value.trim(), role: $('#cpRole').value, msg: $('#cpMsg').value.trim(), ok: $('#cpOk').checked};
-  const sent = await api.send({type: 'capsule', ...item});
-  // Thư riêng tư: chỉ hiện lại trên máy người viết, không đọc ngược từ Sheet
-  const m = store.get('capsule', []);
-  m.unshift({...item, date: new Date().toLocaleDateString('vi-VN'), sent});
+  const item = {name: $('#cpName').value.trim(), role: $('#cpRole').value, msg: $('#cpMsg').value.trim()};
+  const ok = await sendForm({loai: 'Thư gửi năm 2036', who: item.name, vai: item.role, nd: item.msg, ok: $('#cpOk').checked ? 'Có' : 'Không'}, e.submitter);
+  if (!ok) return;
+  const m = store.get('capsule', []); m.unshift({...item, date: new Date().toLocaleDateString('vi-VN')});
   store.set('capsule', m); e.target.reset(); renderCap();
+  alert('Thư đã được cất vào hộp thư 2036.');
 };
 renderCap();
 
-/* Chế độ biên tập: thành viên nhập mã truy cập (tab ThanhVien trong Google Sheet) rồi sửa chữ ngay trên trang.
-   Vai trò admin / bientap đăng ngay, congtac chờ quản trị viên duyệt. Phân quyền được máy chủ kiểm tra lại. */
-const ED_SEL = 'h2,h3,p,li,small,td,blockquote,.kick,.lead,.note';
-const ED_SKIP = '#stGrid,#thList,#mapbox,#capList,#tocList,.pn,button,form';
-const flat = s => String(s).replace(/\s+/g, ' ').trim();
-PAGES.forEach(p => {
-  [...p.el.querySelectorAll(ED_SEL)].filter(e => !e.closest(ED_SKIP) && !e.querySelector(ED_SEL)).forEach((e, n) => {
-    e.dataset.ek = p.title + '#' + n; e.dataset.es = p.sec; e.dataset.eg = flat(e.textContent).slice(0, 40); e._cur = e.textContent;
-  });
-});
-function applyContent(){
-  if (!remote || !remote.content) return;
-  document.querySelectorAll('[data-ek]').forEach(e => {
-    const c = remote.content[e.dataset.ek];
-    if (c && c.g === e.dataset.eg && !e.dataset.ed) { e.textContent = c.v; e._cur = c.v; }   // chỉ áp dụng khi văn bản gốc còn khớp
-  });
-}
-let me = null; try { me = JSON.parse(sessionStorage.getItem('kyyeu_me')); } catch {}
-const edbar = $('#edbar'), edmsg = $('#edmsg');
-const canEdit = sec => me && (me.secs === 'all' || (me.secs || []).includes(sec));
-const dirtyEls = () => [...document.querySelectorAll('[data-ed="1"]')];
-function setEditing(on){
-  document.body.classList.toggle('editing', on);
-  edbar.classList.toggle('on', on); $('#edit').classList.toggle('on', on);
-  document.querySelectorAll('[data-ek]').forEach(e => {
-    if (on && canEdit(e.dataset.es)) {
-      try { e.contentEditable = 'plaintext-only'; } catch {}
-      if (!e.isContentEditable) e.contentEditable = 'true';
-    } else e.removeAttribute('contenteditable');
-  });
-  $('#edMem').style.display = on && me.role === 'admin' ? '' : 'none';
-  $('#edAdd').style.display = on ? '' : 'none';
-  if (on) edmsg.textContent =`${me.name} · ${({admin:'Quản trị viên', bientap:'Biên tập viên', congtac:'Cộng tác viên'})[me.role]} · ${me.secs === 'all' ? 'mọi phần' : 'phần ' + me.secs.join(', ')}`;
-}
-document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.ek) e.target.dataset.ed = '1'; });
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.ek) { e.preventDefault(); e.target.blur(); } });
-async function login(){
-  const code = (prompt('Nhập mã truy cập thành viên (do Ban biên soạn cấp):') || '').trim();
-  if (!code) return false;
-  const r = await api.call({type: 'login', code});
-  if (!r) { alert('Chưa kết nối được máy chủ. Hãy thử lại sau.'); return false; }
-  if (!r.ok) { alert('Mã không đúng, đã bị khóa hoặc bị tạm khóa do nhập sai nhiều lần.'); return false; }
-  me = {code, name: r.name, role: r.role, secs: r.secs};
-  try { sessionStorage.setItem('kyyeu_me', JSON.stringify(me)); } catch {}
-  return true;
-}
-$('#edit').onclick = async () => {
-  if (document.body.classList.contains('editing')) return $('#edExit').click();
-  if (!me && !(await login())) return;
-  setEditing(true);
-};
-$('#edExit').onclick = () => {
-  const d = dirtyEls();
-  if (d.length && !confirm('Có chỉnh sửa chưa lưu. Thoát và bỏ các thay đổi đó?')) return;
-  d.forEach(e => { e.textContent = e._cur; delete e.dataset.ed; });
-  setEditing(false);
-};
-$('#edOut').onclick = () => { $('#edExit').click(); if (!dirtyEls().length) { me = null; try { sessionStorage.removeItem('kyyeu_me'); } catch {} } };
-$('#edSave').onclick = async () => {
-  const d = dirtyEls(); if (!d.length) { alert('Chưa có thay đổi nào để lưu.'); return; }
-  const items = d.map(e => ({k: e.dataset.ek, s: e.dataset.es, g: e.dataset.eg, v: flat(e.textContent)})).filter(x => x.v);
-  const b = $('#edSave'); b.disabled = true; b.textContent = 'Đang lưu…';
-  const r = await api.call({type: 'edit', code: me.code, items});
-  b.disabled = false; b.textContent = 'Lưu';
-  if (!r || !r.ok) { alert(r && r.error === 'code' ? 'Mã truy cập không còn hiệu lực.' : 'Chưa lưu được — hãy thử lại.'); return; }
-  d.forEach(e => { const v = flat(e.textContent); if (!r.pending && remote) { remote.content = remote.content || {}; remote.content[e.dataset.ek] = {g: e.dataset.eg, v}; } e._cur = e.textContent; delete e.dataset.ed; });
-  alert((r.saved ? `Đã lưu ${r.saved} đoạn` + (r.pending ? ' — đang chờ quản trị viên duyệt, sau đó mới hiện công khai.' : ' và hiển thị cho mọi người.') : 'Không có đoạn nào được lưu.') + (r.denied ? `\n${r.denied} đoạn nằm ngoài phần bạn được sửa nên bị bỏ qua.` : ''));
-};
-
-/* Cổng đóng góp: nội dung thành viên gửi (đã duyệt) tự hiện vào đúng trang */
+// Bài đóng góp đã duyệt tự hiện vào đúng trang
 function imgUrl(u){
   if (!/^https:\/\//i.test(u || '')) return '';
   const m = u.match(/drive\.google\.com\/.*?\/d\/([\w-]+)|drive\.google\.com\/.*?[?&]id=([\w-]+)/);
@@ -866,101 +823,51 @@ function imgUrl(u){
 const imgTag = (u, alt) => imgUrl(u) ? `<img class="cimg" src="${esc(imgUrl(u))}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer">` : '';
 function renderContrib(){
   const c = remote && remote.contrib; if (!c) return;
-  $('#stReal').innerHTML = c.story.map(s => `<div class="card story real" data-era="${esc(s.ct.era || '')}">${imgTag(s.anh, s.t)}<h3>${esc(s.t)}</h3>
-    <p class="cmeta">${[s.ct.who, s.ct.vai, s.ct.lop, s.ct.era].filter(Boolean).map(esc).join(' · ')}</p>
+  $('#stReal').innerHTML = c.story.map(s => `<div class="card story real">${imgTag(s.anh, s.t)}<h3>${esc(s.t)}</h3>
+    <p class="cmeta">${[s.ct.who, s.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>
     <details><summary>Đọc câu chuyện</summary><p style="white-space:pre-line">${esc(s.nd)}</p></details></div>`).join('');
   $('#achReal').innerHTML = c.achievement.map(a => `<div class="card" data-lv="${esc(a.ct.cap || '')}">${imgTag(a.anh, a.ct.ten)}<h3>${esc(a.ct.ten)}</h3>
-    <p>${[a.t, a.ct.giai, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
+    <p>${[a.t, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
   $('#achTodo').style.display = c.achievement.length ? 'none' : '';
   if (c.milestone.length) renderTl(c.milestone);
+  renderStories();
 }
+renderPins(); renderCloud();
+loadPublic().then(d => { if (d) { remote = d; renderCloud(); renderPins(); renderContrib(); } });
+
+// Gửi bài (câu chuyện, thành tích, mốc thời gian) — ai cũng gửi được, Ban Biên soạn duyệt trong Sheet
 const ctBox = $('#ctBox');
-const FORM = {
-  story: {tt: 'Tiêu đề câu chuyện', nd: 'Nội dung (chuyện kể sâu 400–500 chữ; lát cắt ký ức 50–150 chữ)', f: `
+const CT = {
+  'Câu chuyện': `<input name="tieude" placeholder="Tiêu đề câu chuyện" maxlength="120" required>
     <input name="who" placeholder="Người kể (họ tên)" maxlength="80" required>
-    <select name="vai"><option>Thầy cô</option><option>Cựu học sinh</option><option>Phụ huynh</option><option>Học sinh</option><option>Khác</option></select>
-    <input name="lop" placeholder="Lớp / tổ / đơn vị (không bắt buộc)" maxlength="80">
-    <select name="era"><option>Thắp lửa</option><option>Giữ lửa</option><option>Sải cánh</option></select>`},
-  achievement: {tt: 'Giải / thành tích', nd: 'Mô tả ngắn (không bắt buộc)', f: `
-    <input name="ten" placeholder="Họ tên học sinh" maxlength="80" required>
-    <input name="giai" placeholder="Kỳ thi / cuộc thi" maxlength="80">
-    <input name="nam" placeholder="Năm (ví dụ 2024)" maxlength="12">
-    <select name="cap"><option>Tiểu học</option><option>THCS</option><option>THPT</option></select>
-    <label class="ck"><input type="checkbox" name="consent" required> Đã được phép công bố họ tên và ảnh (nếu có) của học sinh này.</label>`},
-  milestone: {tt: 'Tiêu đề mốc', nd: 'Mô tả mốc — ghi rõ nguồn (văn bản, ngày, người xác nhận)', f: `
-    <input name="nam" placeholder="Thời điểm (ví dụ 2018 hoặc 15/09/2017)" maxlength="30" required>`}
+    <input name="vai" placeholder="Vai: thầy cô, phụ huynh, học sinh lớp…, cựu học sinh khóa…" maxlength="80">
+    <textarea name="nd" rows="7" placeholder="Nội dung: có thời điểm, tình huống, diễn biến và điều đã thay đổi (chuyện kể sâu 400–500 chữ; lát cắt ký ức 50–150 chữ)" required></textarea>`,
+  'Thành tích học sinh': `<input name="who" placeholder="Họ tên học sinh" maxlength="80" required>
+    <select name="vai"><option>Tiểu học</option><option>THCS</option><option>THPT</option></select>
+    <input name="tieude" placeholder="Giải / kỳ thi" maxlength="120" required>
+    <input name="toi" placeholder="Năm (ví dụ 2024)" maxlength="12">
+    <textarea name="nd" rows="4" placeholder="Hành trình phía sau kết quả (không bắt buộc)"></textarea>`,
+  'Mốc thời gian': `<input name="toi" placeholder="Thời điểm (ví dụ 15/09/2017)" maxlength="30" required>
+    <input name="tieude" placeholder="Tiêu đề mốc" maxlength="120" required>
+    <input name="who" placeholder="Người gửi" maxlength="80" required>
+    <textarea name="nd" rows="4" placeholder="Mô tả mốc — ghi rõ nguồn (văn bản, ngày, người xác nhận)" required></textarea>`
 };
-const LOAI_PHAN = {story: 'IV', achievement: 'III', milestone: 'II'};
-const LOAI_TEN = {story: 'Câu chuyện (Phần IV)', achievement: 'Thành tích học sinh (Phần III)', milestone: 'Mốc thời gian (Phần II)'};
-function ctDraw(){
-  const ok = Object.keys(LOAI_PHAN).filter(k => canEdit(LOAI_PHAN[k]));
-  if (!ok.length) { ctBox.innerHTML = '<p>Tài khoản của bạn chưa được giao phần nào để đóng góp. Hãy liên hệ Ban biên soạn.</p>'; return; }
-  const k = ctBox.dataset.k && ok.includes(ctBox.dataset.k) ? ctBox.dataset.k : ok[0], F = FORM[k];
-  ctBox.dataset.k = k;
-  ctBox.innerHTML = `<form id="ctForm"><select name="loai" id="ctLoai">${ok.map(x => `<option value="${x}" ${x === k ? 'selected' : ''}>${LOAI_TEN[x]}</option>`).join('')}</select>
-    <input name="tieude" placeholder="${F.tt}" maxlength="120" required>${F.f}
-    <textarea name="noidung" rows="6" placeholder="${F.nd}" maxlength="2500" ${k === 'achievement' ? '' : 'required'}></textarea>
-    <input name="anh" type="url" placeholder="Link ảnh (Google Drive đặt chế độ “Bất kỳ ai có đường liên kết”) — không bắt buộc">
-    <p class="mn">Chỉ ghi thông tin có nguồn xác nhận. ${me.role === 'congtac' ? 'Bài của bạn sẽ chờ quản trị viên duyệt rồi mới hiện trong kỷ yếu.' : 'Bài sẽ hiện ngay trong kỷ yếu.'}</p>
-    <button>Gửi đóng góp</button></form>`;
+function ctDraw(k){
+  ctBox.innerHTML = `<form id="ctForm"><select id="ctLoai">${Object.keys(CT).map(x => `<option ${x === k ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    ${CT[k]}
+    <input name="anh" type="url" placeholder="Link ảnh Google Drive (đặt “Bất kỳ ai có đường liên kết”) — không bắt buộc">
+    <label class="ck"><input type="checkbox" name="ok" required> Tôi đồng ý công bố nội dung này (và ảnh, nếu có) trong kỷ yếu; thông tin học sinh đã được phép.</label>
+    <p class="mn">Chỉ ghi thông tin có nguồn xác nhận. Bài được Ban Biên soạn duyệt rồi mới hiện trong kỷ yếu.</p>
+    <button>Gửi bài</button></form>`;
 }
-$('#edAdd').onclick = () => { ctBox.dataset.k = ''; ctDraw(); $('#ctWrap').classList.add('on'); };
+$('#contrib').onclick = () => { ctDraw('Câu chuyện'); $('#ctWrap').classList.add('on'); };
 $('#ctClose').onclick = () => $('#ctWrap').classList.remove('on');
-ctBox.addEventListener('change', e => { if (e.target.id === 'ctLoai') { ctBox.dataset.k = e.target.value; ctDraw(); } });
+ctBox.addEventListener('change', e => { if (e.target.id === 'ctLoai') ctDraw(e.target.value); });
 ctBox.addEventListener('submit', async e => {
   e.preventDefault();
-  const f = e.target, v = Object.fromEntries(new FormData(f)), k = v.loai;
-  const ct = {}; ['who','vai','lop','era','ten','giai','nam','cap'].forEach(n => { if (v[n]) ct[n] = v[n]; });
-  const b = f.querySelector('button'); b.disabled = true; b.textContent = 'Đang gửi…';
-  const r = await api.call({type: 'contrib', code: me.code, loai: k, tieude: v.tieude, noidung: v.noidung, anh: v.anh, ct, consent: !!v.consent});
-  b.disabled = false; b.textContent = 'Gửi đóng góp';
-  if (!r || !r.ok) { alert(r && r.error === 'denied' ? 'Bạn chưa được giao phần này.' : r && r.error === 'code' ? 'Mã truy cập không còn hiệu lực.' : 'Chưa gửi được — kiểm tra các ô bắt buộc và thử lại.'); return; }
-  if (!r.pending) { remote = remote || {thanks: [], pins: []}; remote.contrib = remote.contrib || {story: [], achievement: [], milestone: []}; remote.contrib[k].push({t: v.tieude, nd: v.noidung, ct, anh: v.anh}); renderContrib(); }
-  $('#ctWrap').classList.remove('on');
-  alert(r.pending ? 'Đã gửi! Bài đang chờ quản trị viên duyệt.' : 'Đã đăng vào kỷ yếu.');
-});
-
-/* Bảng quản trị (chỉ admin): thành viên + bài chờ duyệt */
-const memBox = $('#memBox');
-const ROLE = {admin:'Quản trị viên', bientap:'Biên tập viên', congtac:'Cộng tác viên'};
-async function memLoad(){
-  memBox.innerHTML = '<p>Đang tải…</p>';
-  const r = await api.call({type: 'admin_list', code: me.code});
-  if (!r || !r.ok) { memBox.innerHTML = '<p>Không tải được dữ liệu.</p>'; return; }
-  memBox.innerHTML = `
-    <h3>Bài chờ duyệt (${r.pending.length})</h3>` + (r.pending.length ? r.pending.map(x => `
-    <div class="mrow"><div><b>${esc(x.ten)}</b> · ${esc(x.t)} · <small>${esc(x.k.split('#')[0])}</small><br>${esc(x.v)}</div>
-    <span><button data-rv="1" data-row="${x.row}" data-k="${esc(x.k)}">Duyệt</button><button class="g" data-rv="0" data-row="${x.row}" data-k="${esc(x.k)}">Từ chối</button></span></div>`).join('') : '<p class="mn">Không có bài nào đang chờ.</p>') + `
-    <h3>Đóng góp chờ duyệt (${(r.contribs || []).length})</h3>` + ((r.contribs || []).length ? r.contribs.map(x => `
-    <div class="mrow"><div><b>${esc(x.k)}</b> · ${LOAI_TEN[x.loai] || esc(x.loai)}<br><small>${esc(x.ten)} · ${esc(x.t)}${x.anh ? ' · có ảnh' : ''}</small><br>${esc(x.nd)}<br><small>${esc(x.ct)}</small></div>
-    <span><button data-rc="1" data-row="${x.row}" data-k="${esc(x.k)}">Duyệt</button><button class="g" data-rc="0" data-row="${x.row}" data-k="${esc(x.k)}">Từ chối</button></span></div>`).join('') : '<p class="mn">Không có đóng góp nào đang chờ.</p>') + `
-    <h3>Thành viên (${r.members.length})</h3>` + r.members.map(x => `
-    <div class="mrow ${x.on ? '' : 'off'}"><div><b>${esc(x.ten)}</b> · ${ROLE[x.vt] || esc(x.vt)} · phần ${esc(x.phan)}<br><small>Mã: <code>${esc(x.ma)}</code></small></div>
-    <span>${x.me ? '<small>(bạn)</small>' : `<button class="g" data-tg="${x.row}" data-ma="${esc(x.ma)}">${x.on ? 'Khóa' : 'Mở lại'}</button>`}</span></div>`).join('') + `
-    <h3>Thêm thành viên</h3>
-    <form id="memAdd"><input name="ten" placeholder="Họ tên" required maxlength="60">
-    <select name="vt"><option value="congtac">Cộng tác viên (chờ duyệt)</option><option value="bientap">Biên tập viên (đăng ngay)</option><option value="admin">Quản trị viên</option></select>
-    <input name="phan" placeholder="Phần được sửa: I,II,…,VI hoặc all" value="I,II,III,IV,V,VI" maxlength="30"><button>Thêm &amp; tạo mã</button></form>`;
-}
-$('#edMem').onclick = () => { $('#memWrap').classList.add('on'); memLoad(); };
-$('#memClose').onclick = () => $('#memWrap').classList.remove('on');
-memBox.addEventListener('click', async e => {
-  const b = e.target.closest('button'); if (!b) return;
-  let r;
-  if (b.dataset.rc != null) r = await api.call({type: 'admin_review_contrib', code: me.code, row: +b.dataset.row, k: b.dataset.k, yes: b.dataset.rc === '1'});
-  else if (b.dataset.rv != null) r = await api.call({type: 'admin_review', code: me.code, row: +b.dataset.row, k: b.dataset.k, yes: b.dataset.rv === '1'});
-  else if (b.dataset.tg) r = await api.call({type: 'admin_toggle', code: me.code, row: +b.dataset.tg, ma: b.dataset.ma});
-  else return;
-  if (!r || !r.ok) alert(r && r.error === 'stale' ? 'Dữ liệu vừa thay đổi, đang tải lại.' : 'Không thực hiện được.');
-  memLoad();
-});
-memBox.addEventListener('submit', async e => {
-  e.preventDefault();
-  const f = e.target, v = Object.fromEntries(new FormData(f));
-  const r = await api.call({type: 'admin_add', code: me.code, ten: v.ten, vt: v.vt, phan: v.phan});
-  if (!r || !r.ok) { alert('Chưa thêm được — kiểm tra họ tên và phần được sửa (I–VI).'); return; }
-  await memLoad();
-  prompt(`Đã tạo thành viên "${v.ten}". Mã truy cập (hãy gửi riêng cho người đó):`, r.code);
+  const v = Object.fromEntries(new FormData(e.target));
+  const ok = await sendForm({loai: $('#ctLoai').value, who: v.who, vai: v.vai, toi: v.toi, tieude: v.tieude, anh: v.anh, nd: v.nd, ok: v.ok ? 'Có' : 'Không'}, e.target.querySelector('button'));
+  if (ok) { $('#ctWrap').classList.remove('on'); alert(DONE); }
 });
 
 // Counting stats
@@ -1035,16 +942,6 @@ paintMusic();
 }, {once: true}));
 document.addEventListener('visibilitychange', () => { document.hidden ? bg.pause() : playMusic(); });
 
-// Tạm ngừng nhận: khóa các ô gửi và ẩn nút biên tập, để không ai tưởng đã gửi được
-if (!FORMS_OPEN) {
-  $('#edit').style.display = 'none';
-  ['#thForm', '#mapForm', '#capForm'].forEach(sel => {
-    const f = $(sel); if (!f) return;
-    f.querySelectorAll('input,textarea,select,button').forEach(x => x.disabled = true);
-    f.style.opacity = '.55';
-    f.insertAdjacentHTML('beforebegin', '<div class="note" style="margin-bottom:10px"><b>Tạm ngừng nhận.</b> Ô gửi đang được chuyển sang hệ thống mới và sẽ mở lại sớm.</div>');
-  });
-}
 const m = location.hash.match(/^#p(\d+)$/);
 go(m ? +m[1] - 1 : 0, false);
 </script>
