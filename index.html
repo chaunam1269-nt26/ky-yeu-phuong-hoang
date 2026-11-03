@@ -84,6 +84,9 @@ body.editing [contenteditable]:focus{outline:2px solid var(--flame);background:#
 .thx{background:var(--paper2);border-radius:12px;padding:14px 16px}
 .thx q{display:block;font-family:'Playfair Display',serif;font-style:italic;font-size:17px;line-height:1.5}
 .thx small{display:block;margin-top:6px;color:var(--muted)}
+body.pub .int{display:none}
+.wip{margin:18px 0;padding:16px 18px;border-radius:14px;border:1.5px dashed rgba(232,89,12,.45);color:var(--muted);max-width:60ch}
+.bbsmark{position:fixed;left:50%;bottom:66px;transform:translateX(-50%);z-index:25;background:var(--gold);color:#2a1a14;font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px}
 .todo{display:inline-block;background:#fff1c9;color:#7a5200;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600}
 @media (prefers-color-scheme:dark){.todo{background:#4a3a10;color:#ffd77a}}
 
@@ -367,7 +370,7 @@ const PAGES = [
      <div class="card"><h3>Phim tư liệu</h3><p>“Điều em mang theo” — một phim đầy đủ, khoảng 21 phút, công bố sau lễ 20/11.</p><button class="btn" style="margin-top:10px;padding:8px 16px;font-size:13px" data-goid="film">Tới trang phim →</button></div>
    </div>`},
 
- {sec:'I', title:'Lời ngỏ Ban Biên soạn', html:`
+ {sec:'I', title:'Lời ngỏ Ban Biên soạn', wip:1, html:`
    ${K(P1, 3)}<h2>Lời ngỏ Ban Biên soạn</h2>
    <p class="lead">Lưu giữ lịch sử, tri ân các thế hệ, ghi nhận những giá trị đã được xây dựng và mở ra hành trình tiếp theo.</p>
    <div class="card blank"><p>${WAIT('Ban Biên soạn viết lời ngỏ, giải thích biểu tượng trong 2–3 câu')}</p></div>
@@ -377,12 +380,12 @@ const PAGES = [
      <div class="c c3"><div class="ic">🕊️</div><h3>Đôi cánh</h3><small>Những học trò trưởng thành.</small></div>
    </div>`},
 
- {sec:'I', title:'Thư chúc mừng', html:`
+ {sec:'I', title:'Thư chúc mừng', wip:1, html:`
    ${K(P1, 4)}<h2>Thư chúc mừng</h2>
    <p class="lead">Thư của lãnh đạo ngành giáo dục hoặc lãnh đạo địa phương.</p>
    <div class="card blank"><p>${WAIT('tùy điều kiện thực tế và văn bản được xác nhận')}</p></div>`},
 
- {sec:'I', title:'Thông điệp Chủ tịch trường', html:`
+ {sec:'I', title:'Thông điệp Chủ tịch trường', wip:1, html:`
    ${K(P1, 5)}<h2>Thông điệp của Chủ tịch trường</h2>
    <p class="lead">Nhìn lại chặng đường, tri ân các thế hệ, định hướng cho thập niên tiếp theo.</p>
    <div class="card blank" style="max-width:760px"><img src="chu-tich.webp" alt="Chủ tịch trường Nguyễn Châu Nam" style="float:left;width:min(200px,40%);border-radius:12px;margin:0 18px 10px 0;box-shadow:var(--shadow)">
@@ -418,10 +421,10 @@ const PAGES = [
 
  {sec:'II', title:'Mười năm trong một trang', id:'timeline', html:`
    ${K(P2, 11)}<h2>Mười năm trong một trang</h2>
-   <p class="lead">Timeline 2009–2026: mười hai mốc có ý nghĩa, đã có nguồn trong bài viết.</p>
+   <p class="lead">Mười hai dấu mốc của hành trình 2009–2026.</p>
    <div class="tl" id="tl"></div>`},
 
- {sec:'II', title:'Những người đặt nền móng', html:`
+ {sec:'II', title:'Những người đặt nền móng', wip:1, html:`
    ${K(P2, 12)}<h2>Những người đặt nền móng</h2>
    <p class="lead">Những người sáng lập; NGƯT Đậu Văn Mùi – Hiệu trưởng đầu tiên; những thầy cô nhận lời về khi trường còn chưa có học sinh.</p>
    <div class="grid">
@@ -431,7 +434,7 @@ const PAGES = [
    </div>
    <div class="note">Tập trung vào chân dung, đóng góp riêng và ký ức; không kể lại diễn biến đã có ở trang 6–7.</div>`},
 
- {sec:'II', title:'Những người tiếp nối', html:`
+ {sec:'II', title:'Những người tiếp nối', wip:1, html:`
    ${K(P2, 13)}<h2>Những người tiếp nối</h2>
    <p class="lead">Các thế hệ lãnh đạo và thầy cô qua từng giai đoạn — chọn theo đóng góp và giai đoạn gắn bó, không theo chức vụ.</p>
    <div class="grid">
@@ -440,7 +443,7 @@ const PAGES = [
      <div class="card">${PH('Chân dung',1)}<h3>[Họ tên]</h3><p>[Vai trò · giai đoạn gắn bó]</p><p>${WAIT('chân dung 120–150 chữ')}</p></div>
    </div>`},
 
- {sec:'II', title:'Những người lặng lẽ giữ nhịp trường', html:`
+ {sec:'II', title:'Những người lặng lẽ giữ nhịp trường', wip:1, html:`
    ${K(P2, 14)}<h2>Những người lặng lẽ giữ nhịp trường</h2>
    <p class="lead">Nhân viên bếp, bảo vệ, vệ sinh, văn phòng, y tế… và lời tri ân tập thể.</p>
    <div class="grid">
@@ -452,7 +455,7 @@ const PAGES = [
 
  {sec:'II', title:'Ngày ấy và hôm nay', id:'film', html:`
    ${K(P2, 15)}<h2>Ngày ấy và hôm nay</h2>
-   <p class="lead">4–5 cặp ảnh đối chiếu, ghi rõ năm và nguồn. Kéo thanh trượt để so sánh.</p>
+   <p class="lead int">4–5 cặp ảnh đối chiếu, ghi rõ năm và nguồn. Kéo thanh trượt để so sánh.</p>
    <div class="ba" id="ba"><div class="ph" style="aspect-ratio:16/9">📷 Ảnh “ngày ấy”</div>
    <input type="range" min="0" max="100" value="50" id="baR" aria-label="So sánh ảnh xưa và nay">
    <p style="text-align:center;font-size:13px;color:var(--muted)" id="baT">Ngày ấy ◂ ▸ Hôm nay</p></div>
@@ -467,7 +470,7 @@ const PAGES = [
  /* ---- III. DẤU ẤN TỰ HÀO (trang 16–26) ---- */
  {sec:'III', title:'Phượng Hoàng qua những con số', html:`
    ${K(P3, 16)}<h2>Phượng Hoàng qua những con số</h2>
-   <p class="lead">Mỗi con số ghi thời điểm chốt và nguồn.</p>
+   <p class="lead int">Mỗi con số ghi thời điểm chốt và nguồn.</p>
    <div class="stats">
      <div class="stat"><div class="v" data-n="10">0</div><div class="l">năm hoạt động giáo dục (2016–2026)</div></div>
      <div class="stat"><div class="v" data-n="3">0</div><div class="l">lớp học đầu tiên, gần 100 học sinh (9/2016)</div></div>
@@ -481,7 +484,7 @@ const PAGES = [
    </div>
    <div class="note">Nguồn: bài viết các trang 7–10 và thống kê của Nhà trường. ${TODO('thời điểm chốt và văn bản nguồn của từng số')}</div>`},
 
- {sec:'III', title:'Khung giáo dục Phượng Hoàng', html:`
+ {sec:'III', title:'Khung giáo dục Phượng Hoàng', wip:1, html:`
    ${K(P3, 17)}<h2>Khung giáo dục Phượng Hoàng</h2>
    <p class="lead">5 trụ cột, 20 năng lực cốt lõi và lộ trình phát triển học sinh từ lớp 1 đến lớp 12.</p>
    <p style="margin:6px 0 18px;text-align:center;font-family:'Playfair Display';font-size:20px;font-style:italic;color:var(--flame)">“Học để tự chủ – Trưởng thành để làm chủ tương lai.”</p>
@@ -489,7 +492,7 @@ const PAGES = [
    <div class="card" style="margin-top:16px"><h3>Một ví dụ thật</h3><p>Hành trình mục tiêu học tập của một học sinh, dùng hồ sơ đã che thông tin.</p><p>${WAIT('hồ sơ ví dụ')}</p></div>
    <div class="note">Giải thích bằng ví dụ thay vì chỉ có sơ đồ. Chép đúng tên 5 trụ cột và 20 năng lực từ văn bản khung giáo dục chính thức. ${TODO('tên 5 trụ cột, 20 năng lực')}</div>`},
 
- ...TO_CM.map(([t, n, pg]) => ({sec:'III', title:`Dấu ấn chuyên môn — ${t}`, html:`
+ ...TO_CM.map(([t, n, pg]) => ({sec:'III', title:`Dấu ấn chuyên môn — ${t}`, wip:1, html:`
    ${K(P3, pg)}<h2>Dấu ấn chuyên môn — ${t}</h2>
    <p class="lead">Tổ trưởng: ${n}. Mỗi trang là một câu chuyện, không liệt kê thành tích hay danh sách tổ viên.</p>
    <div class="card blank"><p>${WAIT('bài 300–400 chữ, 1–2 ảnh')}</p></div>
@@ -501,11 +504,11 @@ const PAGES = [
    </div>
    ${TO_NOTE[t] ? `<div class="note">${TO_NOTE[t]}</div>` : ''}`})),
 
- {sec:'III', title:'Học trò và những điều các em làm được', html:`
+ {sec:'III', title:'Học trò và những điều các em làm được', wip:1, html:`
    ${K(P3, 24)}<h2>Học trò và những điều các em làm được</h2>
    <p class="lead">3–4 thành tích tiêu biểu kèm hành trình phía sau kết quả, và một sản phẩm STEM / STREAMS / AI.</p>
    <div class="filter" id="fAch"><button class="chip on">Tất cả</button><button class="chip">Tiểu học</button><button class="chip">THCS</button><button class="chip">THPT</button></div>
-   <div class="grid" id="achReal"></div>
+   <div class="grid keep" id="achReal"></div>
    <div class="grid" id="achTodo">${[1,2,3].map(i=>`<div class="card" data-lv="${['Tiểu học','THCS','THPT'][i-1]}">${PH('Ảnh học sinh',1)}<h3>[Họ tên]</h3><p>[Thành tích · năm · hành trình phía sau]</p></div>`).join('')}</div>
    <div class="card" style="margin-top:14px"><h3>Một sản phẩm sáng tạo</h3><p>Kể từ câu hỏi ban đầu → thử, sai → điều chỉnh.</p><p>${WAIT('tên dự án, nhóm tác giả, lớp')}</p></div>
    <div class="note">Chỉ chọn thành tích có minh chứng; ảnh học sinh phải được phép sử dụng. Danh sách giải đầy đủ ở trang 43. Tư liệu tham khảo: album <a href="https://www.facebook.com/media/set/?set=a.948600740623545&type=3" target="_blank" rel="noopener">“Vinh danh học sinh đạt giải tại các kỳ thi”</a> trên Facebook của Nhà trường.</div>`},
@@ -516,7 +519,7 @@ const PAGES = [
    <div class="grid">
      <div class="card"><h3>Đoàn – Đội</h3><p>${TODO('năm thành lập, hoạt động tiêu biểu')}</p></div>
      <div class="card"><h3>CLB bóng rổ Bullet</h3><p>${WAIT('câu chuyện câu lạc bộ')}</p></div>
-     <div class="card"><h3>Hội khỏe Phượng Hoàng 2026</h3><p>Đặt trong truyền thống rèn luyện sức khỏe của trường: môn thể thao trong chính khóa, các câu lạc bộ. Không làm bảng giải thưởng.</p></div>
+     <div class="card int"><h3>Hội khỏe Phượng Hoàng 2026</h3><p>Đặt trong truyền thống rèn luyện sức khỏe của trường: môn thể thao trong chính khóa, các câu lạc bộ. Không làm bảng giải thưởng.</p></div>
    </div>
    <div class="grid" style="margin-top:18px">
      <figure class="ph2"><img src="hs-cam-la.jpg" alt="Học sinh học ngoài trời, cầm lá cây trên bãi cỏ" loading="lazy"><figcaption>Học sinh học ngoài trời dưới tán cây</figcaption></figure>
@@ -526,41 +529,41 @@ const PAGES = [
 
  {sec:'III', title:'Phượng Hoàng với cộng đồng', html:`
    ${K(P3, 26)}<h2>Phượng Hoàng với cộng đồng</h2>
-   <p class="lead">Hai câu chuyện chính, cho thấy sự tiếp nối từ chuyến thăm đầu tiên tháng 9/2016 đến các hoạt động về sau.</p>
+   <p class="lead">Từ chuyến thăm đầu tiên tháng 9/2016, sẻ chia với cộng đồng trở thành một phần của việc học ở Phượng Hoàng.</p>
    <div class="grid">
      <div class="card">${PH('Ảnh câu chuyện chính 1')}<h3>[Câu chuyện chính 1]</h3><p>${WAIT('việc làm cụ thể, lời người tham gia và người đón nhận')}</p></div>
      <div class="card">${PH('Ảnh câu chuyện chính 2')}<h3>[Câu chuyện chính 2]</h3><p>${WAIT('việc làm cụ thể, lời người tham gia và người đón nhận')}</p></div>
    </div>
-   <p style="margin-top:16px;font-size:14px"><b>Các hoạt động khác</b> (ảnh, chú thích ngắn): chuyến thăm trung tâm bảo trợ xã hội 9/2016 · tiếng Anh tại Làng trẻ SOS Vinh (từ 2022) · hỗ trợ vùng bão lũ 219 triệu đồng (9/2024) · Family Run · Hội chợ Xuân · “Cha mẹ đồng hành cùng con” · “Phòng giúp phòng, trường giúp trường” · “10 tuần việc tốt – 10 năm truyền lửa”.</p>
+   <p style="margin-top:16px;font-size:14px"><b>Những hoạt động tiêu biểu:</b> chuyến thăm trung tâm bảo trợ xã hội 9/2016 · tiếng Anh tại Làng trẻ SOS Vinh (từ 2022) · hỗ trợ vùng bão lũ 219 triệu đồng (9/2024) · Family Run · Hội chợ Xuân · “Cha mẹ đồng hành cùng con” · “Phòng giúp phòng, trường giúp trường” · “10 tuần việc tốt – 10 năm truyền lửa”.</p>
    <div class="note">Không liệt kê tất cả ngang nhau. Xác minh thời gian, số liệu, chứng từ và quyền sử dụng ảnh; ảnh trẻ em phải được phép.</div>`},
 
  /* ---- IV. 10 NĂM – NGÀN CÂU CHUYỆN (trang 27–35) ---- */
- {sec:'IV', title:'Lời dẫn: ngàn câu chuyện', html:`
+ {sec:'IV', title:'Lời dẫn: ngàn câu chuyện', wip:1, html:`
    ${K(P4, 27)}<h2>10 năm – Ngàn câu chuyện</h2>
    <p class="lead">Lời dẫn ngắn và một ký ức mở phần.</p>
    <div class="card blank"><p>${WAIT('lời dẫn 3–4 câu và một ký ức ngắn')}</p></div>
    <div class="note">Xem thêm: album <a href="https://www.facebook.com/media/set/?set=a.1501081768708770&type=3" target="_blank" rel="noopener">“Mười năm Phượng Hoàng – Ngàn câu chuyện”</a> trên Facebook của Nhà trường.</div>`},
 
- {sec:'IV', title:'Bốn câu chuyện kể sâu', id:'stories', html:`
+ {sec:'IV', title:'Bốn câu chuyện kể sâu', wip:1, id:'stories', html:`
    ${K(P4, '28–31')}<h2>Bốn câu chuyện kể sâu</h2>
    <p class="lead">Mỗi chuyện một trang, 400–500 chữ, 1–2 ảnh: có thời điểm, tình huống, diễn biến và điều đã thay đổi.</p>
-   <div class="grid" id="stReal"></div>
+   <div class="grid keep" id="stReal"></div>
    <div class="grid" id="stGrid"></div>
    <div class="note">Người kể đọc lại và xác nhận nội dung trước khi in.</div>`},
 
- {sec:'IV', title:'Lát cắt ký ức', html:`
+ {sec:'IV', title:'Lát cắt ký ức', wip:1, html:`
    ${K(P4, '32–33')}<h2>Lát cắt ký ức</h2>
    <p class="lead">8–10 mẩu ngắn, 50–150 chữ: một câu nói, một lá thư, một trang vở, một bức ảnh có lời kể.</p>
    <div class="grid">${[1,2,3,4].map(i=>`<div class="card"><h3>[Lát cắt ${i}]</h3><p>[Người kể · vai: thầy cô, phụ huynh, học sinh, cựu học sinh, nhân viên]</p></div>`).join('')}</div>`},
 
- {sec:'IV', title:'Tác phẩm của học trò', html:`
+ {sec:'IV', title:'Tác phẩm của học trò', wip:1, html:`
    ${K(P4, 34)}<h2>Tác phẩm của học trò</h2>
    <p class="lead">Thơ, truyện ngắn, cảm nghĩ, tranh, ảnh — ghi rõ tác giả và lớp / khóa.</p>
    <div class="grid">${PH('Tranh của em Bách (nếu gia đình đồng ý)')}${PH('Tranh / ảnh học sinh')}<div class="card"><h3>[Tên tác phẩm]</h3><p>[Tác giả · lớp/khóa]</p></div></div>`},
 
  {sec:'IV', title:'Một lời cảm ơn', id:'thanks', html:`
    ${K(P4, 35)}<h2>Một lời cảm ơn</h2>
-   <p class="lead">10–12 lời cảm ơn giữ nguyên văn, có người gửi, người nhận và một kỷ niệm cụ thể.</p>
+   <p class="lead">Gửi một lời cảm ơn tới thầy cô, bạn bè, người đã đồng hành cùng bạn ở Phượng Hoàng — kèm một kỷ niệm cụ thể.</p>
    <div class="msgs" id="thList"></div>
    <form class="cap" id="thForm" style="margin-top:16px">
      <input id="thTo" maxlength="60" placeholder="Gửi tới ai? (ví dụ: cô Hương, lớp 6A1…)" required>
@@ -569,10 +572,10 @@ const PAGES = [
      <label style="font-size:13px"><input type="checkbox" id="thOk" required style="width:auto"> Tôi đồng ý công bố lời cảm ơn này trong kỷ yếu.</label>
      <button class="btn">Gửi lời cảm ơn</button>
    </form>
-   <div class="note">Lời cảm ơn được Ban Biên soạn duyệt trước khi hiện công khai.</div>`},
+   <div class="note pubok">Lời cảm ơn được Ban Biên soạn duyệt trước khi hiện công khai.</div>`},
 
  /* ---- V. SẢI CÁNH VƯƠN XA (trang 36–41) ---- */
- {sec:'V', title:'Những đôi cánh trưởng thành', html:`
+ {sec:'V', title:'Những đôi cánh trưởng thành', wip:1, html:`
    ${K(P5, '36–37')}<h2>Những đôi cánh trưởng thành từ Phượng Hoàng</h2>
    <p class="lead">Ba cựu học sinh có hành trình đa dạng, không chỉ căn cứ vào thành tích. Mỗi chân dung khoảng 200–250 chữ.</p>
    <div class="grid">
@@ -594,7 +597,7 @@ const PAGES = [
    </form>
    <style>.mapbox{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-radius:16px;background:var(--paper2);min-height:100px}.pin{background:var(--paper);border-radius:99px;padding:6px 14px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.12)}.mapnote{color:var(--muted);font-size:14px}</style>`},
 
- {sec:'V', title:'Phượng Hoàng 10 năm sau', html:`
+ {sec:'V', title:'Phượng Hoàng 10 năm sau', wip:1, html:`
    ${K(P5, '39–40')}<h2>Phượng Hoàng 10 năm sau (2026–2036)</h2>
    <p class="lead">Tầm nhìn và các ưu tiên về giáo dục, đội ngũ, quản trị, công nghệ và môi trường học tập.</p>
    <div class="grid">${['Giáo dục','Đội ngũ','Quản trị','Công nghệ','Môi trường học tập'].map(t=>`<div class="card"><h3>${t}</h3><p>${TODO('định hướng do Ban lãnh đạo xác nhận')}</p></div>`).join('')}</div>
@@ -612,13 +615,13 @@ const PAGES = [
      <button class="btn">🔒 Cất vào hộp thư</button>
    </form>
    <div class="msgs" id="capList"></div>
-   <div class="note">Thư được gửi về kho của Nhà trường, kiểm duyệt trước khi công bố và không hiển thị công khai; bảo đảm quyền riêng tư của học sinh. ${TODO('đầu mối quản lý dữ liệu và thời điểm mở thư')}</div>`},
+   <div class="note pubok">Thư được gửi về kho của Nhà trường, kiểm duyệt trước khi công bố và không hiển thị công khai; bảo đảm quyền riêng tư của học sinh. ${TODO('đầu mối quản lý dữ liệu và thời điểm mở thư')}</div>`},
 
  /* ---- VI. PHẦN LƯU GIỮ VÀ TRANG KẾT (trang 42–45) ---- */
- {sec:'VI', title:'Tri ân tập thể', html:`
+ {sec:'VI', title:'Tri ân tập thể', wip:1, html:`
    ${K(P6, 42)}<h2>Tri ân tập thể</h2>
    <p class="lead">Các thế hệ lãnh đạo, cán bộ, giáo viên, nhân viên và các tổ chức đoàn thể.</p>
-   <figure class="ph2" style="margin:0 0 18px"><img src="bia-giaovien.jpg" alt="Tập thể thầy cô Trường Phổ thông Chất lượng cao Phượng Hoàng" loading="lazy" style="aspect-ratio:16/9"><figcaption>Tập thể thầy cô và cán bộ nhân viên Trường PTCLC Phượng Hoàng</figcaption></figure>
+   <figure class="ph2 keep" style="margin:0 0 18px"><img src="bia-giaovien.jpg" alt="Tập thể thầy cô Trường Phổ thông Chất lượng cao Phượng Hoàng" loading="lazy" style="aspect-ratio:16/9"><figcaption>Tập thể thầy cô và cán bộ nhân viên Trường PTCLC Phượng Hoàng</figcaption></figure>
    <div class="card blank"><p>${WAIT('lời tri ân và thông tin khái quát về đội ngũ')}</p></div>
    <div class="grid" style="margin-top:14px">
      <div class="card"><h3>Công đoàn</h3><p>${TODO('năm thành lập, số thành viên')}</p></div>
@@ -626,7 +629,7 @@ const PAGES = [
      <div class="card"><h3>Danh sách đầy đủ</h3><p>Phòng Hành chính rà soát, sắp theo năm về trường.</p>${QR('Kho tư liệu số — danh sách cán bộ, giáo viên, nhân viên')}</div>
    </div>`},
 
- {sec:'VI', title:'Các khóa học sinh và thành tích', html:`
+ {sec:'VI', title:'Các khóa học sinh và thành tích', wip:1, html:`
    ${K(P6, 43)}<h2>Các khóa học sinh và thành tích</h2>
    <p class="lead">Danh sách các khóa tốt nghiệp và bảng thành tích chọn lọc theo năm.</p>
    <div class="grid">
@@ -637,7 +640,7 @@ const PAGES = [
 
  {sec:'VI', title:'Nguồn tư liệu và Ban Biên soạn', html:`
    ${K(P6, 44)}<h2>Nguồn tư liệu và Ban Biên soạn</h2>
-   <p class="lead">Nguồn tư liệu, thời điểm chốt số liệu, người cung cấp ảnh, Ban Biên soạn, ngày phát hành và ngày cập nhật.</p>
+   <p class="lead int">Nguồn tư liệu, thời điểm chốt số liệu, người cung cấp ảnh, Ban Biên soạn, ngày phát hành và ngày cập nhật.</p>
    <div class="grid">
      <div class="card"><h3>Nguồn tư liệu</h3><p>${TODO('danh mục văn bản, ảnh, người cung cấp')}</p></div>
      <div class="card"><h3>Ban Biên soạn</h3><p>${TODO('danh sách')}</p></div>
@@ -664,6 +667,14 @@ const PAGES = [
 
 
 /* ============================ ENGINE ============================ */
+/* Hai chế độ xem:
+   - Công khai (mặc định): ẩn ghi chú nội bộ, nhãn "cần xác minh"/"chờ bài", ô ảnh trống; trang chưa có bài hiện "đang hoàn thiện".
+   - Ban Biên soạn: thêm ?bbs=1 vào link (ví dụ …/ky-yeu-phuong-hoang/?bbs=1) để xem đầy đủ ghi chú. */
+const BBS = (() => {
+  const q = new URLSearchParams(location.search).has('bbs');
+  try { if (q) sessionStorage.setItem('bbs', '1'); return q || sessionStorage.getItem('bbs') === '1'; } catch { return q; }
+})();
+document.body.classList.add(BBS ? 'bbs' : 'pub');
 const $ = s => document.querySelector(s);
 const store = {
   get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
@@ -778,7 +789,7 @@ function renderCloud(){
   const list = remote ? remote.thanks : [];
   $('#thList').innerHTML = list.length
     ? list.map(t => `<div class="thx"><q>${esc(t.nd)}</q><small>${esc(t.who)}${t.vai ? ' · ' + esc(t.vai) : ''}${t.toi ? ' gửi ' + esc(t.toi) : ''}</small></div>`).join('')
-    : '<div class="card blank"><p><span class="todo">chờ bài: 10–12 lời cảm ơn nguyên văn do nhóm thu thập gửi</span></p></div>';
+    : (BBS ? '<div class="card blank"><p><span class="todo">chờ bài: 10–12 lời cảm ơn nguyên văn do nhóm thu thập gửi</span></p></div>' : '');
 }
 const DONE = 'Đã gửi! Ban Biên soạn sẽ duyệt rồi mới đưa lên kỷ yếu.';
 $('#thForm').onsubmit = async e => {
@@ -828,7 +839,7 @@ function renderContrib(){
     <details><summary>Đọc câu chuyện</summary><p style="white-space:pre-line">${esc(s.nd)}</p></details></div>`).join('');
   $('#achReal').innerHTML = c.achievement.map(a => `<div class="card" data-lv="${esc(a.ct.cap || '')}">${imgTag(a.anh, a.ct.ten)}<h3>${esc(a.ct.ten)}</h3>
     <p>${[a.t, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
-  $('#achTodo').style.display = c.achievement.length ? 'none' : '';
+  if ($('#achTodo')) $('#achTodo').style.display = c.achievement.length ? 'none' : '';
   if (c.milestone.length) renderTl(c.milestone);
   renderStories();
 }
@@ -942,6 +953,19 @@ paintMusic();
 }, {once: true}));
 document.addEventListener('visibilitychange', () => { document.hidden ? bg.pause() : playMusic(); });
 
+// Chế độ công khai: gọt bản nháp
+if (BBS) document.body.insertAdjacentHTML('beforeend', '<div class="bbsmark">Bản Ban Biên soạn — có ghi chú nội bộ</div>');
+else PAGES.forEach(p => {
+  const el = p.el;
+  if (p.wip) {
+    [...el.children].forEach(c => { if (!c.matches('.kick,h2,.pn,.keep')) c.remove(); });
+    el.querySelector('h2').insertAdjacentHTML('afterend', '<div class="wip">🔥 Trang này đang được Ban Biên soạn hoàn thiện. Bạn có câu chuyện, ảnh tư liệu muốn góp vào kỷ yếu? Bấm nút ➕ ở góc trên để gửi.</div>');
+  }
+  el.querySelectorAll('.note:not(.pubok),.todo,.ph,.qr,.blank,#ba').forEach(x => x.remove());
+  el.querySelectorAll('p').forEach(x => { if (!x.textContent.trim() && !x.querySelector('img,a,button,input')) x.remove(); });
+  el.querySelectorAll('.card').forEach(c => { if (/\[[^\]]+\]/.test(c.textContent) || !c.querySelector('p,img,.vbtn,form,button,a')) c.remove(); });
+  el.querySelectorAll('.grid').forEach(g => { if (!g.children.length && !g.id) g.remove(); });
+});
 const m = location.hash.match(/^#p(\d+)$/);
 go(m ? +m[1] - 1 : 0, false);
 </script>
