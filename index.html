@@ -668,7 +668,9 @@ const PAGES = [
 /* ============================ ENGINE ============================ */
 /* Dán URL Web app của Apps Script (kết thúc bằng /exec) vào đây để thu dữ liệu chung vào Google Sheet.
    Để trống = chỉ lưu trên thiết bị này. */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwI2PRW7RA63xD7Efj44Ut-0HtlOViUIzl8cxQFoXXhW6cpQCRPouMFdpg9UERMvacD/exec';
+/* 03/11/2026: máy chủ Apps Script cũ đã bị Google khóa. Tạm ngừng nhận bài cho tới khi chuyển sang Google Form. */
+const API_URL = '';
+const FORMS_OPEN = false;
 const api = {
   async load(){ if (!API_URL) return null; try { return await (await fetch(API_URL + '?api=1')).json(); } catch { return null; } },
   async call(o){ if (!API_URL) return null; try { const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(o)}); return await r.json(); } catch { return null; } },
@@ -1033,6 +1035,16 @@ paintMusic();
 }, {once: true}));
 document.addEventListener('visibilitychange', () => { document.hidden ? bg.pause() : playMusic(); });
 
+// Tạm ngừng nhận: khóa các ô gửi và ẩn nút biên tập, để không ai tưởng đã gửi được
+if (!FORMS_OPEN) {
+  $('#edit').style.display = 'none';
+  ['#thForm', '#mapForm', '#capForm'].forEach(sel => {
+    const f = $(sel); if (!f) return;
+    f.querySelectorAll('input,textarea,select,button').forEach(x => x.disabled = true);
+    f.style.opacity = '.55';
+    f.insertAdjacentHTML('beforebegin', '<div class="note" style="margin-bottom:10px"><b>Tạm ngừng nhận.</b> Ô gửi đang được chuyển sang hệ thống mới và sẽ mở lại sớm.</div>');
+  });
+}
 const m = location.hash.match(/^#p(\d+)$/);
 go(m ? +m[1] - 1 : 0, false);
 </script>
