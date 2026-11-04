@@ -1172,7 +1172,9 @@ async function loadArticles(){
     if (!rows.length) return;
     rows.forEach(applyArticle);
     pubPass(); watch();
-    if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => show(pg, false));
+    const h = location.hash.slice(1), t = h && document.getElementById(h);   // link #p3… tới trang vừa có bài
+    if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => { if (t && pg === 0) goTo(h); else show(pg, false); });
+    else if (t && scrollY < innerHeight / 2) t.scrollIntoView();
   } catch {}
 }
 loadArticles();
