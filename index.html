@@ -1125,6 +1125,57 @@ document.addEventListener('click', e => {
 }, true);
 setMode(BOOK);
 if (BOOK && location.hash) setTimeout(() => goTo(location.hash.slice(1)), 120);
+
+/* ============ BÀI VIẾT CỦA BAN BIÊN SOẠN ============
+   Sheet "Kỷ yếu Phượng Hoàng – Bài viết (Ban Biên soạn)", tab BaiViet: mỗi trang kỷ yếu một dòng.
+   Biên tập viên viết bài vào dòng của trang, gõ x vào cột "Đăng" → bài hiện lên kỷ yếu sau vài phút.
+   Cách gõ Nội dung: để một dòng trống giữa hai đoạn; dòng bắt đầu bằng "## " là tiêu đề nhỏ;
+   đoạn bắt đầu bằng "> " hoặc đặt trong ngoặc kép “…” là lời trích dẫn. */
+const ART_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvooM_kE-fnZ9lKEOgLD8EZ8MwnpWBaRn75ULzOk-RWE3ua2rIhd0OvM9p8XiQ7L85JAFVxey7Rq40/pub?gid=1537280693&single=true&output=csv';
+function artHTML(nd){
+  return String(nd || '').replace(/\r/g, '').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean).map(b => {
+    if (/^##\s+/.test(b)) return `<h3 class="sub">${esc(b.replace(/^##\s+/, ''))}</h3>`;
+    if (/^>\s?/.test(b)) return `<blockquote>${esc(b.replace(/^>\s?/gm, '')).replace(/\n/g, '<br>')}</blockquote>`;
+    if (/^[“"].*[”"]$/s.test(b)) return `<blockquote>${esc(b).replace(/\n/g, '<br>')}</blockquote>`;
+    return `<p>${esc(b).replace(/\n/g, '<br>')}</p>`;
+  }).join('\n');
+}
+function applyArticle([id, tieude, dandan, nd, anh, cap]){
+  const i = +String(id).replace(/\D/g, '') - 1, p = PAGES[i];
+  if (!p || i < 2 || !(tieude || dandan || nd || anh)) return;
+  const el = p.el;
+  if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
+  let lead = el.querySelector(':scope > .lead');
+  if (dandan) { if (!lead) { lead = document.createElement('p'); lead.className = 'lead'; el.querySelector('h2').after(lead); } lead.className = 'lead'; lead.textContent = dandan; }
+  const imgs = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u));
+  const caps = String(cap || '').split('\n');
+  const fig = imgs.length ? `<div class="grid art-imgs">${imgs.map((u, k) => `<figure class="ph2"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" loading="lazy" referrerpolicy="no-referrer">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`).join('')}</div>` : '';
+  if (nd || fig) {
+    // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
+    let art = el.querySelector('.art');
+    if (!art) {
+      el.querySelectorAll(':scope > .card.blank, :scope > .grid.four, :scope > .note:not(.pubok), :scope > .wip, :scope > .ph').forEach(x => x.remove());
+      el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && /\[[^\]]+\]|chờ bài/.test(g.textContent) && !g.querySelector('form,.vbtn,figure img')) g.remove(); });
+      art = document.createElement('div'); art.className = 'art';
+      (lead || el.querySelector('h2')).after(art);
+    }
+    art.innerHTML = artHTML(nd) + fig;
+    art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
+  }
+  if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
+  el.dataset.fromSheet = 1;
+}
+async function loadArticles(){
+  try {
+    const r = await fetch(ART_CSV, {cache: 'no-store'}); if (!r.ok) return;
+    const rows = parseCSV(await r.text()).slice(1).filter(x => /^p\d+$/.test((x[0] || '').trim()));
+    if (!rows.length) return;
+    rows.forEach(applyArticle);
+    pubPass(); watch();
+    if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => show(pg, false));
+  } catch {}
+}
+loadArticles();
 </script>
 </body>
 </html>
