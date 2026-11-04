@@ -257,7 +257,7 @@ body.book .ph2 img{max-height:46svh}
 body.book .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
 body.book .tl{--p:1}
 body.book footer.end{height:calc(100svh - 116px);display:flex;flex-direction:column;justify-content:center;align-items:center}
-body.book .reveal{transition-duration:.6s}
+body.book .reveal{transform:none;transition:opacity .6s ease}
 body.book .pager{display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:30;align-items:center;justify-content:center;gap:14px;background:var(--paper);border-top:1px solid var(--line);padding:0 12px}
 .pager .pgl{min-width:150px;text-align:center;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
 .pager .ibtn{background:var(--mist);color:var(--ink);font-size:22px}
@@ -1126,7 +1126,7 @@ function makeFiller(tail, h){
   if (k % 2 === 0) {
     const [src, cap] = FILL_PHOTOS[(k / 2) % FILL_PHOTOS.length];
     el.className = 'filler photo' + (tail ? ' tail' : '');
-    el.innerHTML = `<img src="${src}" alt="${cap}"><figcaption>${cap}</figcaption>`;
+    el.innerHTML = `<img src="${src}" alt="${cap}" loading="lazy" decoding="async"><figcaption>${cap}</figcaption>`;
   } else {
     const [q, who] = FILL_QUOTES[((k - 1) / 2) % FILL_QUOTES.length];
     el.className = 'filler quote' + (tail ? ' tail' : '');
