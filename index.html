@@ -104,8 +104,9 @@ body.pub .int{display:none}
 .chap .c .ic{font-size:34px}.chap .c h3{color:#fff;font-size:26px;margin:8px 0 4px}.chap .c small{opacity:.9;font-size:15px}
 
 /* mục lục */
-.toc a{display:grid;grid-template-columns:3.2em 1fr;gap:4px 14px;padding:16px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
-.toc .n{font-family:var(--serif);font-weight:700;font-size:28px;color:var(--wing);grid-row:span 2;line-height:1}
+.toc a{display:flex;flex-wrap:wrap;column-gap:14px;padding:16px 0 16px 3.6em;position:relative;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.toc .t,.toc .d{flex:1 1 100%}
+.toc .n{position:absolute;left:0;top:18px;font-family:var(--serif);font-weight:700;font-size:28px;color:var(--wing);line-height:1}
 .toc .t{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--ink)}
 .toc .d{font-size:15px;color:var(--muted)}
 .toc a:hover .t{color:var(--wing)}
@@ -229,8 +230,8 @@ body.book.oncover .pager .ibtn{background:rgba(255,255,255,.18);color:#fff}
 body.book .hero .in{padding-bottom:clamp(80px,12vh,120px)}
 body.book .part{height:calc(100svh - 116px);display:flex;align-items:center;break-inside:avoid;padding:40px var(--gut)}
 body.book .part .in{width:100%}
-body.book .sec{border-top:0;padding:28px var(--gut) 20px;max-width:none}
-@media(min-width:1100px){body.book .sec{padding:36px 48px 24px}body.book .part{padding:40px 48px}}
+body.book .sec{border-top:0;padding:36px var(--gut) 24px;max-width:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+@media(min-width:1100px){body.book .sec{padding:44px 48px 28px}body.book .part{padding:40px 48px}}
 body.book .sec h2{font-size:clamp(28px,3.4vw,44px)}
 body.book .sec h2,body.book .kick,body.book .art h3.sub{break-after:avoid}
 body.book .ph2,body.book .stat,body.book .thx,body.book .tl .it,body.book .chap .c,body.book .vid,body.book .card,body.book .pill,body.book form.cap,body.book .toc a{break-inside:avoid}
@@ -434,7 +435,7 @@ const PAGES = [
    <p class="lead">Chạm vào một phần để đi tới ngay.</p>
    <div class="toc" id="tocList"></div>
    <div class="grid" style="margin-top:18px">
-     <div class="card"><h3>Đọc trên web, điện thoại</h3><p>Cuộn xuống để đọc; nút ☰ ở góc trên mở danh sách các trang. Video xem ngay trong trang; có ô gửi lời cảm ơn, lời nhắn năm 2036 và ghim bản đồ cựu học sinh.</p></div>
+     <div class="card"><h3>Đọc trên web, điện thoại</h3><p>Vuốt ngang hoặc bấm ‹ › ở cuối màn hình để lật trang; nút ☰ mở danh sách các trang, nút ⇅ chuyển sang đọc kiểu cuộn. Video xem ngay trong trang; có ô gửi lời cảm ơn, lời nhắn năm 2036 và ghim bản đồ cựu học sinh.</p></div>
      <div class="card"><h3>Đọc bản PDF</h3><p>Nút ⎙ xuất toàn bộ kỷ yếu ra PDF. Mỗi chỗ có video đều có đường dẫn bấm trực tiếp.</p></div>
      <div class="card"><h3>Phim tư liệu</h3><p>“Điều em mang theo” — một phim đầy đủ, khoảng 21 phút, công bố sau lễ 20/11.</p><button class="btn" style="margin-top:12px;padding:9px 18px;font-size:15px" data-goid="film">Xem trang phim</button></div>
    </div>`},
