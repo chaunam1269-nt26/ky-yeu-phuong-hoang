@@ -84,6 +84,24 @@ img{max-width:100%}
 .wip{margin:12px 0;padding:18px 20px;border-radius:12px;border:1.5px dashed var(--line);color:var(--muted);max-width:60ch}
 .bbsmark{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:25;background:var(--sun);color:#2a1a14;font-size:13px;font-weight:700;padding:4px 14px;border-radius:99px}
 body.pub .int{display:none}
+.art .art-fig{margin:0 0 1.2em}
+.art .art-fig img{aspect-ratio:auto;max-height:52svh;object-fit:cover}
+.art .art-fig.portrait{float:right;width:min(40%,300px);margin:.3em 0 1em 1.4em}
+.art .art-fig.portrait img{max-height:none;aspect-ratio:3/4}
+.art::after{content:"";display:block;clear:both}
+/* trang ảnh / trích dẫn lấp chỗ trống (kiểu sách) */
+.filler{display:none}
+body.book .filler{display:flex;break-before:column;break-inside:avoid;height:calc(100svh - 116px);margin:0;position:relative;overflow:hidden}
+body.book .filler.tail{break-before:auto;height:var(--h)}
+.filler.photo{background:#0d1a33;align-items:flex-end}
+.filler.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.filler.photo figcaption{position:relative;z-index:1;width:100%;padding:40px 28px 22px;color:#fff;font-size:15px;background:linear-gradient(transparent,rgba(10,20,45,.75))}
+.filler.quote{flex-direction:column;justify-content:center;padding:40px clamp(28px,5vw,64px);color:#fff}
+.filler.quote[data-c="1"]{background:var(--band1)}.filler.quote[data-c="2"]{background:var(--band2)}.filler.quote[data-c="3"]{background:var(--band3)}
+.filler.quote q{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,32px);line-height:1.4;quotes:"“" "”"}
+.filler.quote cite{display:block;margin-top:18px;font-style:normal;font-size:16px;opacity:.85}
+body.book .filler.tail.quote q{font-size:clamp(19px,2vw,26px)}
+@media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .grid.four{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
@@ -1082,14 +1100,95 @@ function show(i, anim = true){
   const st = curSecTitle(); $('#pgLbl').textContent = i ? `${i} / ${pages - 1}` + (st ? ' · ' + st : '') : 'Vuốt hoặc bấm › để mở sách';
   prog.style.width = ((i + 1) / pages * 100) + '%';
 }
+
+/* Dàn trang kiểu sách:
+   - máy tính (hai trang đôi): mỗi mục bắt đầu ở trang trái; dải phần ở trang trái, mục đầu của phần ở trang phải;
+     trang phải bị trống thì đặt một trang ảnh hoặc một trang trích dẫn.
+   - mọi cỡ màn hình: cuối mục còn trống nhiều thì lấp bằng ảnh / trích dẫn. */
+const FILL_PHOTOS = [
+  ['bia-truong.jpg', 'Khuôn viên Trường PTCLC Phượng Hoàng'],
+  ['hs-cam-la.jpg', 'Học sinh học ngoài trời dưới tán cây'],
+  ['bia-giaovien.jpg', 'Tập thể thầy cô và cán bộ nhân viên Phượng Hoàng'],
+  ['hs-duoi-tan-cay.jpg', 'Sân trường xanh — nơi các em học và chơi']
+];
+const FILL_QUOTES = [
+  ['Năm học đầu tiên, cả trường chưa đến một trăm cháu. Tôi tự giao cho mình một việc: phải nhớ tên từng em, nhìn em nào cũng biết hôm nay em vui hay em buồn.', 'NGƯT Đậu Văn Mùi, Hiệu trưởng đầu tiên'],
+  ['Ít học sinh thì càng phải dạy thật tốt, mỗi cháu phải được chăm chút như một hạt giống.', 'Ông Nguyễn Châu Nam, người đồng sáng lập'],
+  ['Vào lớp, thầy cô biết tên từng đứa một. Chiều về, cháu kể chuyện không ngớt.', 'Chị An Nhân, phụ huynh khóa đầu tiên'],
+  ['Qua mùa dịch, tôi hiểu đổi mới không phải là chỉ dùng một công cụ mới, mà là tìm mọi cách để không em nào bị bỏ lại phía sau.', 'Cô Hương, giáo viên Ngữ văn'],
+  ['Lớp ít học sinh thì thầy cô càng sâu sát từng cháu. Muốn phụ huynh tin, thì mình phải làm cho thật.', 'NGƯT Đậu Văn Mùi'],
+  ['Học để tự chủ – Trưởng thành để làm chủ tương lai.', 'Triết lý giáo dục Phượng Hoàng']
+];
+let fillN = 0;
+function makeFiller(tail, h){
+  const el = document.createElement(tail ? 'div' : 'figure');
+  const k = fillN++;
+  if (k % 2 === 0) {
+    const [src, cap] = FILL_PHOTOS[(k / 2) % FILL_PHOTOS.length];
+    el.className = 'filler photo' + (tail ? ' tail' : '');
+    el.innerHTML = `<img src="${src}" alt="${cap}"><figcaption>${cap}</figcaption>`;
+  } else {
+    const [q, who] = FILL_QUOTES[((k - 1) / 2) % FILL_QUOTES.length];
+    el.className = 'filler quote' + (tail ? ' tail' : '');
+    el.dataset.c = (k % 3) + 1;
+    el.innerHTML = `<q>${q}</q><cite>${who}</cite>`;
+  }
+  if (tail) el.style.setProperty('--h', h + 'px');
+  el.setAttribute('aria-hidden', 'true');
+  return el;
+}
+function paginate(){
+  if (!BOOK) return;
+  main.querySelectorAll('.filler').forEach(x => x.remove()); fillN = 0;
+  main.scrollLeft = 0;
+  const two = getComputedStyle(main).columnCount === '2';
+  const colW = two ? main.clientWidth / 2 : main.clientWidth;
+  const m0 = main.getBoundingClientRect();
+  const colOf = el => Math.floor((el.getBoundingClientRect().left - m0.left + 2) / colW);
+  const blocks = () => [...main.children].filter(e => !e.hidden && e.matches('.part,.sec'));
+  const recto = () => {
+    if (!two) return;
+    const bs = blocks();
+    for (let k = 0; k < bs.length; k++) {
+      const el = bs[k], prev = bs[k - 1];
+      const want = el.matches('.part') ? 0 : (prev && prev.matches('.part') ? 1 : 0);
+      if (colOf(el) % 2 !== want) main.insertBefore(makeFiller(false), el);
+    }
+  };
+  recto();
+  // chỗ trống cuối mỗi mục
+  const H = main.clientHeight;
+  blocks().filter(e => e.matches('.sec')).forEach(el => {
+    const rs = [...el.getClientRects()], last = rs[rs.length - 1]; if (!last) return;
+    const kids = [...el.children].filter(c => c.getClientRects().length);
+    const lastKid = kids[kids.length - 1]; if (!lastKid) return;
+    const kr = [...lastKid.getClientRects()].pop();
+    const gap = m0.bottom - kr.bottom - 60;
+    if (gap > H * .38) el.appendChild(makeFiller(true, Math.min(gap, H - 120)));
+  });
+  recto();   // phòng khi một ảnh lấp chỗ trống làm lệch trang sau
+}
+let _pgT = 0;
+function repaginate(){
+  if (!BOOK) return;
+  clearTimeout(_pgT);
+  _pgT = setTimeout(() => {
+    const a = pg > 0 ? PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg) : null;
+    paginate();
+    show(a ? pageOf(a.el) : pg, false);
+  }, 120);
+}
+main.addEventListener('load', e => { if (e.target.tagName === 'IMG' && !e.target.closest('.filler')) repaginate(); }, true);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(repaginate);
+addEventListener('load', repaginate);
 function setMode(book){
   BOOK = book; store.set('readMode', book ? 'book' : 'scroll');
   document.body.classList.toggle('book', book);
   $('#mode').textContent = book ? '⇅' : '⇄';
   $('#mode').title = $('#mode').ariaLabel = book ? 'Đọc kiểu cuộn' : 'Đọc kiểu lật sách';
   const end = $('footer.end');
-  if (book) { main.appendChild(end); document.body.insertBefore(hero, main); requestAnimationFrame(() => { show(0, false); document.querySelectorAll('.reveal').forEach(e => { if (pageOf(e) === 0) e.classList.add('in'); }); }); }
-  else { document.body.classList.remove('oncover'); hero.classList.remove('away'); main.prepend(hero); document.body.insertBefore(end, $('#ctWrap')); main.scrollLeft = 0; onScroll(); }
+  if (book) { main.appendChild(end); document.body.insertBefore(hero, main); requestAnimationFrame(() => { paginate(); show(0, false); document.querySelectorAll('.reveal').forEach(e => { if (pageOf(e) === 0) e.classList.add('in'); }); }); }
+  else { main.querySelectorAll('.filler').forEach(x => x.remove()); document.body.classList.remove('oncover'); hero.classList.remove('away'); main.prepend(hero); document.body.insertBefore(end, $('#ctWrap')); main.scrollLeft = 0; onScroll(); }
 }
 $('#mode').onclick = () => { const anchor = BOOK ? PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg) : null; setMode(!BOOK); if (anchor && !BOOK) anchor.el.scrollIntoView(); };
 $('#pgPrev').onclick = () => show(pg - 1);
@@ -1124,7 +1223,7 @@ document.addEventListener('wheel', e => {                      // con lăn chu�
   main._wl = 1; setTimeout(() => main._wl = 0, 550);
   show(pg + ((e.deltaY || e.deltaX) > 0 ? 1 : -1));
 }, {passive: true});
-addEventListener('resize', () => { if (!BOOK) return; const a = PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg); requestAnimationFrame(() => show(a ? pageOf(a.el) : pg, false)); });
+addEventListener('resize', repaginate);
 // Mục lục, link #p30… mở đúng trang sách
 const _goTo = goTo;
 goTo = function(id){
@@ -1162,7 +1261,9 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
   if (dandan) { if (!lead) { lead = document.createElement('p'); lead.className = 'lead'; el.querySelector('h2').after(lead); } lead.className = 'lead'; lead.textContent = dandan; }
   const imgs = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u));
   const caps = String(cap || '').split('\n');
-  const fig = imgs.length ? `<div class="grid art-imgs">${imgs.map((u, k) => `<figure class="ph2"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" loading="lazy" referrerpolicy="no-referrer">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`).join('')}</div>` : '';
+  const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
+  const first = imgs.length ? figOne(imgs[0], 0) : '';
+  const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : '';
   if (nd || fig) {
     // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
     let art = el.querySelector('.art');
@@ -1172,7 +1273,7 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
       art = document.createElement('div'); art.className = 'art';
       (lead || el.querySelector('h2')).after(art);
     }
-    art.innerHTML = artHTML(nd) + fig;
+    art.innerHTML = first + artHTML(nd) + fig;
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
@@ -1186,7 +1287,7 @@ async function loadArticles(){
     rows.forEach(applyArticle);
     pubPass(); watch();
     const h = location.hash.slice(1), t = h && document.getElementById(h);   // link #p3… tới trang vừa có bài
-    if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => { if (t && pg === 0) goTo(h); else show(pg, false); });
+    if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => { const a = pg > 0 ? PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg) : null; paginate(); if (t && pg === 0) goTo(h); else show(a ? pageOf(a.el) : pg, false); });
     else if (t && scrollY < innerHeight / 2) t.scrollIntoView();
   } catch {}
 }
