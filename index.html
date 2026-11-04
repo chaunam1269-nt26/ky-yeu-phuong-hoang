@@ -89,6 +89,7 @@ body.pub .int{display:none}
 .art .art-fig.portrait{float:right;width:min(40%,300px);margin:.3em 0 1em 1.4em}
 .art .art-fig.portrait img{max-height:none;aspect-ratio:3/4}
 .art::after{content:"";display:block;clear:both}
+.art ul,.art ol{margin:0 0 1em 1.3em}.art li{margin-bottom:.3em}.art hr{border:0;border-top:1px solid var(--line);margin:1.6em 0}
 /* trang ảnh / trích dẫn lấp chỗ trống (kiểu sách) */
 .filler{display:none}
 body.book .filler{display:flex;break-before:column;break-inside:avoid;height:calc(100svh - 116px);margin:0;position:relative;overflow:hidden}
@@ -1252,9 +1253,10 @@ function artHTML(nd){
     return `<p>${esc(b).replace(/\n/g, '<br>')}</p>`;
   }).join('\n');
 }
-function applyArticle([id, tieude, dandan, nd, anh, cap]){
+function applyArticle([id, tieude, dandan, nd, anh, cap], html){
+  html = typeof html === 'string' && html.trim() ? html : '';
   const i = +String(id).replace(/\D/g, '') - 1, p = PAGES[i];
-  if (!p || i < 2 || !(tieude || dandan || nd || anh)) return;
+  if (!p || i < 2 || !(tieude || dandan || nd || anh || html)) return;
   const el = p.el;
   if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
   let lead = el.querySelector(':scope > .lead');
@@ -1264,7 +1266,7 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
   const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
   const first = imgs.length ? figOne(imgs[0], 0) : '';
   const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : '';
-  if (nd || imgs.length) {
+  if (nd || html || imgs.length) {
     // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
     let art = el.querySelector('.art');
     if (!art) {
@@ -1273,19 +1275,86 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
       art = document.createElement('div'); art.className = 'art';
       (lead || el.querySelector('h2')).after(art);
     }
-    if (nd) art.innerHTML = first + artHTML(nd) + fig;
+    const body = html || (nd ? artHTML(nd) : '');
+    if (body) art.innerHTML = first + body + fig;
     else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', fig); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
   el.dataset.fromSheet = 1;
 }
+
+/* ============ BÀI VIẾT TỪ WIX (CMS "KyYeu" của website trường) ============
+   Biên tập viên vào Wix → CMS → KyYeu → thêm hoặc sửa bài; trạng thái "Published" là bài hiện lên kỷ yếu,
+   "Draft" là bản nháp (không hiện). Bài trên Wix ưu tiên hơn bài cùng mã trang trong Google Sheet. */
+const WIX_CLIENT = 'b88a91a9-e6b5-434c-9e95-487970bb15cc';
+const wixImg = id => id ? `https://static.wixstatic.com/media/${id}/v1/fit/w_1400,h_1400,q_85/${id}` : '';
+function wixImgField(v){                     // "wix:image://v1/<id>/<tên>#..." hoặc đường dẫn https
+  const s = String(v || ''); const m = s.match(/^wix:image:\/\/v1\/([^/#]+)/);
+  return m ? wixImg(m[1]) : (/^https:\/\//.test(s) ? s : '');
+}
+function ricosHTML(doc){
+  const txt = n => {
+    if (n.type !== 'TEXT') return (n.nodes || []).map(txt).join('');
+    let h = esc(n.textData?.text || '').replace(/\n/g, '<br>');
+    (n.textData?.decorations || []).forEach(d => {
+      if (d.type === 'BOLD') h = `<b>${h}</b>`;
+      else if (d.type === 'ITALIC') h = `<i>${h}</i>`;
+      else if (d.type === 'UNDERLINE') h = `<u>${h}</u>`;
+      else if (d.type === 'STRIKETHROUGH') h = `<s>${h}</s>`;
+      else if (d.type === 'LINK') { const u = d.linkData?.link?.url || ''; if (/^https?:\/\//.test(u)) h = `<a href="${esc(u)}" target="_blank" rel="noopener">${h}</a>`; }
+    });
+    return h;
+  };
+  const plain = n => n.type === 'TEXT' ? (n.textData?.text || '') : (n.nodes || []).map(plain).join('');
+  const fig = (src, cap, cls = 'art-fig') => src ? `<figure class="ph2 ${cls}"><img src="${esc(src)}" alt="${esc(cap || '')}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')">${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>` : '';
+  const node = n => {
+    const kids = () => (n.nodes || []).map(node).join('');
+    switch (n.type) {
+      case 'PARAGRAPH': { const h = (n.nodes || []).map(txt).join(''); return h.trim() ? `<p>${h}</p>` : ''; }
+      case 'HEADING': return `<h3 class="sub">${(n.nodes || []).map(txt).join('')}</h3>`;
+      case 'BLOCKQUOTE': return `<blockquote>${(n.nodes || []).map(c => (c.nodes || []).map(txt).join('')).filter(Boolean).join('<br>')}</blockquote>`;
+      case 'BULLETED_LIST': return `<ul>${kids()}</ul>`;
+      case 'ORDERED_LIST': return `<ol>${kids()}</ol>`;
+      case 'LIST_ITEM': return `<li>${(n.nodes || []).map(c => (c.nodes || []).map(txt).join('')).join('<br>')}</li>`;
+      case 'DIVIDER': return '<hr>';
+      case 'IMAGE': {
+        const s = n.imageData?.image?.src || {};
+        const cap = n.imageData?.caption || (n.nodes || []).filter(c => c.type === 'CAPTION').map(plain).join(' ') || '';
+        return fig(s.id ? wixImg(s.id) : s.url, cap || n.imageData?.altText || '');
+      }
+      case 'GALLERY': return `<div class="grid art-imgs">${(n.galleryData?.items || []).map(it => {
+        const s = it.image?.media?.src || {}; return fig(s.id ? wixImg(s.id) : s.url, it.title || it.altText || '');
+      }).join('')}</div>`;
+      case 'VIDEO': { const u = n.videoData?.video?.src?.url || ''; return /^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Xem video</a></p>` : ''; }
+      case 'CAPTION': return '';
+      default: return kids();
+    }
+  };
+  return (doc?.nodes || []).map(node).join('\n');
+}
+async function loadWix(){
+  try {
+    const t = await fetch('https://www.wixapis.com/oauth2/token', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({clientId: WIX_CLIENT, grantType: 'anonymous'})}).then(r => r.json());
+    if (!t.access_token) return 0;
+    const q = await fetch('https://www.wixapis.com/wix-data/v2/items/query', {method: 'POST',
+      headers: {'Content-Type': 'application/json', Authorization: t.access_token},
+      body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
+    const items = (q.dataItems || []).map(d => d.data).filter(d => /^p\d+$/.test(String(d.maTrang || '').trim()));
+    items.forEach(d => applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', wixImgField(d.image), d.imageAltText || ''], ricosHTML(d.noiDung)));
+    return items.length;
+  } catch { return 0; }
+}
 async function loadArticles(){
   try {
-    const r = await fetch(ART_CSV, {cache: 'no-store'}); if (!r.ok) return;
-    const rows = parseCSV(await r.text()).slice(1).filter(x => /^p\d+$/.test((x[0] || '').trim()));
-    if (!rows.length) return;
-    rows.forEach(applyArticle);
+    let n = 0;
+    try {
+      const r = await fetch(ART_CSV, {cache: 'no-store'});
+      if (r.ok) { const rows = parseCSV(await r.text()).slice(1).filter(x => /^p\d+$/.test((x[0] || '').trim())); rows.forEach(x => applyArticle(x)); n += rows.length; }
+    } catch {}
+    n += await loadWix();          // bài trên Wix ghi đè bài cùng mã trang trong Sheet
+    if (!n) return;
     pubPass(); watch();
     const h = location.hash.slice(1), t = h && document.getElementById(h);   // link #p3… tới trang vừa có bài
     if (typeof BOOK !== 'undefined' && BOOK) requestAnimationFrame(() => { const a = pg > 0 ? PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg) : null; paginate(); if (t && pg === 0) goTo(h); else show(a ? pageOf(a.el) : pg, false); });
