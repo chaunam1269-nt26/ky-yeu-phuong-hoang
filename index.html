@@ -34,7 +34,7 @@ img{max-width:100%}
 .bar .brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;font-size:17px;text-decoration:none;color:inherit;margin-right:auto;min-width:0}
 .bar .brand img{width:34px;height:34px;border-radius:8px;background:#fff}
 .bar .brand span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media(max-width:460px){.bar .brand .long{display:none}.bar .brand{font-size:16px}}
+@media(max-width:460px){.bar .brand span{display:none}}
 .ibtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:none}
 .ibtn:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
 .ibtn.off{opacity:.5;text-decoration:line-through}
@@ -210,12 +210,51 @@ footer.end .btn{background:#fff;color:var(--ink)}
   .reveal{opacity:1;transform:none}
   body{font-size:12pt}
 }
+
+/* ===== Kiểu sách: vuốt ngang, mỗi trang vừa một màn hình (máy tính: hai trang đôi) ===== */
+.pager{display:none}
+body.book{overflow:hidden;height:100svh}
+body.book .bar{background:color-mix(in srgb,var(--paper) 94%,transparent);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+body.book #main{position:fixed;top:60px;left:0;right:0;bottom:56px;overflow:hidden;
+  column-width:100vw;column-gap:0;column-fill:auto;height:auto}
+@media(min-width:1100px){body.book #main{column-width:auto;column-count:2;column-rule:1px solid var(--line)}}
+body.book .part,body.book .sec,body.book footer.end{break-before:column}
+body.book .hero{position:fixed;inset:0;z-index:28;min-height:100svh;transition:transform .7s cubic-bezier(.6,0,.2,1),box-shadow .7s}
+body.book .hero.away{transform:translateX(-102%);box-shadow:30px 0 60px rgba(10,20,45,.35)}
+body.book .hero .bg{inset:0;transform:none!important}
+body.book.oncover .bar{background:transparent;color:#fff;box-shadow:none}
+body.book.oncover .pager{background:transparent;border-color:transparent;color:#fff}
+body.book.oncover .pager .pgl{color:#fff}
+body.book.oncover .pager .ibtn{background:rgba(255,255,255,.18);color:#fff}
+body.book .hero .in{padding-bottom:clamp(80px,12vh,120px)}
+body.book .part{height:calc(100svh - 116px);display:flex;align-items:center;break-inside:avoid;padding:40px var(--gut)}
+body.book .part .in{width:100%}
+body.book .sec{border-top:0;padding:28px var(--gut) 20px;max-width:none}
+@media(min-width:1100px){body.book .sec{padding:36px 48px 24px}body.book .part{padding:40px 48px}}
+body.book .sec h2{font-size:clamp(28px,3.4vw,44px)}
+body.book .sec h2,body.book .kick,body.book .art h3.sub{break-after:avoid}
+body.book .ph2,body.book .stat,body.book .thx,body.book .tl .it,body.book .chap .c,body.book .vid,body.book .card,body.book .pill,body.book form.cap,body.book .toc a{break-inside:avoid}
+body.book .ph2 img{max-height:46svh}
+body.book .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+body.book .tl{--p:1}
+body.book footer.end{height:calc(100svh - 116px);display:flex;flex-direction:column;justify-content:center;align-items:center}
+body.book .reveal{transition-duration:.6s}
+body.book .pager{display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:30;align-items:center;justify-content:center;gap:14px;background:var(--paper);border-top:1px solid var(--line);padding:0 12px}
+.pager .pgl{min-width:150px;text-align:center;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
+.pager .ibtn{background:var(--mist);color:var(--ink);font-size:22px}
+.pager .ibtn:disabled{opacity:.3}
+body.book .bbsmark{bottom:64px}
+.turn{position:fixed;inset:60px 0 56px 0;pointer-events:none;z-index:20;opacity:0;background:linear-gradient(90deg,rgba(10,20,45,.0),rgba(10,20,45,.10) 50%,rgba(10,20,45,0))}
+.turn.go{animation:turn .45s ease}
+@keyframes turn{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
+@media print{body.book{overflow:visible;height:auto}body.book #main{position:static;columns:auto;overflow:visible}.pager,.turn{display:none!important}}
 </style>
 </head>
 <body>
 <div class="prog" id="prog"></div>
 <header class="bar" id="bar">
   <a class="brand" href="#p1"><img src="logo.jpg" alt=""><span>Kỷ yếu 10 năm<span class="long"> Phượng Hoàng</span></span></a>
+  <button class="ibtn" id="mode" aria-label="Đọc kiểu cuộn" title="Đọc kiểu cuộn">⇅</button>
   <button class="ibtn" id="music" aria-label="Bật hoặc tắt nhạc nền" title="Nhạc nền">♪</button>
   <button class="ibtn" id="share" aria-label="Chia sẻ" title="Chia sẻ">⤴</button>
   <button class="ibtn" id="print" aria-label="In hoặc lưu PDF" title="In hoặc lưu PDF">⎙</button>
@@ -239,6 +278,8 @@ footer.end .btn{background:#fff;color:var(--ink)}
   <button class="btn" onclick="document.getElementById('contrib').click()">Gửi bài cho kỷ yếu</button>
 </footer>
 <div class="memwrap" id="ctWrap"><div class="mem"><div class="mh"><span>Gửi bài cho kỷ yếu</span><button id="ctClose" class="ibtn" aria-label="Đóng">✕</button></div><div id="ctBox"></div></div></div>
+<div class="turn" id="turn"></div>
+<nav class="pager" id="pager" aria-label="Lật trang"><button class="ibtn" id="pgPrev" aria-label="Trang trước">‹</button><span class="pgl" id="pgLbl"></span><button class="ibtn" id="pgNext" aria-label="Trang sau">›</button></nav>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-label="Mục lục"></aside>
 <script>
@@ -1008,6 +1049,82 @@ document.addEventListener('visibilitychange', () => { document.hidden ? bg.pause
 
 // Mở đúng chỗ khi link có #p30, #part-II…
 if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t && !t.hidden) setTimeout(() => t.scrollIntoView(), 60); }
+
+/* ===== Kiểu sách: vuốt ngang để lật trang. Nút ⇅ / ⇄ đổi giữa đọc kiểu sách và đọc kiểu cuộn. ===== */
+const DEFAULT_MODE = 'book';
+let BOOK = store.get('readMode', DEFAULT_MODE) === 'book';
+let pg = 0, pages = 1;
+const pager = $('#pager'), turnFx = $('#turn');
+const step = () => main.clientWidth;                     // một lần lật = một màn hình (điện thoại 1 trang, máy tính 2 trang đôi)
+const hero = $('.hero');
+function measure(){ pages = 1 + Math.max(1, Math.round(main.scrollWidth / step())); }   // trang 1 là bìa, phủ kín màn hình
+function pageOf(el){ if (el === hero || hero.contains(el)) return 0; const r = el.getBoundingClientRect(), m = main.getBoundingClientRect(); return 1 + Math.max(0, Math.floor((r.left - m.left + main.scrollLeft + 2) / step())); }
+function curSecTitle(){
+  let t = '';
+  for (const p of PAGES.slice(1)) { if (p.el.hidden) continue; if (pageOf(p.el) <= pg) t = p.title; else break; }
+  return t;
+}
+function show(i, anim = true){
+  measure();
+  i = Math.max(0, Math.min(pages - 1, i));
+  if (anim && i !== pg && i > 0 && pg > 0 && !still) { turnFx.classList.remove('go'); void turnFx.offsetWidth; turnFx.classList.add('go'); }
+  const was = pg; pg = i;
+  hero.classList.toggle('away', i > 0); document.body.classList.toggle('oncover', i === 0);
+  if (i > 0) main.scrollTo({left: (i - 1) * step(), behavior: anim && !still && was !== 0 ? 'smooth' : 'auto'});
+  $('#pgPrev').disabled = i === 0; $('#pgNext').disabled = i >= pages - 1;
+  const st = curSecTitle(); $('#pgLbl').textContent = i ? `${i} / ${pages - 1}` + (st ? ' · ' + st : '') : 'Vuốt hoặc bấm › để mở sách';
+  prog.style.width = ((i + 1) / pages * 100) + '%';
+}
+function setMode(book){
+  BOOK = book; store.set('readMode', book ? 'book' : 'scroll');
+  document.body.classList.toggle('book', book);
+  $('#mode').textContent = book ? '⇅' : '⇄';
+  $('#mode').title = $('#mode').ariaLabel = book ? 'Đọc kiểu cuộn' : 'Đọc kiểu lật sách';
+  const end = $('footer.end');
+  if (book) { main.appendChild(end); document.body.insertBefore(hero, main); requestAnimationFrame(() => { show(0, false); document.querySelectorAll('.reveal').forEach(e => { if (pageOf(e) === 0) e.classList.add('in'); }); }); }
+  else { document.body.classList.remove('oncover'); hero.classList.remove('away'); main.prepend(hero); document.body.insertBefore(end, $('#ctWrap')); main.scrollLeft = 0; onScroll(); }
+}
+$('#mode').onclick = () => { const anchor = BOOK ? PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg) : null; setMode(!BOOK); if (anchor && !BOOK) anchor.el.scrollIntoView(); };
+$('#pgPrev').onclick = () => show(pg - 1);
+$('#pgNext').onclick = () => show(pg + 1);
+document.addEventListener('keydown', e => {
+  if (!BOOK || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || $('#ctWrap').classList.contains('on')) return;
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(pg + 1); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(pg - 1); }
+});
+// Vuốt ngang trên điện thoại; chạm mép trái / phải trang để lật
+const UI = '.bar,.pager,.drawer,.memwrap,.scrim';
+let tx = 0, ty = 0, tt = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = Date.now(); }, {passive: true});
+document.addEventListener('touchend', e => {
+  if (!BOOK || e.target.closest(UI)) return;
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) show(pg + (dx < 0 ? 1 : -1));
+}, {passive: true});
+document.addEventListener('click', e => {
+  if (!BOOK || e.target.closest(UI) || e.target.closest('a,button,input,textarea,select,label,summary,iframe,[data-vid],.vbtn')) return;
+  const x = e.clientX / innerWidth;
+  if (x > .8) show(pg + 1); else if (x < .2) show(pg - 1);
+});
+document.addEventListener('wheel', e => {                      // con lăn chuột / bàn di cũng lật trang
+  if (!BOOK || e.target.closest(UI) || Math.abs(e.deltaY) + Math.abs(e.deltaX) < 30 || main._wl) return;
+  main._wl = 1; setTimeout(() => main._wl = 0, 550);
+  show(pg + ((e.deltaY || e.deltaX) > 0 ? 1 : -1));
+}, {passive: true});
+addEventListener('resize', () => { if (!BOOK) return; const a = PAGES.find(p => !p.el.hidden && pageOf(p.el) >= pg); requestAnimationFrame(() => show(a ? pageOf(a.el) : pg, false)); });
+// Mục lục, link #p30… mở đúng trang sách
+const _goTo = goTo;
+goTo = function(id){
+  if (!BOOK) return _goTo(id);
+  const t = document.getElementById(id); if (t && !t.hidden) { show(pageOf(t)); history.replaceState(null, '', '#' + id); }
+  closeDrawer();
+};
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]'); if (!a || !BOOK) return;
+  e.preventDefault(); e.stopPropagation(); goTo(a.getAttribute('href').slice(1));
+}, true);
+setMode(BOOK);
+if (BOOK && location.hash) setTimeout(() => goTo(location.hash.slice(1)), 120);
 </script>
 </body>
 </html>
