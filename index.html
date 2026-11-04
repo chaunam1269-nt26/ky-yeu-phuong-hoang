@@ -1259,12 +1259,12 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
   if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
   let lead = el.querySelector(':scope > .lead');
   if (dandan) { if (!lead) { lead = document.createElement('p'); lead.className = 'lead'; el.querySelector('h2').after(lead); } lead.className = 'lead'; lead.textContent = dandan; }
-  const imgs = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u));
+  const imgs = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u) && !/drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(u));
   const caps = String(cap || '').split('\n');
   const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
   const first = imgs.length ? figOne(imgs[0], 0) : '';
   const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : '';
-  if (nd || fig) {
+  if (nd || imgs.length) {
     // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
     let art = el.querySelector('.art');
     if (!art) {
@@ -1273,7 +1273,8 @@ function applyArticle([id, tieude, dandan, nd, anh, cap]){
       art = document.createElement('div'); art.className = 'art';
       (lead || el.querySelector('h2')).after(art);
     }
-    art.innerHTML = first + artHTML(nd) + fig;
+    if (nd) art.innerHTML = first + artHTML(nd) + fig;
+    else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', fig); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
