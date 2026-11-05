@@ -102,6 +102,60 @@ body.book .filler.tail{break-before:auto;height:var(--h)}
 .filler.quote q{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,32px);line-height:1.4;quotes:"“" "”"}
 .filler.quote cite{display:block;margin-top:18px;font-style:normal;font-size:16px;opacity:.85}
 body.book .filler.tail.quote q{font-size:clamp(19px,2vw,26px)}
+
+/* Phần IV: mỗi .leaf là một trang sách */
+.leaf{margin:26px 0 40px}
+.leaf.open1{margin-top:0}
+.lfno{font-family:var(--serif);font-size:56px;font-weight:700;color:var(--wing);line-height:1;display:flex;align-items:baseline;gap:14px}
+.lfno small{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.04em}
+.lfno.sm{font-size:13px;font-family:var(--sans);font-weight:500;color:var(--muted);margin-bottom:14px}
+.lfh{font-size:clamp(24px,2.6vw,34px);margin:8px 0 4px}
+.lfwho{color:var(--muted);margin:0 0 16px}
+.lfimg{margin:0 0 18px;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:var(--mist)}
+.lfimg img{width:100%;height:100%;object-fit:cover;filter:saturate(.55) brightness(.92)}
+.lfimg.real img{filter:none}
+.lfimg.real{aspect-ratio:auto}.lfimg.real img{max-height:44svh;object-fit:contain;height:auto}
+.lftext p{margin:0 0 12px}
+.invite{border:1.5px dashed color-mix(in srgb,var(--wing) 50%,transparent);border-radius:14px;padding:18px 20px;display:grid;gap:14px}
+.invite p{margin:0;color:var(--muted)}
+.slices{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
+.slice{border-radius:14px;padding:22px 20px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:150px}
+.slice[data-c="1"]{background:var(--band1)}.slice[data-c="2"]{background:var(--band2)}.slice[data-c="3"]{background:var(--band3)}
+.slice q{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.35;quotes:"“" "”"}
+.slice span{font-size:13px;opacity:.8}
+.works{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
+.work{background:var(--mist);border-radius:14px;padding:14px 12px;display:grid;gap:8px;place-items:center;text-align:center}
+.work b{font-size:28px}.work span{font-weight:600}
+body.book .leaf{break-inside:avoid;margin:0}
+body.book .leaf ~ .leaf{break-before:column}
+body.book .story-slot ~ .story-slot,body.book .slice-slot ~ .slice-slot{min-height:calc(100svh - 200px);display:flex;flex-direction:column}
+body.book .story-slot .lfimg{flex:1 1 0;min-height:90px;max-height:42svh;aspect-ratio:auto;position:relative}
+body.book .story-slot .lfimg img{position:absolute;inset:0}
+body.book .works-slot{break-inside:auto}
+body.book .story-slot.keep .lfimg{flex:none;position:static}body.book .story-slot.keep .lfimg img{position:static}
+body.book .lead + .leaf{break-inside:auto}
+body.book .lead + .story-slot .lfimg{flex:none;height:14svh;min-height:0}
+body.book .lead + .story-slot .lfwho{margin-bottom:10px}
+body.book .lead + .story-slot .lfh{margin-top:2px}
+body.book .lead + .story-slot .lfno{font-size:40px}
+body.book .open1 .ph2 img{max-height:26svh;width:100%;object-fit:cover}
+body.book .open1 p{margin:0 0 10px}
+body.book .sec[data-split] .lead,body.book #p29 .lead{margin-bottom:14px}
+body.book .story-slot.keep{break-inside:auto}
+body.book [data-split] .art h3.sub:not(:first-child){break-before:column}
+@media(max-height:860px){
+  body.book .lead + .story-slot .lfimg{display:none}
+  body.book .sec[data-split] .lead,body.book .sec[data-sec="IV"] .lead{font-size:1em;margin-bottom:10px}
+  body.book .sec[data-sec="IV"] h2{font-size:clamp(26px,2.8vw,36px)}
+  body.book .open1 .ph2 img{max-height:20svh}
+  body.book .open1 p{font-size:15px}
+  body.book .slice{min-height:0;padding:14px 16px;gap:8px}body.book .slice q{font-size:17px}
+  body.book .slices{gap:10px;margin-bottom:12px}
+  body.book .invite{padding:12px 16px;gap:10px}body.book .invite p{font-size:14px}
+  body.book .lfno{font-size:40px}body.book .lfh{font-size:24px}
+  body.book .works{grid-template-columns:repeat(4,1fr);gap:8px}body.book .work{padding:10px 6px}body.book .work span{font-size:13px}
+}
+@media(max-width:700px){.slices{grid-template-columns:1fr}.lfno{font-size:42px}.slice q{font-size:18px}.slice{min-height:110px}}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -404,19 +458,19 @@ const VIDEOS = [
   {id:'1JJiqru4QtYYnNfbZ-Bd40sG0HpHl0N1u', t:'Tập 9'}
 ];
 /* Mười năm trong một trang: tối đa 12 mốc, lấy từ bài viết các trang 6–10 của khung bản chốt */
-const TIMELINE = [
-  {y:'12/6/2009', t:'Quyết định thành lập', d:'UBND tỉnh Nghệ An ban hành Quyết định số 2739/QĐ-UBND.ĐT cho phép thành lập Trường PTCLC Phượng Hoàng; khu đất 18 Duy Tân được chọn để xây trường.', era:'Thắp lửa'},
-  {y:'01/6/2010', t:'Cấp mã số thuế', d:'Bước khởi đầu về pháp lý và tổ chức; bắt đầu bảy năm chuẩn bị đầu tư, xây dựng và tìm người cùng chung tâm huyết.'},
-  {y:'24/6/2016', t:'Được phép hoạt động giáo dục', d:'Sở GD&ĐT Nghệ An ban hành Quyết định số 667/QĐ-SGDĐT. NGƯT Đậu Văn Mùi nhận cương vị Hiệu trưởng đầu tiên.'},
-  {y:'04/9/2016', t:'Hồi trống khai trường', d:'Ba lớp đầu tiên (hai lớp 6, một lớp 1) với gần 100 học sinh; kế hoạch ban đầu là sáu lớp.'},
-  {y:'2018–2019', t:'Tập thể lao động tiên tiến lần đầu', d:'Giấy khen của Sở GD&ĐT theo Quyết định số 618/QĐ-SGD-ĐT ngày 18/7/2019.', era:'Giữ lửa'},
-  {y:'2019–2020', t:'Chương trình STREAMS liên môn', d:'Học qua trải nghiệm, khám phá, vận dụng; CLB STEM Robotics cho học sinh tiểu học.'},
-  {y:'2020', t:'Mùa dịch: chuyển sang dạy trực tuyến', d:'Quyết định lúc 12 giờ đêm thứ Sáu, hai ngày cuối tuần chạy thử từng lớp; sáng thứ Hai toàn trường học trực tuyến. Từ 01/8/2020, NGƯT Trần Văn Phương nhận nhiệm vụ Hiệu trưởng.'},
-  {y:'2020–2021', t:'Đủ ba cấp học', d:'Tiểu học, THCS và THPT — giáo dục liên thông từ lớp 1 đến lớp 12.'},
-  {y:'2022', t:'Tòa nhà 10 tầng đưa vào sử dụng', d:'Khai giảng năm học thứ bảy với 732 học sinh, gấp khoảng bảy lần năm đầu. Dự án tiếng Anh cho trẻ em Làng trẻ SOS Vinh bắt đầu.', era:'Sải cánh'},
-  {y:'2023', t:'Khóa 12 đầu tiên tốt nghiệp', d:'Theo thống kê của Nhà trường, toàn bộ học sinh khóa đầu trúng tuyển đại học, bốn em du học.'},
-  {y:'2024', t:'Giấy khen kỳ thi tốt nghiệp THPT', d:'Quyết định số 1577/QĐ-SGD-ĐT ngày 13/8/2024. Tháng 9/2024 thầy trò, phụ huynh quyên góp 219 triệu đồng hỗ trợ trường học vùng bão lũ.'},
-  {y:'9/2026', t:'Năm học thứ mười một', d:'32 lớp, hơn 1.000 học sinh, gần 100 cán bộ, giáo viên, nhân viên; kỷ niệm 10 năm hoạt động giáo dục.'}
+const TIMELINE = [                     // đúng bảng "Mười hai dấu mốc lịch sử Phượng Hoàng (2009–2026)" trong khung bản chốt
+  {y:'12/06/2009', t:'Quyết định thành lập', d:'UBND tỉnh Nghệ An ban hành Quyết định số 2739/QĐ-UBND.ĐT cho phép thành lập Trường PTCLC Phượng Hoàng.', era:'Thắp lửa'},
+  {y:'24/06/2016', t:'Được phép hoạt động giáo dục', d:'Sở GD&ĐT Nghệ An ban hành Quyết định số 667/QĐ-SGDĐT cho phép Nhà trường hoạt động giáo dục.'},
+  {y:'04/09/2016', t:'Năm học đầu tiên', d:'Khai giảng năm học đầu tiên với 3 lớp, gồm 2 lớp 6 và 1 lớp 1, gần 100 học sinh.', era:'Giữ lửa'},
+  {y:'2018–2019', t:'Tập thể lao động tiên tiến', d:'Lần đầu đạt danh hiệu Tập thể lao động tiên tiến, được Sở GD&ĐT tặng Giấy khen.'},
+  {y:'2019–2020', t:'Chương trình STREAMS', d:'Triển khai chương trình giáo dục định hướng STREAMS liên môn, phát triển hoạt động STEM Robotics.'},
+  {y:'2020', t:'Dạy học trực tuyến', d:'Chuyển đổi sang dạy học trực tuyến trong đại dịch COVID-19, duy trì hoạt động học tập của học sinh.'},
+  {y:'2020–2021', t:'Trường liên cấp', d:'Hoàn thiện mô hình trường liên cấp với đầy đủ ba cấp học, từ lớp 1 đến lớp 12.'},
+  {y:'09/2022', t:'Tòa nhà 10 tầng', d:'Đưa tòa nhà 10 tầng vào sử dụng; khai giảng với 732 học sinh.', era:'Sải cánh'},
+  {y:'2022–2023', t:'Khóa 12 đầu tiên tốt nghiệp', d:'Khóa học sinh lớp 12 đầu tiên tốt nghiệp; toàn bộ học sinh trúng tuyển đại học, trong đó có 4 em du học.'},
+  {y:'13/08/2024', t:'Giấy khen kỳ thi tốt nghiệp', d:'Được Giám đốc Sở GD&ĐT Nghệ An tặng Giấy khen về thành tích xuất sắc trong kỳ thi tốt nghiệp THPT.'},
+  {y:'09/2024', t:'219 triệu đồng trong 3 ngày', d:'Thầy cô, học sinh và phụ huynh quyên góp 219 triệu đồng trong 3 ngày hỗ trợ các trường học vùng bão lũ phía Bắc.'},
+  {y:'2026', t:'32 lớp, hơn 1.000 học sinh', d:'Phượng Hoàng phát triển với 32 lớp, hơn 1.000 học sinh; định hình khung giáo dục 5 trụ cột, 20 năng lực cốt lõi.'}
 ];
 
 const TO_CM = [
@@ -632,29 +686,53 @@ const PAGES = [
    <p style="margin-top:16px;font-size:14px"><b>Những hoạt động tiêu biểu:</b> chuyến thăm trung tâm bảo trợ xã hội 9/2016 · tiếng Anh tại Làng trẻ SOS Vinh (từ 2022) · hỗ trợ vùng bão lũ 219 triệu đồng (9/2024) · Family Run · Hội chợ Xuân · “Cha mẹ đồng hành cùng con” · “Phòng giúp phòng, trường giúp trường” · “10 tuần việc tốt – 10 năm truyền lửa”.</p>
    <div class="note">Không liệt kê tất cả ngang nhau. Xác minh thời gian, số liệu, chứng từ và quyền sử dụng ảnh; ảnh trẻ em phải được phép.</div>`},
 
- /* ---- IV. 10 NĂM – NGÀN CÂU CHUYỆN (trang 27–35) ---- */
- {sec:'IV', title:'Lời dẫn: ngàn câu chuyện', wip:1, html:`
+ /* ---- IV. 10 NĂM – NGÀN CÂU CHUYỆN (trang 27–35) ----
+    Mỗi trang in là một .leaf: kiểu sách lật đúng một trang cho mỗi leaf (dải phần + 9 trang = 10 trang).
+    Trang chưa có bài hiện lời mời gửi bài; bài duyệt từ biểu mẫu, Google Sheet hoặc Wix sẽ thay vào chỗ. */
+ {sec:'IV', title:'Lời dẫn: ngàn câu chuyện', html:`
    ${K(P4, 27)}<h2>10 năm – Ngàn câu chuyện</h2>
-   <p class="lead">Lời dẫn ngắn và một ký ức mở phần.</p>
-   <div class="card blank"><p>${WAIT('lời dẫn 3–4 câu và một ký ức ngắn')}</p></div>
-   <div class="note">Xem thêm: album <a href="https://www.facebook.com/media/set/?set=a.1501081768708770&type=3" target="_blank" rel="noopener">“Mười năm Phượng Hoàng – Ngàn câu chuyện”</a> trên Facebook của Nhà trường.</div>`},
+   <p class="lead">Mười năm qua, mỗi thầy cô, mỗi phụ huynh, mỗi học trò và mỗi người làm việc ở Phượng Hoàng đều mang theo những câu chuyện của riêng mình.</p>
+   <div class="leaf open1">
+     <figure class="ph2 keep"><img src="hs-cam-la.jpg" alt="Học sinh Phượng Hoàng" loading="lazy"><figcaption>Mỗi buổi học, một câu chuyện</figcaption></figure>
+     <p>Phần này gom lại một phần nhỏ trong ngàn câu chuyện ấy: bốn câu chuyện kể sâu, những lát cắt ký ức ngắn, tác phẩm của chính các em và những lời cảm ơn gửi tới người đã đồng hành.</p>
+     <p style="font-size:15px">Xem thêm album <a href="https://www.facebook.com/media/set/?set=a.1501081768708770&type=3" target="_blank" rel="noopener">“Mười năm Phượng Hoàng – Ngàn câu chuyện”</a> trên Facebook của Nhà trường.</p>
+     <div class="card blank"><p>${WAIT('ký ức ngắn mở phần, 3–4 câu')}</p></div>
+   </div>`},
 
- {sec:'IV', title:'Bốn câu chuyện kể sâu', wip:1, id:'stories', html:`
+ {sec:'IV', title:'Bốn câu chuyện kể sâu', id:'stories', split:1, html:`
    ${K(P4, '28–31')}<h2>Bốn câu chuyện kể sâu</h2>
-   <p class="lead">Mỗi chuyện một trang, 400–500 chữ, 1–2 ảnh: có thời điểm, tình huống, diễn biến và điều đã thay đổi.</p>
-   <div class="grid keep" id="stReal"></div>
-   <div class="grid" id="stGrid"></div>
+   <p class="lead">Mỗi chuyện một trang: có thời điểm, tình huống, diễn biến và điều đã thay đổi.</p>
+   ${[['một thầy cô','bia-giaovien.jpg'],['một phụ huynh','hs-duoi-tan-cay.jpg'],['một nhân viên hoặc người ngoài trường','bia-truong.jpg'],['một học sinh đang học','hs-cam-la.jpg']].map(([who, img], k) => `
+   <div class="leaf slot story-slot" data-n="${k + 1}">
+     <div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${28 + k}</small></div>
+     <h3 class="lfh">Câu chuyện thứ ${['nhất','hai','ba','tư'][k]}</h3>
+     <p class="lfwho">Lời kể của ${who}</p>
+     <figure class="lfimg"><img src="${img}" alt="" loading="lazy"></figure>
+     <div class="invite"><p>Trang này đang chờ một câu chuyện có thật, 400–500 chữ, kèm 1–2 ảnh. Bạn có một kỷ niệm đã làm mình thay đổi ở Phượng Hoàng?</p>
+       <button class="btn" type="button" data-ct="Câu chuyện">✍️ Kể câu chuyện của bạn</button></div>
+   </div>`).join('')}
    <div class="note">Người kể đọc lại và xác nhận nội dung trước khi in.</div>`},
 
- {sec:'IV', title:'Lát cắt ký ức', wip:1, html:`
+ {sec:'IV', title:'Lát cắt ký ức', split:1, html:`
    ${K(P4, '32–33')}<h2>Lát cắt ký ức</h2>
-   <p class="lead">8–10 mẩu ngắn, 50–150 chữ: một câu nói, một lá thư, một trang vở, một bức ảnh có lời kể.</p>
-   <div class="grid">${[1,2,3,4].map(i=>`<div class="card"><h3>[Lát cắt ${i}]</h3><p>[Người kể · vai: thầy cô, phụ huynh, học sinh, cựu học sinh, nhân viên]</p></div>`).join('')}</div>`},
+   <p class="lead">Những mẩu ngắn 50–150 chữ: một câu nói, một lá thư, một trang vở, một bức ảnh có lời kể.</p>
+   ${[[32, ['Một câu nói của thầy cô mà bạn nhớ mãi','Một lá thư, một tấm thiệp còn giữ đến hôm nay','Một trang vở, một bài kiểm tra đáng nhớ','Ngày đầu tiên bạn bước vào cổng trường']],
+      [33, ['Một bức ảnh và câu chuyện phía sau nó','Một người bạn đã ở bên bạn','Một lần được khen, hoặc được nhắc nhở','Một điều bạn muốn nói với chính mình ngày ấy']]].map(([pgN, qs], k) => `
+   <div class="leaf slot slice-slot">
+     <div class="lfno sm">Trang ${pgN}</div>
+     <div class="slices">${qs.map((q, j) => `<div class="slice" data-c="${(k * 4 + j) % 3 + 1}"><q>${q}</q><span>Đang chờ lời kể · 50–150 chữ</span></div>`).join('')}</div>
+     <button class="btn" type="button" data-ct="Câu chuyện">✍️ Gửi một lát cắt ký ức</button>
+   </div>`).join('')}`},
 
- {sec:'IV', title:'Tác phẩm của học trò', wip:1, html:`
+ {sec:'IV', title:'Tác phẩm của học trò', html:`
    ${K(P4, 34)}<h2>Tác phẩm của học trò</h2>
-   <p class="lead">Thơ, truyện ngắn, cảm nghĩ, tranh, ảnh — ghi rõ tác giả và lớp / khóa.</p>
-   <div class="grid">${PH('Tranh của em Bách (nếu gia đình đồng ý)')}${PH('Tranh / ảnh học sinh')}<div class="card"><h3>[Tên tác phẩm]</h3><p>[Tác giả · lớp/khóa]</p></div></div>`},
+   <p class="lead">Thơ, truyện ngắn, cảm nghĩ, tranh, ảnh của các em — ghi rõ tên tác giả và lớp / khóa.</p>
+   <div class="leaf slot works-slot open1">
+     <div class="works">${[['🖋️','Thơ'],['📖','Truyện ngắn, cảm nghĩ'],['🎨','Tranh vẽ'],['📷','Ảnh chụp']].map(([i, t]) => `<div class="work"><b>${i}</b><span>${t}</span></div>`).join('')}</div>
+     <div class="invite"><p>Thầy cô và phụ huynh gửi giúp tác phẩm của các em: ảnh chụp tranh, bài thơ, bài viết, kèm tên tác giả, lớp và sự đồng ý của gia đình.</p>
+       <button class="btn" type="button" data-ct="Câu chuyện">🎨 Gửi tác phẩm</button></div>
+     ${PH('Tranh của em Bách (nếu gia đình đồng ý)')}
+   </div>`},
 
  {sec:'IV', title:'Một lời cảm ơn', id:'thanks', html:`
    ${K(P4, 35)}<h2>Một lời cảm ơn</h2>
@@ -786,7 +864,7 @@ PAGES.forEach((p, i) => {
     main.insertAdjacentHTML('beforeend', `<div class="part reveal" id="part-${s.id}" data-c="${PART_COLOR[s.id]}"><div class="in"><div class="num">${s.id}</div><div><h2>${s.title}</h2><p>${s.desc.replace(/ \(trang [^)]*\)/, '')}</p></div></div></div>`);
   }
   const el = document.createElement('section');
-  el.className = 'sec'; el.id = 'p' + (i + 1); el.dataset.sec = p.sec;
+  el.className = 'sec'; el.id = 'p' + (i + 1); el.dataset.sec = p.sec; if (p.split) el.dataset.split = 1;
   el.innerHTML = p.html;
   main.appendChild(el);
   p.el = el;
@@ -812,14 +890,25 @@ function renderTl(extra){
   watch($('#tl'));
 }
 
-// Bốn câu chuyện kể sâu: chuyện đã đăng chiếm chỗ trước
-const stGrid = $('#stGrid');
-function renderStories(){
-  const n = document.querySelectorAll('#stReal .card').length;
-  stGrid.innerHTML = STORIES.slice(Math.min(n, STORIES.length)).map(s =>
-    `<div class="card story"><div class="no">${String(s.n).padStart(2,'0')}</div><div><h3>[Tên câu chuyện]</h3><p>Người kể gợi ý: ${s.who}</p><p style="margin-top:6px">400–500 chữ, 1–2 ảnh</p></div></div>`).join('');
+// Bốn câu chuyện kể sâu: chuyện đã duyệt lần lượt thay vào trang 28, 29, 30, 31
+function renderStories(list = []){
+  document.querySelectorAll('.story-slot').forEach((el, k) => {
+    const st = list[k];
+    if (!el._empty) el._empty = el.innerHTML;
+    if (!st) { el.innerHTML = el._empty; el.classList.add('slot'); return; }
+    el.classList.remove('slot'); el.classList.add('keep');
+    el.innerHTML = `<div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${28 + k}</small></div>
+      <h3 class="lfh">${esc(st.t || 'Câu chuyện thứ ' + (k + 1))}</h3>
+      <p class="lfwho">${[st.ct.who, st.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>
+      ${imgUrl(st.anh) ? `<figure class="lfimg real"><img src="${esc(imgUrl(st.anh))}" alt="${esc(st.t)}" loading="lazy" referrerpolicy="no-referrer"></figure>` : ''}
+      <div class="lftext">${esc(st.nd).split(/\n\s*\n/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
+  });
 }
 renderStories();
+document.addEventListener('click', e => {              // nút mời gửi bài trong Phần IV mở ô ➕ đúng loại
+  const b = e.target.closest('[data-ct]'); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); ctDraw(b.dataset.ct); $('#ctWrap').classList.add('on');
+}, true);
 function chips(sel, cb){
   document.querySelectorAll(sel + ' .chip').forEach(c => c.onclick = () => {
     document.querySelectorAll(sel + ' .chip').forEach(x => x.classList.remove('on'));
@@ -931,14 +1020,11 @@ function imgUrl(u){
 const imgTag = (u, alt) => imgUrl(u) ? `<img class="cimg" src="${esc(imgUrl(u))}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer">` : '';
 function renderContrib(){
   const c = remote && remote.contrib; if (!c) return;
-  $('#stReal').innerHTML = c.story.map(s => `<div class="card story real">${imgTag(s.anh, s.t)}<h3>${esc(s.t)}</h3>
-    <p class="cmeta">${[s.ct.who, s.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>
-    <details><summary>Đọc câu chuyện</summary><p style="white-space:pre-line">${esc(s.nd)}</p></details></div>`).join('');
   $('#achReal').innerHTML = c.achievement.map(a => `<div class="card" data-lv="${esc(a.ct.cap || '')}">${imgTag(a.anh, a.ct.ten)}<h3>${esc(a.ct.ten)}</h3>
     <p>${[a.t, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
   if ($('#achTodo')) $('#achTodo').style.display = c.achievement.length ? 'none' : '';
   if (c.milestone.length) renderTl(c.milestone);
-  renderStories();
+  renderStories(c.story);
 }
 renderPins(); renderCloud();
 loadPublic().then(d => { if (d) { remote = d; renderCloud(); renderPins(); renderContrib(); } });
@@ -1152,14 +1238,15 @@ function paginate(){
     const bs = blocks();
     for (let k = 0; k < bs.length; k++) {
       const el = bs[k], prev = bs[k - 1];
-      const want = el.matches('.part') ? 0 : (prev && prev.matches('.part') ? 1 : 0);
+      let want = el.matches('.part') ? 0 : (prev && prev.matches('.part') ? 1 : 0);
+      if (el.dataset.sec === 'IV' && !(prev && prev.matches('.part'))) { const n = parseInt((el.querySelector('.kick') || {}).textContent?.replace(/\D+/, '') || '0'); if (n) want = n % 2 ? 1 : 0; }
       if (colOf(el) % 2 !== want) main.insertBefore(makeFiller(false), el);
     }
   };
   recto();
   // chỗ trống cuối mỗi mục
   const H = main.clientHeight;
-  blocks().filter(e => e.matches('.sec')).forEach(el => {
+  blocks().filter(e => e.matches('.sec') && !e.querySelector('.leaf')).forEach(el => {
     const rs = [...el.getClientRects()], last = rs[rs.length - 1]; if (!last) return;
     const kids = [...el.children].filter(c => c.getClientRects().length);
     const lastKid = kids[kids.length - 1]; if (!lastKid) return;
@@ -1270,7 +1357,7 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
     // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
     let art = el.querySelector('.art');
     if (!art) {
-      el.querySelectorAll(':scope > .card.blank, :scope > .grid.four, :scope > .note:not(.pubok), :scope > .wip, :scope > .ph').forEach(x => x.remove());
+      el.querySelectorAll(':scope > .slot, :scope > .card.blank, :scope > .grid.four, :scope > .note:not(.pubok), :scope > .wip, :scope > .ph').forEach(x => x.remove());
       el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && /\[[^\]]+\]|chờ bài/.test(g.textContent) && !g.querySelector('form,.vbtn,figure img')) g.remove(); });
       art = document.createElement('div'); art.className = 'art';
       (lead || el.querySelector('h2')).after(art);
