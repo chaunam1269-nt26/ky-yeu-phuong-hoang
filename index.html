@@ -156,6 +156,13 @@ body.book [data-split] .art h3.sub:not(:first-child){break-before:column}
   body.book .works{grid-template-columns:repeat(4,1fr);gap:8px}body.book .work{padding:10px 6px}body.book .work span{font-size:13px}
 }
 @media(max-width:700px){.slices{grid-template-columns:1fr}.lfno{font-size:42px}.slice q{font-size:18px}.slice{min-height:110px}}
+
+.art-vid{margin:18px 0;padding:0}
+.art-vid .vframe{background:#000}
+.art-vid figcaption{font-size:14px;color:var(--muted);margin-top:4px}
+.art-vid .vlink{font-size:13px;color:var(--muted)}
+body.book .art-vid{break-inside:avoid}
+body.book .art-vid .vframe{max-height:52svh}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -1340,6 +1347,20 @@ function artHTML(nd){
     return `<p>${esc(b).replace(/\n/g, '<br>')}</p>`;
   }).join('\n');
 }
+/* Link video (YouTube, Facebook, Google Drive) → khung xem video ngay trên trang */
+function videoSrc(u){
+  u = String(u || '').trim(); let m;
+  if ((m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/))) return 'https://www.youtube.com/embed/' + m[1] + '?rel=0';
+  if (/(?:facebook\.com|fb\.watch)\//.test(u) && /\/videos?\/|\/watch|\/reel\/|fb\.watch|\/share\/(v|r)\/|story_fbid|\/posts\//.test(u))
+    return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(u.replace(/^https?:\/\/(m|web|mbasic)\./, 'https://www.')) + '&show_text=false&width=1280';
+  return null;
+}
+const isVideo = u => !!videoSrc(u);
+function videoBox(u, cap = ''){
+  const src = videoSrc(u); if (!src) return '';
+  return `<figure class="vid art-vid keep"><iframe class="vframe" src="${esc(src)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(cap || 'Video')}"></iframe>${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}<a class="vlink" href="${esc(u)}" target="_blank" rel="noopener">Không xem được? Mở video ↗</a></figure>`;
+}
+
 function applyArticle([id, tieude, dandan, nd, anh, cap], html){
   html = typeof html === 'string' && html.trim() ? html : '';
   const i = +String(id).replace(/\D/g, '') - 1, p = PAGES[i];
@@ -1350,15 +1371,20 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
   if (dandan) { if (!lead) { lead = document.createElement('p'); lead.className = 'lead'; el.querySelector('h2').after(lead); } lead.className = 'lead'; lead.textContent = dandan; }
   const links = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u));
   const isFolder = u => /drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|open\?id=|embeddedfolderview)/.test(u);
-  const imgs = links.filter(u => !isFolder(u));
+  const vids = links.map((u, k) => [u, k]).filter(([u]) => isVideo(u));
+  const imgs = links.filter(u => !isFolder(u) && !isVideo(u));
   const bad = links.filter(isFolder);
   el.querySelector(':scope > .imgwarn')?.remove();
   if (bad.length) el.querySelector('h2').insertAdjacentHTML('afterend', `<div class="note imgwarn">⚠️ Cột “Link ảnh” đang dán <b>link thư mục</b> Drive nên không hiện được ảnh. Mở thư mục, bấm chuột phải vào <b>từng ảnh</b> → Chia sẻ → Sao chép đường liên kết, rồi dán link của ảnh đó (mỗi dòng một link). Cách dễ hơn: đăng bài trên Wix và tải ảnh thẳng lên.</div>`);
-  const caps = String(cap || '').split('\n');
+  const capAll = String(cap || '').split('\n');
+  const capOf = u => capAll[links.indexOf(u)] || '';
+  const caps = imgs.map(capOf);
+  const vidHTML = vids.map(([u]) => videoBox(u, capOf(u))).join('');
   const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')" onerror="imgFail(this)">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
   const first = imgs.length ? figOne(imgs[0], 0) : '';
-  const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : '';
-  if (nd || html || imgs.length) {
+  const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : ''
+  const media = vidHTML + fig;
+  if (nd || html || imgs.length || vids.length) {
     // trang đã có bài: thay bài; trang khung: bỏ phần giữ chỗ, giữ lại ô gửi bài, timeline, con số, video
     let art = el.querySelector('.art');
     if (!art) {
@@ -1369,10 +1395,10 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
     }
     if (imgs.length) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
     const body = html || (nd ? artHTML(nd) : '');
-    if (body) art.innerHTML = first + body + fig;
-    else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', fig); }
+    if (body) art.innerHTML = first + body + media;
+    else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs, :scope > .art-vid').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', media); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
-    if (art.querySelector('img')) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
+    if (art.querySelector('img,iframe')) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
   el.querySelectorAll(':scope > .note:not(.imgwarn):not(.pubok)').forEach(x => x.remove());   // trang đã đăng: bỏ ghi chú nội bộ
@@ -1412,7 +1438,8 @@ function ricosHTML(doc){
   const node = n => {
     const kids = () => (n.nodes || []).map(node).join('');
     switch (n.type) {
-      case 'PARAGRAPH': { const h = (n.nodes || []).map(txt).join(''); return h.trim() ? `<p>${h}</p>` : ''; }
+      case 'PARAGRAPH': { const t0 = plain(n).trim(); if (/^https?:\/\/\S+$/.test(t0) && isVideo(t0)) return videoBox(t0);
+        const h = (n.nodes || []).map(txt).join(''); return h.trim() ? `<p>${h}</p>` : ''; }
       case 'HEADING': return `<h3 class="sub">${(n.nodes || []).map(txt).join('')}</h3>`;
       case 'BLOCKQUOTE': return `<blockquote>${(n.nodes || []).map(c => (c.nodes || []).map(txt).join('')).filter(Boolean).join('<br>')}</blockquote>`;
       case 'BULLETED_LIST': return `<ul>${kids()}</ul>`;
@@ -1427,7 +1454,11 @@ function ricosHTML(doc){
       case 'GALLERY': return `<div class="grid art-imgs">${(n.galleryData?.items || []).map(it => {
         const s = it.image?.media?.src || {}; return fig(s.id ? wixImg(s.id) : s.url, it.title || it.altText || '');
       }).join('')}</div>`;
-      case 'VIDEO': { const u = n.videoData?.video?.src?.url || ''; return /^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Xem video</a></p>` : ''; }
+      case 'VIDEO': { const v = n.videoData?.video?.src || {}; const u = v.url || '';
+        if (isVideo(u)) return videoBox(u, n.videoData?.title || '');
+        if (v.id) return `<figure class="vid art-vid keep"><video class="vframe" src="https://video.wixstatic.com/${esc(v.id)}" controls preload="metadata"></video></figure>`;
+        return /^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Xem video</a></p>` : ''; }
+      case 'EMBED': case 'LINK_PREVIEW': { const u = n.embedData?.src || n.linkPreviewData?.link?.url || n.embedData?.oembed?.url || ''; return isVideo(u) ? videoBox(u) : (/^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></p>` : ''); }
       case 'CAPTION': return '';
       default: return kids();
     }
@@ -1450,6 +1481,9 @@ async function loadWix(){
       ns.forEach(n => {
         if (n.type === 'IMAGE') { const s = n.imageData?.image?.src || {}; photos.push([s.id ? wixImg(s.id) : (s.url || ''), n.imageData?.caption || n.imageData?.altText || '']); }
         else if (n.type === 'GALLERY') (n.galleryData?.items || []).forEach(it => { const s = it.image?.media?.src || {}; photos.push([s.id ? wixImg(s.id) : (s.url || ''), it.title || '']); });
+        else if (n.type === 'VIDEO' && isVideo(n.videoData?.video?.src?.url)) photos.push([n.videoData.video.src.url, n.videoData?.title || '']);
+        else if ((n.type === 'EMBED' || n.type === 'LINK_PREVIEW') && isVideo(n.embedData?.src || n.linkPreviewData?.link?.url)) photos.push([n.embedData?.src || n.linkPreviewData.link.url, '']);
+        else if (n.type === 'PARAGRAPH' && isVideo(ricosText(n).trim()) && /^https?:\/\/\S+$/.test(ricosText(n).trim())) photos.push([ricosText(n).trim(), '']);
         else if (n.type === 'PARAGRAPH' && photos.length && !photos[photos.length - 1][1] && ricosText(n).length <= 120) photos[photos.length - 1][1] = ricosText(n).trim();
         else prose = true;
       });
