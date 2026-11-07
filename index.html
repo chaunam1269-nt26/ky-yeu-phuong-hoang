@@ -554,7 +554,7 @@ const PAGES = [
    <p class="lead">${ART.p7.lead}</p>
    <div class="art">${ART.p7.body}</div>
    <div class="grid" style="margin-top:16px">${PH('Ảnh lễ khai giảng 04/9/2016')}${PH('Ba lớp học đầu tiên')}</div>
-   <div class="note">Xác minh “bảy năm chuẩn bị”, “sáu lớp dự kiến – ba lớp thực tế”, “gần 100 học sinh” bằng văn bản gốc, dùng thống nhất cho cả phim và kỷ yếu.</div>`},
+`},
 
  {sec:'II', title:'Giữ lửa 2016–2022', html:`
    ${K('Giữ lửa · 2016–2022', '8–9')}<h2>🔥 Lớn lên cùng học trò, vững vàng qua thử thách</h2>
@@ -1348,9 +1348,14 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
   if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
   let lead = el.querySelector(':scope > .lead');
   if (dandan) { if (!lead) { lead = document.createElement('p'); lead.className = 'lead'; el.querySelector('h2').after(lead); } lead.className = 'lead'; lead.textContent = dandan; }
-  const imgs = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u) && !/drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(u));
+  const links = String(anh || '').split(/\s*\n\s*|\s+(?=https:)/).filter(u => /^https:\/\//.test(u));
+  const isFolder = u => /drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|open\?id=|embeddedfolderview)/.test(u);
+  const imgs = links.filter(u => !isFolder(u));
+  const bad = links.filter(isFolder);
+  el.querySelector(':scope > .imgwarn')?.remove();
+  if (bad.length) el.querySelector('h2').insertAdjacentHTML('afterend', `<div class="note imgwarn">⚠️ Cột “Link ảnh” đang dán <b>link thư mục</b> Drive nên không hiện được ảnh. Mở thư mục, bấm chuột phải vào <b>từng ảnh</b> → Chia sẻ → Sao chép đường liên kết, rồi dán link của ảnh đó (mỗi dòng một link). Cách dễ hơn: đăng bài trên Wix và tải ảnh thẳng lên.</div>`);
   const caps = String(cap || '').split('\n');
-  const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
+  const figOne = (u, k) => `<figure class="ph2 art-fig"><img src="${esc(imgUrl(u))}" alt="${esc(caps[k] || p.title)}" referrerpolicy="no-referrer" onload="this.naturalHeight > this.naturalWidth * 1.1 && this.parentNode.classList.add('portrait')" onerror="imgFail(this)">${caps[k] ? `<figcaption>${esc(caps[k])}</figcaption>` : ''}</figure>`;
   const first = imgs.length ? figOne(imgs[0], 0) : '';
   const fig = imgs.length > 1 ? `<div class="grid art-imgs">${imgs.slice(1).map((u, k) => figOne(u, k + 1)).join('')}</div>` : '';
   if (nd || html || imgs.length) {
@@ -1362,13 +1367,20 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
       art = document.createElement('div'); art.className = 'art';
       (lead || el.querySelector('h2')).after(art);
     }
+    if (imgs.length) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
     const body = html || (nd ? artHTML(nd) : '');
     if (body) art.innerHTML = first + body + fig;
     else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', fig); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
+  el.querySelectorAll(':scope > .note:not(.imgwarn):not(.pubok)').forEach(x => x.remove());   // trang đã đăng: bỏ ghi chú nội bộ
   el.dataset.fromSheet = 1;
+}
+function imgFail(img){
+  const f = img.closest('figure') || img;
+  if (!BBS) { f.remove(); return; }
+  f.outerHTML = `<div class="note imgwarn">⚠️ Ảnh không tải được: <a href="${esc(img.src)}" target="_blank" rel="noopener">mở link</a>. Kiểm tra link là link của <b>một ảnh</b> (không phải thư mục) và ảnh để chế độ “Bất kỳ ai có đường liên kết”.</div>`;
 }
 
 /* ============ BÀI VIẾT TỪ WIX (CMS "KyYeu" của website trường) ============
