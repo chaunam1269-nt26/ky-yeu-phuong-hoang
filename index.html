@@ -1372,6 +1372,7 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
     if (body) art.innerHTML = first + body + fig;
     else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', fig); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
+    if (art.querySelector('img')) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
   el.querySelectorAll(':scope > .note:not(.imgwarn):not(.pubok)').forEach(x => x.remove());   // trang đã đăng: bỏ ghi chú nội bộ
@@ -1392,6 +1393,7 @@ function wixImgField(v){                     // "wix:image://v1/<id>/<tên>#..."
   const s = String(v || ''); const m = s.match(/^wix:image:\/\/v1\/([^/#]+)/);
   return m ? wixImg(m[1]) : (/^https:\/\//.test(s) ? s : '');
 }
+function ricosText(n){ return n.type === 'TEXT' ? (n.textData?.text || '') : (n.nodes || []).map(ricosText).join(''); }
 function ricosHTML(doc){
   const txt = n => {
     if (n.type !== 'TEXT') return (n.nodes || []).map(txt).join('');
@@ -1441,7 +1443,22 @@ async function loadWix(){
       headers: {'Content-Type': 'application/json', Authorization: t.access_token},
       body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
     const items = (q.dataItems || []).map(d => d.data).filter(d => /^p\d+$/.test(String(d.maTrang || '').trim()));
-    items.forEach(d => applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', wixImgField(d.image), d.imageAltText || ''], ricosHTML(d.noiDung)));
+    items.forEach(d => {
+      // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
+      const ns = (d.noiDung && d.noiDung.nodes || []).filter(n => !(n.type === 'PARAGRAPH' && !ricosText(n).trim()));
+      const photos = []; let prose = false;
+      ns.forEach(n => {
+        if (n.type === 'IMAGE') { const s = n.imageData?.image?.src || {}; photos.push([s.id ? wixImg(s.id) : (s.url || ''), n.imageData?.caption || n.imageData?.altText || '']); }
+        else if (n.type === 'GALLERY') (n.galleryData?.items || []).forEach(it => { const s = it.image?.media?.src || {}; photos.push([s.id ? wixImg(s.id) : (s.url || ''), it.title || '']); });
+        else if (n.type === 'PARAGRAPH' && photos.length && !photos[photos.length - 1][1] && ricosText(n).length <= 120) photos[photos.length - 1][1] = ricosText(n).trim();
+        else prose = true;
+      });
+      const main = wixImgField(d.image);
+      if (main) photos.unshift([main, d.imageAltText || '']);
+      const ph = photos.filter(x => /^https:\/\//.test(x[0]));
+      if (!prose) applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', ph.map(x => x[0]).join('\n'), ph.map(x => x[1]).join('\n')]);
+      else applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', main, d.imageAltText || ''], ricosHTML(d.noiDung));
+    });
     return items.length;
   } catch { return 0; }
 }
