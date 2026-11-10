@@ -123,6 +123,7 @@ body.book .filler.tail.quote q{font-size:clamp(19px,2vw,26px)}
 .slice[data-c="1"]{background:var(--band1)}.slice[data-c="2"]{background:var(--band2)}.slice[data-c="3"]{background:var(--band3)}
 .slice q{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.35;quotes:"“" "”"}
 .slice span{font-size:13px;opacity:.8}
+.slice.real q{font-size:17px;font-style:normal;font-family:var(--sans);line-height:1.5}
 .works{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
 .work{background:var(--mist);border-radius:14px;padding:14px 12px;display:grid;gap:8px;place-items:center;text-align:center}
 .work b{font-size:28px}.work span{font-weight:600}
@@ -896,17 +897,30 @@ function renderTl(extra){
 }
 
 // Bốn câu chuyện kể sâu: chuyện đã duyệt lần lượt thay vào trang 28, 29, 30, 31
-function renderStories(list = []){
+let FORM_STORIES = [], WIX_STORIES = [];
+function renderStories(list){
+  if (list) FORM_STORIES = list;
+  const all = [...WIX_STORIES, ...FORM_STORIES];
   document.querySelectorAll('.story-slot').forEach((el, k) => {
-    const st = list[k];
+    const st = all[k];
     if (!el._empty) el._empty = el.innerHTML;
     if (!st) { el.innerHTML = el._empty; el.classList.add('slot'); return; }
     el.classList.remove('slot'); el.classList.add('keep');
+    const img = st.img || imgUrl(st.anh);
     el.innerHTML = `<div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${28 + k}</small></div>
       <h3 class="lfh">${esc(st.t || 'Câu chuyện thứ ' + (k + 1))}</h3>
-      <p class="lfwho">${[st.ct.who, st.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>
-      ${imgUrl(st.anh) ? `<figure class="lfimg real"><img src="${esc(imgUrl(st.anh))}" alt="${esc(st.t)}" loading="lazy" referrerpolicy="no-referrer"></figure>` : ''}
-      <div class="lftext">${esc(st.nd).split(/\n\s*\n/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
+      ${st.ct ? `<p class="lfwho">${[st.ct.who, st.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>` : ''}
+      ${st.lead ? `<p class="lead">${esc(st.lead).replace(/\n/g, '<br>')}</p>` : ''}
+      ${img ? `<figure class="lfimg real"><img src="${esc(img)}" alt="${esc(st.t)}" loading="lazy" referrerpolicy="no-referrer"></figure>` : ''}
+      <div class="lftext">${st.html || esc(st.nd).split(/\n\s*\n/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
+  });
+}
+function renderSlices(list){
+  document.querySelectorAll('.slice-slot .slice').forEach((el, k) => {
+    if (!el._empty) el._empty = el.innerHTML;
+    const sl = list[k];
+    el.innerHTML = sl ? `<q>${esc(sl.text)}</q><span>${esc(sl.who)}</span>` : el._empty;
+    el.classList.toggle('real', !!sl);
   });
 }
 renderStories();
@@ -1029,7 +1043,7 @@ function renderContrib(){
     <p>${[a.t, a.ct.nam].filter(Boolean).map(esc).join(' · ')}</p>${a.nd ? `<p class="cmeta">${esc(a.nd)}</p>` : ''}</div>`).join('');
   if ($('#achTodo')) $('#achTodo').style.display = c.achievement.length ? 'none' : '';
   if (c.milestone.length) renderTl(c.milestone);
-  renderStories(c.story);
+  renderStories(c.story || []);
 }
 renderPins(); renderCloud();
 loadPublic().then(d => { if (d) { remote = d; renderCloud(); renderPins(); renderContrib(); } });
@@ -1472,6 +1486,14 @@ async function loadWix(){
       headers: {'Content-Type': 'application/json', Authorization: t.access_token},
       body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
     const items = (q.dataItems || []).map(d => d.data).filter(d => /^p\d+$/.test(String(d.maTrang || '').trim()));
+    const words = d => ricosText({nodes: d.noiDung?.nodes || []}).trim().split(/\s+/).filter(Boolean).length;
+    const code = d => String(d.maTrang).trim();
+    const storyItems = items.filter(d => code(d) === 'p27' || (code(d) === 'p28' && words(d) > 200));
+    const sliceItems = items.filter(d => code(d) === 'p28' && words(d) <= 200);
+    WIX_STORIES = storyItems.map(d => ({t: d.title || '', lead: d.description || '', img: wixImgField(d.image), html: ricosHTML(d.noiDung)}));
+    if (storyItems.length) renderStories();
+    if (sliceItems.length) renderSlices(sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).trim() || d.description || '', who: d.title || ''})));
+    items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d)));
     items.forEach(d => {
       // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
       const ns = (d.noiDung && d.noiDung.nodes || []).filter(n => !(n.type === 'PARAGRAPH' && !ricosText(n).trim()));
