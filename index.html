@@ -1080,15 +1080,18 @@ function renderContrib(){
   renderWorks(c.work || []);
 }
 // Tác phẩm của học trò (trang 34): tác phẩm đã duyệt hiện thành ô, thay bốn ô gợi ý
-function renderWorks(list){
+let WIX_WORKS = [], FORM_WORKS = [];
+function renderWorks(formList){
+  if (formList) FORM_WORKS = formList;
+  const list = [...WIX_WORKS, ...FORM_WORKS];
   const slot = $('.works-slot'); if (!slot) return;
   slot.querySelector('.works-real')?.remove();
   const tiles = slot.querySelector('.works');
   if (tiles) tiles.style.display = list.length ? 'none' : '';
   if (!list.length) return;
   slot.insertAdjacentHTML('afterbegin', `<div class="works-real">${list.map(w => `<figure class="work-real">
-    ${imgUrl(w.anh) ? `<img src="${esc(imgUrl(w.anh))}" alt="${esc(w.t)}" loading="lazy" referrerpolicy="no-referrer">` : ''}
-    <figcaption><small>${esc(w.kind || '')}</small><b>${esc(w.t)}</b>${w.nd ? `<span class="wtext">${esc(w.nd)}</span>` : ''}<i>${[w.who, w.vai].filter(Boolean).map(esc).join(' · ')}</i></figcaption></figure>`).join('')}</div>`);
+    ${(w.img || imgUrl(w.anh)) ? `<img src="${esc(w.img || imgUrl(w.anh))}" alt="${esc(w.t)}" loading="lazy" referrerpolicy="no-referrer">` : ''}
+    <figcaption>${w.kind ? `<small>${esc(w.kind)}</small>` : ''}<b>${esc(w.t)}</b>${w.nd ? `<span class="wtext">${esc(w.nd)}</span>` : ''}<i>${[w.who, w.vai].filter(Boolean).map(esc).join(' · ')}</i></figcaption></figure>`).join('')}</div>`);
 }
 renderPins(); renderCloud();
 loadPublic().then(d => { if (d) { remote = d; renderCloud(); renderPins(); renderContrib(); } });
@@ -1124,7 +1127,7 @@ function ctDraw(k){
     ${CT[k]}
     <input name="anh" type="url" placeholder="Link ảnh Google Drive (đặt “Bất kỳ ai có đường liên kết”) — không bắt buộc">
     <label class="ck"><input type="checkbox" name="ok" required> Tôi đồng ý công bố nội dung này (và ảnh, nếu có) trong kỷ yếu; thông tin học sinh đã được phép.</label>
-    <p class="mn">Chỉ ghi thông tin có nguồn xác nhận. Bài được Ban Biên soạn duyệt rồi mới hiện trong kỷ yếu.</p>
+    <p class="mn">Chỉ ghi thông tin có nguồn xác nhận. Bài được gửi tới Ban Biên soạn dưới dạng bản nháp, duyệt xong mới hiện trong kỷ yếu.</p>
     <button>Gửi bài</button></form>`;
 }
 $('#contrib').onclick = () => { ctDraw('Câu chuyện'); $('#ctWrap').classList.add('on'); };
@@ -1137,7 +1140,22 @@ ctBox.addEventListener('submit', async e => {
   let loai = $('#ctLoai').value, toi = v.toi;
   if (loai === 'Lát cắt ký ức') { loai = 'Câu chuyện'; toi = 'Lát cắt ký ức'; }
   if (loai === 'Tác phẩm học trò') { loai = 'Câu chuyện'; toi = 'Tác phẩm: ' + (v.loaiTP || ''); }
-  const ok = await sendForm({loai, who: v.who, vai: v.vai, toi, tieude: v.tieude, anh: v.anh, nd: v.nd, ok: v.ok ? 'Có' : 'Không'}, e.target.querySelector('button'));
+  const kind = $('#ctLoai').value, btn = e.target.querySelector('button');
+  const WX = {'Câu chuyện': 'p27', 'Lát cắt ký ức': 'p28', 'Tác phẩm học trò': 'p29'}[kind];
+  let ok = false;
+  if (WX && v.ok) {
+    btn.disabled = true; btn.textContent = 'Đang gửi…';
+    const by = [v.who, v.vai].filter(Boolean).join(', ');
+    const anh = /^https:\/\//.test(v.anh || '') ? v.anh.trim() : '';
+    ok = await wixSubmit({
+      maTrang: WX,
+      title: kind === 'Lát cắt ký ức' ? [v.tieude, by].filter(Boolean).join(' · ') : (v.tieude || ''),
+      description: kind === 'Câu chuyện' ? 'Lời kể của ' + by : kind === 'Tác phẩm học trò' ? `${v.loaiTP || ''} — ${v.who || ''}${v.vai ? ', ' + v.vai : ''}` : '',
+      noiDung: ricosDoc((v.nd || '') + (anh ? '\n\n[Ảnh người gửi kèm — Ban Biên soạn tải vào ô Image rồi xoá dòng này: ' + anh + ']' : ''))
+    });
+    btn.disabled = false; btn.textContent = 'Gửi bài';
+  }
+  if (!ok) ok = await sendForm({loai, who: v.who, vai: v.vai, toi, tieude: v.tieude, anh: v.anh, nd: v.nd, ok: v.ok ? 'Có' : 'Không'}, btn);
   if (ok) { $('#ctWrap').classList.remove('on'); alert(DONE); }
 });
 
@@ -1513,7 +1531,7 @@ function ricosHTML(doc){
   const node = n => {
     const kids = () => (n.nodes || []).map(node).join('');
     switch (n.type) {
-      case 'PARAGRAPH': { const t0 = plain(n).trim(); if (/^https?:\/\/\S+$/.test(t0) && isVideo(t0)) return videoBox(t0);
+      case 'PARAGRAPH': { const t0 = plain(n).trim(); if (/^\[Ảnh người gửi kèm/.test(t0)) return ''; if (/^https?:\/\/\S+$/.test(t0) && isVideo(t0)) return videoBox(t0);
         const h = (n.nodes || []).map(txt).join(''); return h.trim() ? `<p>${h}</p>` : ''; }
       case 'HEADING': return `<h3 class="sub">${(n.nodes || []).map(txt).join('')}</h3>`;
       case 'BLOCKQUOTE': return `<blockquote>${(n.nodes || []).map(c => (c.nodes || []).map(txt).join('')).filter(Boolean).join('<br>')}</blockquote>`;
@@ -1539,6 +1557,22 @@ function ricosHTML(doc){
     }
   };
   return (doc?.nodes || []).map(node).join('\n');
+}
+/* Bài gửi từ kỷ yếu vào thẳng Wix CMS dưới dạng BẢN NHÁP; Ban Biên soạn chuyển "Đã xuất bản" + Lưu để đăng */
+function ricosDoc(text){
+  const paras = String(text || '').replace(/\r/g, '').split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+  return {nodes: paras.map((p, k) => ({type: 'PARAGRAPH', id: 'p' + k, nodes: [{type: 'TEXT', id: '', textData: {text: p, decorations: []}}]}))};
+}
+async function wixSubmit(data){
+  try {
+    const t = await fetch('https://www.wixapis.com/oauth2/token', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({clientId: WIX_CLIENT, grantType: 'anonymous'})}).then(r => r.json());
+    if (!t.access_token) return false;
+    const r = await fetch('https://www.wixapis.com/wix-data/v2/items', {method: 'POST',
+      headers: {'Content-Type': 'application/json', Authorization: t.access_token},
+      body: JSON.stringify({dataCollectionId: 'KyYeu', dataItem: {data: {...data, _publishStatus: 'DRAFT'}}})});
+    return r.ok;
+  } catch { return false; }
 }
 async function loadWix(){
   try {
@@ -1577,13 +1611,16 @@ async function loadWix(){
     }
     const storyItems = items.filter(d => code(d) === 'p27' || (code(d) === 'p28' && words(d) > 200));
     const sliceItems = items.filter(d => code(d) === 'p28' && words(d) <= 200);
+    const workItems = items.filter(d => code(d) === 'p29');
+    WIX_WORKS = workItems.map(d => ({t: d.title || '', kind: '', who: d.description || '', vai: '', nd: ricosText({nodes: d.noiDung?.nodes || []}).replace(/\[Ảnh người gửi kèm[^\]]*\]/g, '').trim(), img: wixImgField(d.image)}));
+    if (workItems.length) renderWorks();
     const cd = d => String(d._createdDate?.$date || d._createdDate || '');
     storyItems.sort((a, b) => cd(a).localeCompare(cd(b)));
     WIX_STORIES = [...storyItems.map(d => ({t: d.title || '', lead: d.description || '', img: wixImgField(d.image), html: ricosHTML(d.noiDung)})), ...letterStories];
     if (WIX_STORIES.length) renderStories();
-    const sl = [...sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).trim() || d.description || '', who: d.title || ''})), ...letterSlices];
+    const sl = [...sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).replace(/\[Ảnh người gửi kèm[^\]]*\]/g, '').trim() || d.description || '', who: d.title || ''})), ...letterSlices];
     WIX_SLICES = sl; if (sl.length) renderSlices();
-    items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d)));
+    items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d) && !workItems.includes(d)));
     items.forEach(d => {
       // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
       const ns = (d.noiDung && d.noiDung.nodes || []).filter(n => !(n.type === 'PARAGRAPH' && !ricosText(n).trim()));
