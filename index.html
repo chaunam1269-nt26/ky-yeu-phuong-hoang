@@ -176,6 +176,13 @@ dialog.letter::backdrop{background:rgba(10,20,45,.55)}
 .letter .lbody h3{font-family:var(--serif);font-size:26px;margin:0 0 14px;padding-right:30px}
 .letter .lbody img{max-width:100%;border-radius:12px}
 .letter .lclose{position:absolute;top:12px;right:14px;border:0;background:var(--mist);border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer}
+.works-real{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:14px;margin-bottom:18px}
+.work-real{margin:0;background:var(--mist);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.work-real img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.work-real figcaption{padding:12px 14px;display:grid;gap:4px}
+.work-real small{color:var(--wing);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.work-real .wtext{white-space:pre-line;font-size:14px;max-height:9.5em;overflow:auto}
+.work-real i{color:var(--muted);font-size:13px}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -739,7 +746,7 @@ const PAGES = [
    <div class="leaf slot slice-slot">
      <div class="lfno sm">Trang ${pgN}</div>
      <div class="slices">${qs.map((q, j) => `<div class="slice" data-c="${(k * 4 + j) % 3 + 1}"><q>${q}</q><span>Đang chờ lời kể · 50–150 chữ</span></div>`).join('')}</div>
-     <button class="btn" type="button" data-ct="Câu chuyện">✍️ Gửi một lát cắt ký ức</button>
+     <button class="btn" type="button" data-ct="Lát cắt ký ức">✍️ Gửi một lát cắt ký ức</button>
    </div>`).join('')}`},
 
  {sec:'IV', title:'Tác phẩm của học trò', html:`
@@ -748,7 +755,7 @@ const PAGES = [
    <div class="leaf slot works-slot open1">
      <div class="works">${[['🖋️','Thơ'],['📖','Truyện ngắn, cảm nghĩ'],['🎨','Tranh vẽ'],['📷','Ảnh chụp']].map(([i, t]) => `<div class="work"><b>${i}</b><span>${t}</span></div>`).join('')}</div>
      <div class="invite"><p>Thầy cô và phụ huynh gửi giúp tác phẩm của các em: ảnh chụp tranh, bài thơ, bài viết, kèm tên tác giả, lớp và sự đồng ý của gia đình.</p>
-       <button class="btn" type="button" data-ct="Câu chuyện">🎨 Gửi tác phẩm</button></div>
+       <button class="btn" type="button" data-ct="Tác phẩm học trò">🎨 Gửi tác phẩm</button></div>
      ${PH('Tranh của em Bách (nếu gia đình đồng ý)')}
    </div>`},
 
@@ -927,9 +934,9 @@ function renderStories(list){
       <div class="lftext">${st.html || esc(st.nd).split(/\n\s*\n/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
   });
 }
-let SLICES = [];
-function renderSlices(list){
-  SLICES = list;
+let SLICES = [], WIX_SLICES = [], FORM_SLICES = [];
+function renderSlices(){
+  const list = SLICES = [...WIX_SLICES, ...FORM_SLICES];
   document.querySelectorAll('.slice-slot .slice').forEach((el, k) => {
     if (!el._empty) el._empty = el.innerHTML;
     const sl = list[k];
@@ -1000,10 +1007,12 @@ async function loadPublic(){
   try {
     const r = await fetch(PUB_CSV, {cache: 'no-store'}); if (!r.ok) return null;
     const rows = parseCSV(await r.text()).slice(1).filter(x => x[1]);
-    const d = {thanks: [], pins: [], contrib: {story: [], achievement: [], milestone: []}};
+    const d = {thanks: [], pins: [], contrib: {story: [], slice: [], work: [], achievement: [], milestone: []}};
     rows.forEach(([ts, loai, who = '', vai = '', toi = '', tieude = '', anh = '', nd = '']) => {
       if (loai === 'Lời cảm ơn') d.thanks.push({nd, who, vai, toi});
       else if (loai === 'Ghim bản đồ cựu học sinh') d.pins.push({name: who + (vai ? ' · ' + vai : ''), place: toi});
+      else if (loai === 'Câu chuyện' && /^Lát cắt/i.test(toi)) d.contrib.slice.push({text: nd, who: [tieude, who, vai].filter(Boolean).join(' · ')});
+      else if (loai === 'Câu chuyện' && /^Tác phẩm/i.test(toi)) d.contrib.work.push({t: tieude, nd, anh, kind: toi.replace(/^Tác phẩm:\s*/i, ''), who, vai});
       else if (loai === 'Câu chuyện') d.contrib.story.push({t: tieude, nd, anh, ct: {who, vai}});
       else if (loai === 'Thành tích học sinh') d.contrib.achievement.push({t: tieude, nd, anh, ct: {ten: who, cap: vai, nam: toi}});
       else if (loai === 'Mốc thời gian') d.contrib.milestone.push({t: tieude, nd, ct: {nam: toi}});
@@ -1067,6 +1076,19 @@ function renderContrib(){
   if ($('#achTodo')) $('#achTodo').style.display = c.achievement.length ? 'none' : '';
   if (c.milestone.length) renderTl(c.milestone);
   renderStories(c.story || []);
+  FORM_SLICES = c.slice || []; renderSlices();
+  renderWorks(c.work || []);
+}
+// Tác phẩm của học trò (trang 34): tác phẩm đã duyệt hiện thành ô, thay bốn ô gợi ý
+function renderWorks(list){
+  const slot = $('.works-slot'); if (!slot) return;
+  slot.querySelector('.works-real')?.remove();
+  const tiles = slot.querySelector('.works');
+  if (tiles) tiles.style.display = list.length ? 'none' : '';
+  if (!list.length) return;
+  slot.insertAdjacentHTML('afterbegin', `<div class="works-real">${list.map(w => `<figure class="work-real">
+    ${imgUrl(w.anh) ? `<img src="${esc(imgUrl(w.anh))}" alt="${esc(w.t)}" loading="lazy" referrerpolicy="no-referrer">` : ''}
+    <figcaption><small>${esc(w.kind || '')}</small><b>${esc(w.t)}</b>${w.nd ? `<span class="wtext">${esc(w.nd)}</span>` : ''}<i>${[w.who, w.vai].filter(Boolean).map(esc).join(' · ')}</i></figcaption></figure>`).join('')}</div>`);
 }
 renderPins(); renderCloud();
 loadPublic().then(d => { if (d) { remote = d; renderCloud(); renderPins(); renderContrib(); } });
@@ -1077,7 +1099,16 @@ const CT = {
   'Câu chuyện': `<input name="tieude" placeholder="Tiêu đề câu chuyện" maxlength="120" required>
     <input name="who" placeholder="Người kể (họ tên)" maxlength="80" required>
     <input name="vai" placeholder="Vai: thầy cô, phụ huynh, học sinh lớp…, cựu học sinh khóa…" maxlength="80">
-    <textarea name="nd" rows="7" placeholder="Nội dung: có thời điểm, tình huống, diễn biến và điều đã thay đổi (chuyện kể sâu 400–500 chữ; lát cắt ký ức 50–150 chữ)" required></textarea>`,
+    <textarea name="nd" rows="7" placeholder="Nội dung: có thời điểm, tình huống, diễn biến và điều đã thay đổi (400–500 chữ)" required></textarea>`,
+  'Lát cắt ký ức': `<input name="who" placeholder="Người kể (họ tên)" maxlength="80" required>
+    <input name="vai" placeholder="Vai: thầy cô, phụ huynh lớp…, học sinh lớp…, cựu học sinh khóa…" maxlength="80">
+    <input name="tieude" placeholder="Tên ngắn cho lát cắt (không bắt buộc), ví dụ: Câu nói của cô Hương" maxlength="120">
+    <textarea name="nd" rows="5" placeholder="Một câu nói, một lá thư, một trang vở, một bức ảnh có lời kể… (50–150 chữ)" required></textarea>`,
+  'Tác phẩm học trò': `<select name="loaiTP"><option>Thơ</option><option>Truyện ngắn, cảm nghĩ</option><option>Tranh vẽ</option><option>Ảnh chụp</option></select>
+    <input name="tieude" placeholder="Tên tác phẩm" maxlength="120" required>
+    <input name="who" placeholder="Tác giả (họ tên học sinh)" maxlength="80" required>
+    <input name="vai" placeholder="Lớp / khóa, ví dụ: 5A1 hoặc cựu HS khóa 2023" maxlength="80" required>
+    <textarea name="nd" rows="6" placeholder="Bài thơ, bài viết — hoặc vài dòng giới thiệu nếu là tranh / ảnh (dán link ảnh ở ô bên dưới)"></textarea>`,
   'Thành tích học sinh': `<input name="who" placeholder="Họ tên học sinh" maxlength="80" required>
     <select name="vai"><option>Tiểu học</option><option>THCS</option><option>THPT</option></select>
     <input name="tieude" placeholder="Giải / kỳ thi" maxlength="120" required>
@@ -1102,7 +1133,11 @@ ctBox.addEventListener('change', e => { if (e.target.id === 'ctLoai') ctDraw(e.t
 ctBox.addEventListener('submit', async e => {
   e.preventDefault();
   const v = Object.fromEntries(new FormData(e.target));
-  const ok = await sendForm({loai: $('#ctLoai').value, who: v.who, vai: v.vai, toi: v.toi, tieude: v.tieude, anh: v.anh, nd: v.nd, ok: v.ok ? 'Có' : 'Không'}, e.target.querySelector('button'));
+  // Lát cắt và Tác phẩm gửi vào biểu mẫu dưới loại "Câu chuyện", đánh dấu ở ô "Gửi tới" để tự vào đúng trang
+  let loai = $('#ctLoai').value, toi = v.toi;
+  if (loai === 'Lát cắt ký ức') { loai = 'Câu chuyện'; toi = 'Lát cắt ký ức'; }
+  if (loai === 'Tác phẩm học trò') { loai = 'Câu chuyện'; toi = 'Tác phẩm: ' + (v.loaiTP || ''); }
+  const ok = await sendForm({loai, who: v.who, vai: v.vai, toi, tieude: v.tieude, anh: v.anh, nd: v.nd, ok: v.ok ? 'Có' : 'Không'}, e.target.querySelector('button'));
   if (ok) { $('#ctWrap').classList.remove('on'); alert(DONE); }
 });
 
@@ -1547,7 +1582,7 @@ async function loadWix(){
     WIX_STORIES = [...storyItems.map(d => ({t: d.title || '', lead: d.description || '', img: wixImgField(d.image), html: ricosHTML(d.noiDung)})), ...letterStories];
     if (WIX_STORIES.length) renderStories();
     const sl = [...sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).trim() || d.description || '', who: d.title || ''})), ...letterSlices];
-    if (sl.length) renderSlices(sl);
+    WIX_SLICES = sl; if (sl.length) renderSlices();
     items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d)));
     items.forEach(d => {
       // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
