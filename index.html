@@ -166,6 +166,16 @@ body.book .art-vid{break-inside:avoid}
 body.book .art-vid .vframe{max-height:52svh}
 .soon{margin:28px 0;padding:34px 24px;border:1px dashed var(--line);border-radius:16px;text-align:center;color:var(--muted);background:color-mix(in srgb,var(--mist) 60%,transparent)}
 .soon span{display:block;font-size:26px;color:var(--wing);margin-bottom:8px}.soon p{margin:0;line-height:1.7}
+.slice-slot > .btn{align-self:flex-start}
+.sread{margin-top:6px;align-self:flex-start;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:5px 12px;font:600 13px var(--sans);cursor:pointer}
+.sread:hover{background:rgba(255,255,255,.3)}
+.slice.real{gap:8px;padding:16px 18px}.slice.real q{font-size:15px!important;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+dialog.letter{margin:auto;position:fixed;inset:0;height:fit-content;width:min(760px,94vw);max-height:88svh;border:0;border-radius:18px;padding:0;box-shadow:0 30px 80px rgba(0,0,0,.35);background:var(--paper);color:var(--ink)}
+dialog.letter::backdrop{background:rgba(10,20,45,.55)}
+.letter .lbody p{margin:0 0 12px}.letter .lbody{padding:34px 34px 28px;overflow:auto;max-height:88svh;line-height:1.75}
+.letter .lbody h3{font-family:var(--serif);font-size:26px;margin:0 0 14px;padding-right:30px}
+.letter .lbody img{max-width:100%;border-radius:12px}
+.letter .lclose{position:absolute;top:12px;right:14px;border:0;background:var(--mist);border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -917,14 +927,25 @@ function renderStories(list){
       <div class="lftext">${st.html || esc(st.nd).split(/\n\s*\n/).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
   });
 }
+let SLICES = [];
 function renderSlices(list){
+  SLICES = list;
   document.querySelectorAll('.slice-slot .slice').forEach((el, k) => {
     if (!el._empty) el._empty = el.innerHTML;
     const sl = list[k];
-    el.innerHTML = sl ? `<q>${esc(sl.text)}</q><span>${esc(sl.who)}</span>` : el._empty;
+    el.innerHTML = sl ? `<q>${esc(sl.text)}</q><span>${esc(sl.who)}</span>${sl.full ? `<button class="sread" type="button" data-letter="${k}">Đọc cả thư ›</button>` : ''}` : el._empty;
     el.classList.toggle('real', !!sl);
   });
 }
+document.addEventListener('click', e => {             // mở toàn văn một lá thư trong Lát cắt ký ức
+  const b = e.target.closest('[data-letter]'); if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const sl = SLICES[+b.dataset.letter]; if (!sl) return;
+  let d = $('#letterBox');
+  if (!d) { document.body.insertAdjacentHTML('beforeend', '<dialog id="letterBox" class="letter"><button class="lclose" type="button" aria-label="Đóng">✕</button><div class="lbody"></div></dialog>'); d = $('#letterBox'); d.querySelector('.lclose').onclick = () => d.close(); d.addEventListener('click', ev => { if (ev.target === d) d.close(); }); }
+  d.querySelector('.lbody').innerHTML = `<h3>${esc(sl.who)}</h3>${sl.full}`;
+  d.showModal(); d.querySelector('.lbody').scrollTop = 0;
+}, true);
 renderStories();
 document.addEventListener('click', e => {              // nút mời gửi bài trong Phần IV mở ô ➕ đúng loại
   const b = e.target.closest('[data-ct]'); if (!b) return;
@@ -1494,12 +1515,39 @@ async function loadWix(){
       body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
     const items = (q.dataItems || []).map(d => d.data).filter(d => /^p\d+$/.test(String(d.maTrang || '').trim()));
     const words = d => ricosText({nodes: d.noiDung?.nodes || []}).trim().split(/\s+/).filter(Boolean).length;
+    // bài ghi nhầm mã trang (đã được Ban Biên soạn xác nhận chỗ đúng)
+    const FIX = {'9a1d95fa-e3f3-4006-8f0a-7ad42810190f': 'p27'};
+    (q.dataItems || []).forEach(x => { if (FIX[x.id]) x.data.maTrang = FIX[x.id]; });
     const code = d => String(d.maTrang).trim();
+    // Tập nhiều lá thư (mỗi thư mở đầu bằng một tiêu đề) ghi p26/p27/p28: tách từng thư.
+    // Thư dài (trên 800 chữ) thành một câu chuyện kể sâu; thư còn lại vào Lát cắt ký ức (trích đoạn + đọc cả thư).
+    const letterStories = [], letterSlices = [];
+    for (const d of [...items]) {
+      const ns = d.noiDung?.nodes || [];
+      if (!['p26', 'p27', 'p28'].includes(code(d)) || ns.filter(n => n.type === 'HEADING').length < 2) continue;
+      items.splice(items.indexOf(d), 1);
+      const L = []; let cur = null;
+      ns.forEach(n => { if (n.type === 'HEADING') { cur = {t: ricosText(n).trim(), nodes: []}; L.push(cur); } else if (cur) cur.nodes.push(n); });
+      L.forEach(l => {
+        const paras = l.nodes.filter(n => n.type === 'PARAGRAPH').map(n => ricosText(n).trim()).filter(Boolean);
+        const w = paras.join(' ').split(/\s+/).length;
+        const imgN = l.nodes.find(n => n.type === 'IMAGE'); const src = imgN?.imageData?.image?.src || {};
+        const img = src.id ? wixImg(src.id) : (src.url || '');
+        if (w > 800) { letterStories.push({t: l.t, lead: '', img, html: ricosHTML({nodes: l.nodes.filter(n => n !== imgN)})}); return; }
+        const body = paras.find(p => p.split(/\s+/).length >= 25) || paras[0] || '';
+        let ex = body.split(/(?<=[.!?…])\s+/).reduce((a, x) => a.split(/\s+/).length < 40 ? (a ? a + ' ' : '') + x : a, '');
+        if (ex.split(/\s+/).length > 70) ex = ex.split(/\s+/).slice(0, 55).join(' ') + '…';
+        letterSlices.push({text: ex, who: l.t.replace(/\s*[❤️♥]+\s*/gu, ' ').trim(), full: ricosHTML({nodes: l.nodes})});
+      });
+    }
     const storyItems = items.filter(d => code(d) === 'p27' || (code(d) === 'p28' && words(d) > 200));
     const sliceItems = items.filter(d => code(d) === 'p28' && words(d) <= 200);
-    WIX_STORIES = storyItems.map(d => ({t: d.title || '', lead: d.description || '', img: wixImgField(d.image), html: ricosHTML(d.noiDung)}));
-    if (storyItems.length) renderStories();
-    if (sliceItems.length) renderSlices(sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).trim() || d.description || '', who: d.title || ''})));
+    const cd = d => String(d._createdDate?.$date || d._createdDate || '');
+    storyItems.sort((a, b) => cd(a).localeCompare(cd(b)));
+    WIX_STORIES = [...storyItems.map(d => ({t: d.title || '', lead: d.description || '', img: wixImgField(d.image), html: ricosHTML(d.noiDung)})), ...letterStories];
+    if (WIX_STORIES.length) renderStories();
+    const sl = [...sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).trim() || d.description || '', who: d.title || ''})), ...letterSlices];
+    if (sl.length) renderSlices(sl);
     items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d)));
     items.forEach(d => {
       // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
