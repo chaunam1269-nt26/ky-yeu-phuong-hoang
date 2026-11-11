@@ -164,6 +164,8 @@ body.book [data-split] .art h3.sub:not(:first-child){break-before:column}
 .art-vid .vlink{font-size:13px;color:var(--muted)}
 body.book .art-vid{break-inside:avoid}
 body.book .art-vid .vframe{max-height:52svh}
+.soon{margin:28px 0;padding:34px 24px;border:1px dashed var(--line);border-radius:16px;text-align:center;color:var(--muted);background:color-mix(in srgb,var(--mist) 60%,transparent)}
+.soon span{display:block;font-size:26px;color:var(--wing);margin-bottom:8px}.soon p{margin:0;line-height:1.7}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -1092,13 +1094,18 @@ function pubPass(){
     const el = p.el;
     if (p.wip && !el.dataset.cut) {
       el.dataset.cut = 1;
-      [...el.children].forEach(c => { if (!c.matches('.kick,h2,.keep')) c.remove(); });
+      [...el.children].forEach(c => { if (!c.matches('.kick,h2,.keep,.lead,.leaf') || (c.matches('.lead') && /\[|chờ/.test(c.textContent))) c.remove(); });
     }
     el.querySelectorAll('.note:not(.pubok),.todo,.ph,.qr,.blank,#ba').forEach(x => x.remove());
     el.querySelectorAll('p').forEach(x => { if (!x.textContent.trim() && !x.querySelector('img,a,button,input')) x.remove(); });
     el.querySelectorAll('.card').forEach(c => { if (/\[[^\]]+\]/.test(c.textContent) || !c.querySelector('p,img,.vbtn,form,button,a')) c.remove(); });
     el.querySelectorAll('.grid').forEach(g => { if (!g.children.length && !g.id) g.remove(); });
-    if (p.wip) el.hidden = ![...el.querySelectorAll('.keep')].some(k => k.children.length || k.tagName === 'FIGURE');
+    // trang chưa có bài vẫn hiện (đủ số trang theo khung), kèm dòng "đang hoàn thiện"
+    const has = [...el.querySelectorAll('.keep,.leaf')].some(k => k.children.length || k.tagName === 'FIGURE');
+    el.querySelector(':scope > .soon')?.remove();
+    if (p.wip && !has) el.querySelectorAll(':scope > .lead').forEach(l => { const m = l.textContent.match(/^Tổ trưởng:[^.]*\./); if (m) l.textContent = m[0]; else l.remove(); });   // dòng dẫn trang trống là hướng dẫn biên soạn
+    if (p.wip && !has) el.insertAdjacentHTML('beforeend', '<div class="soon"><span>✦</span><p>Trang này đang được Ban Biên soạn hoàn thiện.<br>Nội dung sẽ được cập nhật trong thời gian tới.</p></div>');
+    el.hidden = false;
   });
   // phần nào không còn trang nào hiện thì ẩn luôn dải phần
   SECTIONS.forEach(s => { const pt = $('#part-' + s.id); if (pt) pt.hidden = !PAGES.some((p, i) => i && p.sec === s.id && !p.el.hidden); });
