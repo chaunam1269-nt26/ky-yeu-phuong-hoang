@@ -1487,7 +1487,7 @@ function videoBox(u, cap = ''){
 function applyArticle([id, tieude, dandan, nd, anh, cap], html){
   html = typeof html === 'string' && html.trim() ? html : '';
   const i = +String(id).replace(/\D/g, '') - 1, p = PAGES[i];
-  if (!p || i < 2 || !(tieude || dandan || nd || anh || html)) return;
+  if (!p || i < 2 || p.gone || !p.el.querySelector('h2') || !(tieude || dandan || nd || anh || html)) return;   // trang đã bỏ: bỏ qua bài
   const el = p.el;
   if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
   let lead = el.querySelector(':scope > .lead');
@@ -1658,7 +1658,7 @@ async function loadWix(){
     const sl = [...sliceItems.map(d => ({text: ricosText({nodes: d.noiDung?.nodes || []}).replace(/\[Ảnh người gửi kèm[^\]]*\]/g, '').trim() || d.description || '', who: d.title || ''})), ...letterSlices];
     WIX_SLICES = sl; if (sl.length) renderSlices();
     items.splice(0, items.length, ...items.filter(d => !storyItems.includes(d) && !sliceItems.includes(d) && !workItems.includes(d)));
-    items.forEach(d => {
+    items.forEach(d => { try {
       // Nội dung chỉ gồm ảnh (+ dòng chú thích ngắn dưới ảnh): coi là bổ sung ảnh, giữ nguyên bài đã có trên trang
       const ns = (d.noiDung && d.noiDung.nodes || []).filter(n => !(n.type === 'PARAGRAPH' && !ricosText(n).trim()));
       const photos = []; let prose = false;
@@ -1676,7 +1676,7 @@ async function loadWix(){
       const ph = photos.filter(x => /^https:\/\//.test(x[0]));
       if (!prose) applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', ph.map(x => x[0]).join('\n'), ph.map(x => x[1]).join('\n')]);
       else applyArticle([String(d.maTrang).trim(), d.title || '', d.description || '', '', main, d.imageAltText || ''], ricosHTML(d.noiDung));
-    });
+    } catch (err) { console.warn('Bài Wix lỗi', d.maTrang, err); } });
     return items.length;
   } catch { return 0; }
 }
@@ -1685,7 +1685,7 @@ async function loadArticles(){
     let n = 0;
     try {
       const r = await fetch(ART_CSV, {cache: 'no-store'});
-      if (r.ok) { const rows = parseCSV(await r.text()).slice(1).filter(x => /^p\d+$/.test((x[0] || '').trim())); rows.forEach(x => applyArticle(x)); n += rows.length; }
+      if (r.ok) { const rows = parseCSV(await r.text()).slice(1).filter(x => /^p\d+$/.test((x[0] || '').trim())); rows.forEach(x => { try { applyArticle(x); } catch (err) { console.warn("Bài Sheet lỗi", x[0], err); } }); n += rows.length; }
     } catch {}
     n += await loadWix();          // bài trên Wix ghi đè bài cùng mã trang trong Sheet
     if (!n) return;
