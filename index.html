@@ -1579,7 +1579,8 @@ function ricosHTML(doc){
       }).join('')}</div>`;
       case 'VIDEO': { const v = n.videoData?.video?.src || {}; const u = v.url || '';
         if (isVideo(u)) return videoBox(u, n.videoData?.title || '');
-        if (v.id) return `<figure class="vid art-vid keep"><video class="vframe" src="https://video.wixstatic.com/${esc(v.id)}" controls preload="metadata"></video></figure>`;
+        const th = n.videoData?.thumbnail?.src?.id || ''; const poster = th ? 'https://static.wixstatic.com/' + (th.startsWith('media/') ? th : 'media/' + th) : '';
+        if (v.id) return `<figure class="vid art-vid keep"><video class="vframe" src="https://video.wixstatic.com/${esc(v.id)}" controls preload="metadata" playsinline${poster ? ` poster="${esc(poster)}"` : ''}></video></figure>`;
         return /^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">▶ Xem video</a></p>` : ''; }
       case 'EMBED': case 'LINK_PREVIEW': { const u = n.embedData?.src || n.linkPreviewData?.link?.url || n.embedData?.oembed?.url || ''; return isVideo(u) ? videoBox(u) : (/^https:\/\//.test(u) ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></p>` : ''); }
       case 'CAPTION': return '';
