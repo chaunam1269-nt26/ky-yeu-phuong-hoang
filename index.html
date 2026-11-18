@@ -242,6 +242,17 @@ body.book .kb:first-child{break-before:auto}
 @media(max-width:700px){body.book .kb{break-inside:auto}body.book .pil,body.book .axis,body.book .out,body.book .formula{break-inside:avoid}}
 @media(max-width:900px){.pillars{grid-template-columns:repeat(2,minmax(0,1fr))}.pil:last-child{grid-column:1/-1}.progs{grid-template-columns:1fr}}
 @media(max-width:560px){.ax-row span{font-size:11px;padding:6px 2px}.ax-row.nums i{width:24px;height:24px;font-size:11px}.formula{flex-direction:column}.formula em{align-self:center}.kb{padding:18px 16px}}
+.art.docscan .art-fig,.art.docscan .art-fig.portrait{float:none;width:auto;max-width:860px;margin:10px auto 14px;background:none}
+.art.docscan .art-fig img,.art.docscan .art-fig.portrait img{aspect-ratio:auto;width:100%;height:auto;max-height:none;object-fit:contain;cursor:zoom-in;border-radius:6px;box-shadow:0 14px 40px rgba(22,41,77,.18)}
+body.book .art.docscan .art-fig{break-before:column;break-inside:avoid;height:calc(100svh - 176px);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto;max-width:none}
+body.book .art.docscan .art-fig img{width:auto;height:auto;max-width:100%;max-height:calc(100svh - 210px)}
+@media(max-width:1099px){body.book .art.docscan .art-fig{break-before:auto;height:auto;margin-top:6px}body.book .art.docscan .art-fig img{max-height:calc(100svh - 330px)}}
+.zoomhint{display:block;text-align:center;font-size:13px;color:var(--muted);margin-top:8px}
+.art img{cursor:zoom-in}
+dialog.zoom{margin:auto;position:fixed;inset:0;width:fit-content;height:fit-content;max-width:96vw;max-height:96svh;padding:0;border:0;background:transparent;overflow:auto}
+dialog.zoom::backdrop{background:rgba(8,14,30,.88)}
+dialog.zoom img{display:block;max-width:none;width:min(1400px,94vw);height:auto;border-radius:6px}
+dialog.zoom .zc{position:fixed;top:14px;right:18px;border:0;border-radius:50%;width:44px;height:44px;font-size:18px;background:#fff;cursor:pointer}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -1059,6 +1070,15 @@ function renderSlices(){
     el.classList.toggle('real', !!sl);
   });
 }
+// Bấm vào ảnh trong bài để xem cỡ lớn (thư, văn bản đọc được rõ chữ)
+document.addEventListener('click', e => {
+  const im = e.target.closest('.art img, .lftext img, .letter img'); if (!im || e.target.closest('dialog.zoom')) return;
+  e.preventDefault(); e.stopPropagation();
+  let d = $('#zoomBox');
+  if (!d) { document.body.insertAdjacentHTML('beforeend', '<dialog id="zoomBox" class="zoom"><button class="zc" type="button" aria-label="Đóng">✕</button><img alt=""></dialog>'); d = $('#zoomBox'); d.querySelector('.zc').onclick = () => d.close(); d.addEventListener('click', ev => { if (ev.target === d || ev.target.tagName === 'IMG') d.close(); }); }
+  d.querySelector('img').src = im.src.replace(/\/v1\/fit\/w_\d+,h_\d+,q_\d+\//, '/v1/fit/w_2600,h_2600,q_90/').replace(/sz=w\d+/, 'sz=w2400');
+  d.querySelector('img').alt = im.alt; d.showModal();
+}, true);
 document.addEventListener('click', e => {             // mở toàn văn một lá thư trong Lát cắt ký ức
   const b = e.target.closest('[data-letter]'); if (!b) return;
   e.preventDefault(); e.stopPropagation();
@@ -1618,6 +1638,8 @@ function applyArticle([id, tieude, dandan, nd, anh, cap], html){
     if (body) art.innerHTML = first + body + media;
     else { art.querySelectorAll(':scope > .art-fig, :scope > .art-imgs, :scope > .art-vid').forEach(x => x.remove()); art.insertAdjacentHTML('afterbegin', first); art.insertAdjacentHTML('beforeend', media); }
     art.classList.add('keep'); el.querySelectorAll('.art-imgs').forEach(x => x.classList.add('keep'));
+    art.classList.toggle('docscan', !!art.querySelector('img') && art.textContent.replace(/\s+/g, ' ').trim().length < 160);   // thư / văn bản chụp: hiện to
+    if (art.classList.contains('docscan')) art.querySelectorAll('.art-fig').forEach(f => { if (!f.querySelector('.zoomhint')) f.insertAdjacentHTML('beforeend', '<span class="zoomhint">Bấm vào ảnh để xem cỡ lớn</span>'); });
     if (art.querySelector('img,iframe')) el.querySelectorAll(':scope > .grid').forEach(g => { if (!g.id && g.querySelector('.ph') && !g.querySelector('img,form,.vbtn')) g.remove(); });
   }
   if (p.wip) { p.wip = 0; el.hidden = false; delete el.dataset.cut; }
