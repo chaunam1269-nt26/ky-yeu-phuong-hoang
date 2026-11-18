@@ -2,6 +2,7 @@ name: tmp transcribe
 on:
   push:
     branches: [tmp-transcribe]
+    paths: ['_tr/*.wav']
 permissions:
   contents: write
 jobs:
