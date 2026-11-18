@@ -199,6 +199,49 @@ body.book .founders .fd-col img{aspect-ratio:auto;height:calc((100svh - 610px) /
 body.book .mapshot img{max-height:44svh;object-fit:contain;background:#fff}
 .work-real .wvid{aspect-ratio:16/9;background:#000;width:100%}
 .work-real .wvid iframe,.work-real video.wvid{width:100%;height:100%;border:0;display:block}
+.motto{margin:4px 0 22px;font-family:var(--serif);font-style:italic;font-size:clamp(18px,1.6vw,22px);color:var(--flame)}
+.kgd{display:grid;gap:30px}
+.kb{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:24px 24px 26px;break-inside:avoid}
+.kh{display:flex;align-items:center;gap:12px;margin:0 0 6px;font-family:var(--serif);font-size:clamp(22px,2.2vw,28px);color:var(--ink)}
+.kh span{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--wing);color:#fff;font:700 15px var(--sans)}
+.ksub{margin:0 0 6px;font-weight:600;color:var(--wing);font-size:14px;letter-spacing:.02em}
+.kintro{margin:0 0 18px;color:var(--muted);font-size:15px;line-height:1.6}
+.pillars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.pil{--c:#e2412b;border-radius:16px;padding:14px 12px 16px;background:color-mix(in srgb,var(--c) 9%,#fff);border-top:4px solid var(--c);text-align:center}
+.pil[data-c="2"]{--c:#3a63a8}.pil[data-c="3"]{--c:#1f8a6d}.pil[data-c="4"]{--c:#d4891a}.pil[data-c="5"]{--c:#c2257f}
+.pil b{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 8px;border-radius:50%;background:var(--c);color:#fff;font-size:15px}
+.pil h4{margin:0 0 4px;font-family:var(--serif);font-size:16px;line-height:1.25;color:var(--ink)}
+.pil p{margin:0;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.axis{display:grid;gap:6px;background:var(--mist);border-radius:16px;padding:14px 14px 12px}
+.ax-lbl{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ax-row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+.ax-row span{border-radius:10px;padding:7px 6px;text-align:center;font-size:13px;line-height:1.25}
+.ax-row.lv span{background:#16294d;color:#fff;font-weight:600}
+.ax-row.lv span:nth-child(2){background:#3a63a8}.ax-row.lv span:nth-child(3){background:#c2257f}
+.ax-row.nums i{font-style:normal;display:grid;place-items:center;height:30px;border-radius:50%;background:#fff;border:2px solid #3a63a8;color:#16294d;font-weight:700;font-size:13px;aspect-ratio:1;justify-self:center;width:30px}
+.ax-row.gr span{background:#fff;border:1.5px dashed #e2412b;color:#b3301f}
+.formula{display:flex;align-items:stretch;gap:12px;margin:10px 0 14px}
+.formula div{flex:1;border-radius:14px;background:#16294d;color:#fff;padding:12px 16px;display:grid;gap:2px}
+.formula div:last-child{background:#c2257f}
+.formula b{font-size:16px}.formula small{opacity:.8;font-size:13px}
+.formula em{align-self:center;font:700 26px var(--sans);color:var(--wing);font-style:normal}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;align-items:center}
+.chips span{border-radius:999px;padding:5px 12px;font-size:13px;background:color-mix(in srgb,#3a63a8 12%,#fff);color:#16294d}
+.chips.alt span{background:color-mix(in srgb,#e2412b 12%,#fff);color:#8a2416}
+.chips .ct{background:none!important;font-weight:700;padding-left:0;color:var(--muted)!important;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.progs{counter-reset:pg;list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.progs li{counter-increment:pg;display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45}
+.progs li::before{content:counter(pg,decimal-leading-zero);flex:none;width:30px;height:24px;border-radius:8px;display:grid;place-items:center;background:var(--mist);color:var(--wing);font-weight:700;font-size:12px}
+.kbig{margin:6px 0 14px;font-family:var(--serif);font-size:clamp(17px,1.6vw,21px);color:var(--ink)}
+.outs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:10px}
+.out{display:flex;gap:12px;background:var(--mist);border-radius:14px;padding:12px 14px}
+.out i{flex:none;font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e2412b;color:#fff;font-weight:700;font-size:14px}
+.out b{display:block;font-size:15px;color:var(--ink)}.out p{margin:2px 0 0;font-size:13.5px;line-height:1.5;color:var(--muted)}
+body.book .kgd{gap:0}body.book .kb{break-before:column;margin:0;border:0;padding:4px 0 0;background:none}
+body.book .kb:first-child{break-before:auto}
+@media(max-width:700px){body.book .kb{break-inside:auto}body.book .pil,body.book .axis,body.book .out,body.book .formula{break-inside:avoid}}
+@media(max-width:900px){.pillars{grid-template-columns:repeat(2,minmax(0,1fr))}.pil:last-child{grid-column:1/-1}.progs{grid-template-columns:1fr}}
+@media(max-width:560px){.ax-row span{font-size:11px;padding:6px 2px}.ax-row.nums i{width:24px;height:24px;font-size:11px}.formula{flex-direction:column}.formula em{align-self:center}.kb{padding:18px 16px}}
 @media print{.filler{display:none!important}}
 
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -488,7 +531,8 @@ const WAIT = t => `<span class="todo">chờ bài: ${t}</span>`;
 const PH = (t, p) => `<div class="ph ${p?'p':''}">📷 ${t}</div>`;
 /* Bản web và PDF dùng đường dẫn bấm trực tiếp; mã QR chỉ là phương án phụ cho bản in */
 const QR = t => `<span class="qr"><i>🔗</i> ${t}</span>`;
-const K = (part, page) => `<div class="kick">Trang ${page}</div>`;
+const PG = n => n > 14 ? n - 1 : n;                       // 17/11: bỏ trang 14 cũ → các trang sau lùi một số
+const K = (part, page) => `<div class="kick">Trang ${String(page).replace(/\d+/g, m => PG(+m))}</div>`;
 
 /* Phim & video: id là mã file Google Drive (file phải để "Bất kỳ ai có đường liên kết"). Thêm tập mới = thêm một dòng. */
 const VIDEOS = [
@@ -534,10 +578,10 @@ const STORIES = [
 
 const SECTIONS = [
  {id:'I',  title:'Mở đầu', desc:'Bìa · Mục lục · Lời ngỏ · Thư chúc mừng · Thông điệp Chủ tịch Hội đồng trường (trang 1–5)'},
- {id:'II', title:'Dòng chảy', desc:'Khởi nguồn 2009 · Thắp lửa · Giữ lửa · Sải cánh · Những người làm nên Phượng Hoàng (trang 6–15)'},
- {id:'III',title:'Dấu ấn tự hào', desc:'Con số · Khung giáo dục · 6 tổ chuyên môn · Học trò · Đời sống học đường · Cộng đồng (trang 16–26)'},
- {id:'IV', title:'10 năm – Ngàn câu chuyện', desc:'(trang 27–35)'},
- {id:'V',  title:'Sải cánh vươn xa', desc:'(trang 36–39)'}
+ {id:'II', title:'Dòng chảy', desc:'Khởi nguồn 2009 · Thắp lửa · Giữ lửa · Sải cánh · Những người làm nên Phượng Hoàng (trang 6–14)'},
+ {id:'III',title:'Dấu ấn tự hào', desc:'Con số · Khung giáo dục · 6 tổ chuyên môn · Học trò · Đời sống học đường · Cộng đồng (trang 15–25)'},
+ {id:'IV', title:'10 năm – Ngàn câu chuyện', desc:'(trang 26–34)'},
+ {id:'V',  title:'Sải cánh vươn xa', desc:'(trang 35–38)'}
 ];
 
 const P1 = 'Phần I · Mở đầu', P2 = 'Phần II · Dòng chảy', P3 = 'Phần III · Dấu ấn tự hào',
@@ -636,7 +680,7 @@ const PAGES = [
      <div class="card">${PH('Chân dung',1)}<h3>[Họ tên]</h3><p>[Vai trò · giai đoạn gắn bó]</p><p>${WAIT('chân dung 120–150 chữ')}</p></div>
    </div>`},
 
- {sec:'II', title:'Những người lặng lẽ giữ nhịp trường', wip:1, html:`
+ {sec:'II', title:'Những người lặng lẽ giữ nhịp trường (trang cũ, đã bỏ 17/11)', wip:1, gone:1, html:`
    ${K(P2, 14)}<h2>Những người lặng lẽ giữ nhịp trường</h2>
    <p class="lead">Nhân viên bếp, bảo vệ, vệ sinh, văn phòng, y tế… và lời tri ân tập thể.</p>
    <div class="grid">
@@ -646,8 +690,8 @@ const PAGES = [
    </div>
 `},
 
- {sec:'II', title:'Ngày ấy và hôm nay', id:'film', html:`
-   ${K(P2, 15)}<h2>Ngày ấy và hôm nay</h2>
+ {sec:'II', title:'Những người lặng lẽ giữ nhịp trường', id:'film', html:`
+   ${K(P2, 15)}<h2>Những người lặng lẽ giữ nhịp trường</h2>
    <p class="lead int">4–5 cặp ảnh đối chiếu, ghi rõ năm và nguồn. Kéo thanh trượt để so sánh.</p>
    <div class="ba" id="ba"><div class="ph" style="aspect-ratio:16/9">📷 Ảnh “ngày ấy”</div>
    <input type="range" min="0" max="100" value="50" id="baR" aria-label="So sánh ảnh xưa và nay">
@@ -677,11 +721,64 @@ const PAGES = [
    </div>
    <div class="note">Nguồn: bài viết các trang 7–10 và thống kê của Nhà trường. ${TODO('thời điểm chốt và văn bản nguồn của từng số')}</div>`},
 
- {sec:'III', title:'Khung giáo dục Phượng Hoàng', wip:1, html:`
+ {sec:'III', title:'Khung giáo dục Phượng Hoàng', own:1, html:`
    ${K(P3, 17)}<h2>Khung giáo dục Phượng Hoàng</h2>
-   <p class="lead">5 trụ cột, 20 năng lực cốt lõi và lộ trình phát triển học sinh từ lớp 1 đến lớp 12.</p>
-   <p style="margin:6px 0 18px;text-align:center;font-family:'Playfair Display';font-size:20px;font-style:italic;color:var(--flame)">“Học để tự chủ – Trưởng thành để làm chủ tương lai.”</p>
-   <div class="note">Giải thích bằng ví dụ thay vì chỉ có sơ đồ. Chép đúng tên 5 trụ cột và 20 năng lực từ văn bản khung giáo dục chính thức. ${TODO('tên 5 trụ cột, 20 năng lực')}</div>`},
+   <p class="motto">“Học để tự chủ – Trưởng thành để làm chủ tương lai.”</p>
+   <div class="kgd keep">
+     <section class="kb">
+       <h3 class="kh"><span>01</span>Bản đồ phát triển</h3>
+       <p class="ksub">05 trụ cột · 20 năng lực cốt lõi · Lộ trình từ lớp 1 đến lớp 12</p>
+       <p class="kintro">Một khung phát triển rõ ràng giúp nhà trường biết học sinh cần phát triển điều gì, theo trình tự nào và được ghi nhận ra sao ở từng giai đoạn.</p>
+       <div class="pillars">${[
+         ['Tự nhận thức', 'Sống có mục tiêu & giá trị'],
+         ['Tự học suốt đời', 'Làm chủ tri thức & công nghệ có đạo đức để bứt phá sáng tạo'],
+         ['Thân & Tâm khỏe mạnh', 'Sống xanh bền vững'],
+         ['Vững vàng nội tâm', 'Thích ứng linh hoạt'],
+         ['Kết nối yêu thương', 'Công dân toàn cầu có trách nhiệm']
+       ].map(([t, d], k) => `<div class="pil" data-c="${k + 1}"><b>${k + 1}</b><h4>${t}</h4><p>${d}</p></div>`).join('')}</div>
+       <div class="axis" aria-label="Trục phát triển từ lớp 1 đến lớp 12">
+         <div class="ax-lbl">Cấp học</div>
+         <div class="ax-row lv">
+           <span style="grid-column:1/6">Tiểu học</span><span style="grid-column:6/10">THCS</span><span style="grid-column:10/13">THPT</span>
+         </div>
+         <div class="ax-row nums">${Array.from({length: 12}, (_, k) => `<i>${k + 1}</i>`).join('')}</div>
+         <div class="ax-row gr">
+           <span style="grid-column:1/4"><b>Hình thành nền tảng</b></span><span style="grid-column:4/7"><b>Bám rễ</b></span><span style="grid-column:7/10"><b>Khẳng định</b></span><span style="grid-column:10/13"><b>Bứt phá</b></span>
+         </div>
+         <div class="ax-lbl">Trưởng thành</div>
+       </div>
+     </section>
+     <section class="kb">
+       <h3 class="kh"><span>02</span>Chương trình giáo dục</h3>
+       <div class="formula"><div><b>Chương trình GDPT 2018</b><small>của Bộ Giáo dục và Đào tạo</small></div><em>+</em><div><b>12 chương trình riêng</b><small>của Phượng Hoàng</small></div></div>
+       <div class="chips"><span class="ct">5 định hướng</span>${['Sức khỏe & nhân cách','Học thuật & tư duy','Ngoại ngữ & hội nhập','Công nghệ, sáng tạo & năng lực tương lai','Cảm xúc, thẩm mỹ & phát triển cá nhân'].map(x => `<span>${x}</span>`).join('')}</div>
+       <div class="chips alt"><span class="ct">5 nguyên tắc</span>${['Thực tiễn','Cá nhân hóa','Tự chủ','Nhân văn','Hiện đại'].map(x => `<span>${x}</span>`).join('')}</div>
+       <ol class="progs">${[
+         'Sức khỏe thể chất, tinh thần và dinh dưỡng học đường',
+         'Đạo đức, kỹ năng sống và giá trị sống',
+         'Phát triển văn hóa đọc',
+         'Dạy học theo định hướng STREAMS',
+         'Tăng cường Tiếng Việt/Ngữ văn, Toán, Tiếng Anh, tiếng Trung, Khoa học/TN&XH',
+         'Toán, Khoa học và kỹ năng bằng tiếng Anh, tiệm cận chương trình quốc tế',
+         'ICT, lập trình, STEM Robotics',
+         'Dự án học tập, trải nghiệm sáng tạo và hướng nghiệp',
+         'Nghệ thuật nâng cao “Đánh thức đam mê”; các CLB “Em tỏa sáng”',
+         'Liên kết, hợp tác quốc tế',
+         'Hoạt động xã hội – cộng đồng'
+       ].map(x => `<li>${x}</li>`).join('')}</ol>
+     </section>
+     <section class="kb">
+       <h3 class="kh"><span>03</span>Kết quả và tác động đầu ra</h3>
+       <p class="kbig">Học vững hơn · Tự chủ hơn · Sống tích cực hơn · Tạo giá trị cho cộng đồng</p>
+       <div class="outs">${[
+         ['Vững nền tảng học tập', 'Tri thức, tư duy và năng lực học tập bền vững theo từng giai đoạn.'],
+         ['Rõ sự trưởng thành', 'Hiểu mình, tự chủ, biết học, sống khỏe và phụng sự.'],
+         ['Có minh chứng cụ thể', 'Hồ sơ học tập, dự án, trải nghiệm; đánh giá 2 lớp, thang 5 mức cho 20 giá trị cốt lõi và năng lực học thuật.'],
+         ['Đánh giá để tiến bộ', 'Lấy sự tiến bộ của từng em làm trung tâm; phản hồi để các em phát triển liên tục.'],
+         ['Đầu ra có giá trị', 'Học chắc, sống trách nhiệm, biết hội nhập và đóng góp tích cực cho xã hội.']
+       ].map(([t, d], k) => `<div class="out"><i>${k + 1}</i><div><b>${t}</b><p>${d}</p></div></div>`).join('')}</div>
+     </section>
+   </div>`},
 
  ...TO_CM.map(([t, n, pg]) => ({sec:'III', title:`Dấu ấn chuyên môn — ${t}`, wip:1, html:`
    ${K(P3, pg)}<h2>Dấu ấn chuyên môn — ${t}</h2>
@@ -745,7 +842,7 @@ const PAGES = [
    ${K(P4, '28–31')}<h2>Bốn câu chuyện kể sâu</h2>
    ${[['một thầy cô','bia-giaovien.jpg'],['một phụ huynh','hs-duoi-tan-cay.jpg'],['một nhân viên hoặc người ngoài trường','bia-truong.jpg'],['một học sinh đang học','hs-cam-la.jpg']].map(([who, img], k) => `
    <div class="leaf slot story-slot" data-n="${k + 1}">
-     <div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${28 + k}</small></div>
+     <div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${PG(28 + k)}</small></div>
      <h3 class="lfh">Câu chuyện thứ ${['nhất','hai','ba','tư'][k]}</h3>
      <p class="lfwho">Lời kể của ${who}</p>
      <figure class="lfimg"><img src="${img}" alt="" loading="lazy"></figure>
@@ -760,7 +857,7 @@ const PAGES = [
    ${[[32, ['Một câu nói của thầy cô mà bạn nhớ mãi','Một lá thư, một tấm thiệp còn giữ đến hôm nay','Một trang vở, một bài kiểm tra đáng nhớ','Ngày đầu tiên bạn bước vào cổng trường']],
       [33, ['Một bức ảnh và câu chuyện phía sau nó','Một người bạn đã ở bên bạn','Một lần được khen, hoặc được nhắc nhở','Một điều bạn muốn nói với chính mình ngày ấy']]].map(([pgN, qs], k) => `
    <div class="leaf slot slice-slot">
-     <div class="lfno sm">Trang ${pgN}</div>
+     <div class="lfno sm">Trang ${PG(pgN)}</div>
      <div class="slices">${qs.map((q, j) => `<div class="slice" data-c="${(k * 4 + j) % 3 + 1}"><q>${q}</q><span>Đang chờ lời kể · 50–150 chữ</span></div>`).join('')}</div>
      <button class="btn" type="button" data-ct="Lát cắt ký ức">✍️ Gửi một lát cắt ký ức</button>
    </div>`).join('')}`},
@@ -944,7 +1041,7 @@ function renderStories(list){
     if (!st) { el.innerHTML = el._empty; el.classList.add('slot'); return; }
     el.classList.remove('slot'); el.classList.add('keep');
     const img = st.img || imgUrl(st.anh);
-    el.innerHTML = `<div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${28 + k}</small></div>
+    el.innerHTML = `<div class="lfno">${String(k + 1).padStart(2, '0')}<small>Trang ${PG(28 + k)}</small></div>
       <h3 class="lfh">${esc(st.t || 'Câu chuyện thứ ' + (k + 1))}</h3>
       ${st.ct ? `<p class="lfwho">${[st.ct.who, st.ct.vai].filter(Boolean).map(esc).join(' · ')}</p>` : ''}
       ${st.lead ? `<p class="lead">${esc(st.lead).replace(/\n/g, '<br>')}</p>` : ''}
@@ -1487,7 +1584,7 @@ function videoBox(u, cap = ''){
 function applyArticle([id, tieude, dandan, nd, anh, cap], html){
   html = typeof html === 'string' && html.trim() ? html : '';
   const i = +String(id).replace(/\D/g, '') - 1, p = PAGES[i];
-  if (!p || i < 2 || p.gone || !p.el.querySelector('h2') || !(tieude || dandan || nd || anh || html)) return;   // trang đã bỏ: bỏ qua bài
+  if (!p || i < 2 || p.gone || p.own || !p.el.querySelector('h2') || !(tieude || dandan || nd || anh || html)) return;   // trang đã bỏ: bỏ qua bài
   const el = p.el;
   if (tieude) { const h = el.querySelector('h2'); if (h) h.textContent = tieude; }
   let lead = el.querySelector(':scope > .lead');
