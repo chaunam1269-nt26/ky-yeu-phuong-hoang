@@ -1,0 +1,28 @@
+name: Sao lưu bài Wix cho kỷ yếu
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node tools/wix-cache.mjs
+      - name: Lưu nếu có thay đổi
+        run: |
+          if [ -n "$(git status --porcelain wix-cache.json)" ]; then
+            git config user.name "kyyeu-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add wix-cache.json
+            git commit -m "Cập nhật bản sao bài Wix"
+            git push
+            curl -s -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/${{ github.repository }}/pages/builds || true
+          fi

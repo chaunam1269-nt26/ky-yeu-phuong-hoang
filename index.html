@@ -1702,14 +1702,32 @@ async function wixSubmit(data){
     return r.ok;
   } catch { return false; }
 }
+// Lấy bài từ Wix; nếu máy người xem không gọi được Wix (mạng trường chặn, trình chặn quảng cáo, mạng chậm)
+// thì dùng bản sao wix-cache.json trên chính trang kỷ yếu (tự cập nhật 15 phút/lần).
+async function wixItems(){
+  const live = async () => {
+    const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 9000);
+    try {
+      const t = await fetch('https://www.wixapis.com/oauth2/token', {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ac.signal,
+        body: JSON.stringify({clientId: WIX_CLIENT, grantType: 'anonymous'})}).then(r => r.json());
+      if (!t.access_token) throw new Error('token');
+      const q = await fetch('https://www.wixapis.com/wix-data/v2/items/query', {method: 'POST', signal: ac.signal,
+        headers: {'Content-Type': 'application/json', Authorization: t.access_token},
+        body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
+      if (!Array.isArray(q.dataItems)) throw new Error('query');
+      return q;
+    } finally { clearTimeout(tm); }
+  };
+  try { return await live(); }
+  catch (e) {
+    console.warn('Không gọi được Wix, dùng bản sao', e);
+    try { const r = await fetch('wix-cache.json?t=' + Math.floor(Date.now() / 300000)); if (r.ok) return await r.json(); } catch {}
+    return {dataItems: []};
+  }
+}
 async function loadWix(){
   try {
-    const t = await fetch('https://www.wixapis.com/oauth2/token', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({clientId: WIX_CLIENT, grantType: 'anonymous'})}).then(r => r.json());
-    if (!t.access_token) return 0;
-    const q = await fetch('https://www.wixapis.com/wix-data/v2/items/query', {method: 'POST',
-      headers: {'Content-Type': 'application/json', Authorization: t.access_token},
-      body: JSON.stringify({dataCollectionId: 'KyYeu', query: {paging: {limit: 100}}})}).then(r => r.json());
+    const q = await wixItems();
     const items = (q.dataItems || []).map(d => d.data).filter(d => /^p\d+$/.test(String(d.maTrang || '').trim()));
     const words = d => ricosText({nodes: d.noiDung?.nodes || []}).trim().split(/\s+/).filter(Boolean).length;
     // bài ghi nhầm mã trang (đã được Ban Biên soạn xác nhận chỗ đúng)
@@ -1732,7 +1750,7 @@ async function loadWix(){
         const img = src.id ? wixImg(src.id) : (src.url || '');
         if (w > 800) { letterStories.push({t: l.t, lead: '', img, html: ricosHTML({nodes: l.nodes.filter(n => n !== imgN)})}); return; }
         const body = paras.find(p => p.split(/\s+/).length >= 25) || paras[0] || '';
-        let ex = body.split(/(?<=[.!?…])\s+/).reduce((a, x) => a.split(/\s+/).length < 40 ? (a ? a + ' ' : '') + x : a, '');
+        let ex = (body.match(/[^.!?…]+[.!?…]*\s*/g) || [body]).map(x => x.trim()).filter(Boolean).reduce((a, x) => a.split(/\s+/).length < 40 ? (a ? a + ' ' : '') + x : a, '');
         if (ex.split(/\s+/).length > 70) ex = ex.split(/\s+/).slice(0, 55).join(' ') + '…';
         letterSlices.push({text: ex, who: l.t.replace(/\s*[❤️♥]+\s*/gu, ' ').trim(), full: ricosHTML({nodes: l.nodes})});
       });
